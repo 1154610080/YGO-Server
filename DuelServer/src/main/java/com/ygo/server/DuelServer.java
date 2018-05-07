@@ -19,12 +19,12 @@ import java.net.InetSocketAddress;
  * @author EganChen
  * @date 2018/4/16 13:48
  */
-public class YgoServer {
+public class DuelServer {
 
     private static Log log = LogFactory.getLog(HttpServer.class);
     private int port;
 
-    YgoServer(int port){
+    DuelServer(int port){
         this.port = port;
     }
 
@@ -53,7 +53,7 @@ public class YgoServer {
 
     public static void main(String[] args) throws InterruptedException {
 
-        YgoServer server = new YgoServer(2333);
+        DuelServer server = new DuelServer(2333);
         log.info("Server has run......");
         server.start();
     }
