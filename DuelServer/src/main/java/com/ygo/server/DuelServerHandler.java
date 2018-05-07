@@ -14,7 +14,7 @@ import java.nio.charset.Charset;
  * @date 2018/4/16 13:49
  */
 @Sharable
-public class YgoServerHandler extends ChannelInboundHandlerAdapter{
+public class DuelServerHandler extends ChannelInboundHandlerAdapter{
 
     /**
     * 处理入站事件
