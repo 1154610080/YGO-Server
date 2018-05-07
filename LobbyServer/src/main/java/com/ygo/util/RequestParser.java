@@ -1,8 +1,6 @@
 package com.ygo.util;
 
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpMethod;
-import io.netty.handler.codec.http.QueryStringDecoder;
+import io.netty.handler.codec.http.*;
 import io.netty.handler.codec.http.multipart.Attribute;
 import io.netty.handler.codec.http.multipart.HttpPostRequestDecoder;
 import io.netty.handler.codec.http.multipart.InterfaceHttpData;
@@ -26,7 +24,7 @@ public class RequestParser {
      * @date 2018/5/7 23:22
      * @return java.util.Map<java.lang.String,java.lang.String>
      */
-    public static Map<String, String> parse(FullHttpRequest req) throws IOException {
+    public static Map<String, String> parse(HttpRequest req) throws IOException {
         HttpMethod method = req.method();
 
         Map<String, String> paramMap = new HashMap<>();
@@ -42,7 +40,7 @@ public class RequestParser {
         }else if(HttpMethod.POST == method){
             //Post请求
             HttpPostRequestDecoder decoder = new HttpPostRequestDecoder(req);
-            decoder.offer(req);
+            decoder.offer((HttpContent) req);
 
             List<InterfaceHttpData> paramList = decoder.getBodyHttpDatas();
             
