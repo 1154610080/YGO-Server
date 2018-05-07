@@ -1,12 +1,12 @@
 package com.ygo.server;
 
+import com.ygo.util.RequestParser;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.http.DefaultFullHttpResponse;
-import io.netty.handler.codec.http.FullHttpResponse;
-import io.netty.handler.codec.http.HttpResponseStatus;
-import io.netty.handler.codec.http.HttpVersion;
+import io.netty.handler.codec.http.*;
+
+import java.util.Map;
 
 
 /**
@@ -21,6 +21,16 @@ public class LobbyServerInboundServer extends ChannelInboundHandlerAdapter {
         FullHttpResponse response = new DefaultFullHttpResponse
                 (HttpVersion.HTTP_1_1, HttpResponseStatus.OK,
                         Unpooled.wrappedBuffer("test info".getBytes()));
+        if(msg instanceof HttpRequest){
+            Map<String, String> paramMap = RequestParser.parse((HttpRequest) msg);
+            for(Map.Entry<String, String>entry : paramMap.entrySet()){
+                System.out.println(entry.getKey() + " : " + entry.getValue());
+            }
+        }
+        response.headers().set("CONTENT-TYPE", "text/plain");
+        response.headers().set("CONTENT-LENGTH", response.content().readableBytes());
+        ctx.write(response);
+        ctx.flush();
     }
 
     @Override
@@ -33,4 +43,6 @@ public class LobbyServerInboundServer extends ChannelInboundHandlerAdapter {
         cause.printStackTrace();
         ctx.close();
     }
+
+
 }
