@@ -20,17 +20,13 @@ import java.util.Map;
  **/
 public class RequestParser {
 
-    private FullHttpRequest req;
-
-    public RequestParser(FullHttpRequest req){ this.req = req;}
-
     /**
      * 解析请求
      *
      * @date 2018/5/7 23:22
      * @return java.util.Map<java.lang.String,java.lang.String>
      */
-    public Map<String, String> parse() throws IOException {
+    public static Map<String, String> parse(FullHttpRequest req) throws IOException {
         HttpMethod method = req.method();
 
         Map<String, String> paramMap = new HashMap<>();
