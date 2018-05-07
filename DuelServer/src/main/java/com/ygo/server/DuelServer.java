@@ -39,7 +39,7 @@ public class DuelServer {
 
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
-                            socketChannel.pipeline().addLast(new YgoServerHandler());
+                            socketChannel.pipeline().addLast(new DuelServerHandler());
                         }
                     })
                     .option(ChannelOption.SO_BACKLOG, 128)  //最大客户端连接数
