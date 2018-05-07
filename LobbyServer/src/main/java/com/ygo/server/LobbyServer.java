@@ -13,11 +13,11 @@ import io.netty.handler.codec.http.HttpResponseEncoder;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
-/*
+/**
  * 游戏大厅服务器主类
  *
- * @Author Egan
- * @Date 2018/5/7
+ * @author Egan
+ * @date 2018/5/7 22:55
  **/
 public class LobbyServer {
 
