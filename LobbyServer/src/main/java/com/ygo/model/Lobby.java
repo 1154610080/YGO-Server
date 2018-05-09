@@ -15,7 +15,7 @@ public class Lobby {
     private static Map<String, Room> roomMap = new HashMap<>();
 
     @SerializedName("rs")
-    public Map<String, Room> getRooms() {
+    public static Map<String, Room> getRooms() {
         return roomMap;
     }
 
