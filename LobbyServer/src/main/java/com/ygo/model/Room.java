@@ -14,6 +14,16 @@ public class Room {
     private String name;
     private String password;
 
+    public int getMaxPlayer() {
+        return MaxPlayer;
+    }
+
+    public void setMaxPlayer(int maxPlayer) {
+        MaxPlayer = maxPlayer;
+    }
+
+    private int MaxPlayer;
+
     private List<User>players = new LinkedList<>();
     private List<User>observers = new LinkedList<>();
 
