@@ -23,14 +23,12 @@ public class Room {
 
     @SerializedName("pa")
     private List<User>players = new LinkedList<>();
-    private List<User>observers = new LinkedList<>();
 
     public Room(String id, String name, String password, List<User> players, List<User> observers) {
         this.id = id;
         this.name = name;
         this.password = password;
         this.players = players;
-        this.observers = observers;
     }
 
     public int getMaxPlayer() {
@@ -48,14 +46,6 @@ public class Room {
 
     public void setPlayers(List<User> players) {
         this.players = players;
-    }
-
-    public List<User> getObservers() {
-        return observers;
-    }
-
-    public void setObservers(List<User> observers) {
-        this.observers = observers;
     }
 
     public String getId() {
