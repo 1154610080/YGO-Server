@@ -1,7 +1,7 @@
 package com.ygo.lobby;
 
-import java.util.LinkedList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 游戏大厅类
@@ -10,9 +10,10 @@ import java.util.List;
  */
 public class Lobby {
 
-    private static List<Room> rooms = new LinkedList<>();
+    private static Map<String, Room> roomMap = new HashMap<>();
 
-    public List<Room> getRooms() {
-        return rooms;
+    public Map<String, Room> getRooms() {
+        return roomMap;
     }
+
 }
