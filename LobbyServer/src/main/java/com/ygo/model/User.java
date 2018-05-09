@@ -1,5 +1,7 @@
 package com.ygo.model;
 
+import com.google.gson.annotations.SerializedName;
+
 /**
  * 用户类
  * @author EganChen
@@ -7,8 +9,11 @@ package com.ygo.model;
  */
 public class User {
 
+    @SerializedName("nm")
     private String name;
+    @SerializedName("ip")
     private String ip;
+    @SerializedName("pr")
     private int port;
 
     public User(String name, String ip, int port) {

@@ -1,5 +1,7 @@
 package com.ygo.model;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.LinkedList;
 import java.util.List;
 
@@ -10,20 +12,16 @@ import java.util.List;
  */
 public class Room {
 
+    @SerializedName("id")
     private String id;
+    @SerializedName("un")
     private String name;
     private String password;
 
-    public int getMaxPlayer() {
-        return MaxPlayer;
-    }
-
-    public void setMaxPlayer(int maxPlayer) {
-        MaxPlayer = maxPlayer;
-    }
-
+    @SerializedName("mp")
     private int MaxPlayer;
 
+    @SerializedName("pa")
     private List<User>players = new LinkedList<>();
     private List<User>observers = new LinkedList<>();
 
@@ -34,6 +32,15 @@ public class Room {
         this.players = players;
         this.observers = observers;
     }
+
+    public int getMaxPlayer() {
+        return MaxPlayer;
+    }
+
+    public void setMaxPlayer(int maxPlayer) {
+        MaxPlayer = maxPlayer;
+    }
+
 
     public List<User> getPlayers() {
         return players;

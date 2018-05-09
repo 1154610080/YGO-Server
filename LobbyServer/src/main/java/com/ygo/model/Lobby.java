@@ -1,5 +1,7 @@
 package com.ygo.model;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.HashMap;
 import java.util.Map;
 
@@ -12,6 +14,7 @@ public class Lobby {
 
     private static Map<String, Room> roomMap = new HashMap<>();
 
+    @SerializedName("rs")
     public Map<String, Room> getRooms() {
         return roomMap;
     }
