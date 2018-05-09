@@ -1,4 +1,4 @@
-package com.ygo.lobby;
+package com.ygo.model;
 
 /**
  * 用户类

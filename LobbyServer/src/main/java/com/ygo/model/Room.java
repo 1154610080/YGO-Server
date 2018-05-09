@@ -1,4 +1,4 @@
-package com.ygo.lobby;
+package com.ygo.model;
 
 import java.util.LinkedList;
 import java.util.List;
