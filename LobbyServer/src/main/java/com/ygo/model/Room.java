@@ -24,7 +24,7 @@ public class Room {
     @SerializedName("pa")
     private List<User>players = new LinkedList<>();
 
-    public Room(String id, String name, String password, List<User> players, List<User> observers) {
+    public Room(String id, String name, String password, List<User> players) {
         this.id = id;
         this.name = name;
         this.password = password;
