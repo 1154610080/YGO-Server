@@ -16,15 +16,19 @@ public class Room {
     private String id;
     @SerializedName("un")
     private String name;
+
     private String password;
 
     @SerializedName("mp")
     private int MaxPlayer;
 
-    @SerializedName("pa")
-    private List<User>players = new LinkedList<>();
+    @SerializedName("is")
+    private boolean isStarting = false;
 
-    public Room(String id, String name, String password, List<User> players) {
+    @SerializedName("pa")
+    private List<Player>players = new LinkedList<>();
+
+    public Room(String id, String name, String password, List<Player> players) {
         this.id = id;
         this.name = name;
         this.password = password;
@@ -40,11 +44,11 @@ public class Room {
     }
 
 
-    public List<User> getPlayers() {
+    public List<Player> getPlayers() {
         return players;
     }
 
-    public void setPlayers(List<User> players) {
+    public void setPlayers(List<Player> players) {
         this.players = players;
     }
 
@@ -70,5 +74,13 @@ public class Room {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public boolean isStarting() {
+        return isStarting;
+    }
+
+    public void setStarting(boolean starting) {
+        isStarting = starting;
     }
 }
