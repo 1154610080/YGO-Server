@@ -55,7 +55,7 @@ public class LobbyServer {
 
     public static void main(String[] args) throws InterruptedException {
         LobbyServer server = new LobbyServer(8844);
-        log.info("Lobby server listening on 8844...");
+        log.info("GameLobby server listening on 8844...");
         server.start();
     }
 }
