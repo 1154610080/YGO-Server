@@ -7,16 +7,14 @@ import com.google.gson.annotations.SerializedName;
  * @author EganChen
  * @date 2018/4/16 14:10
  */
-public class User {
+public class Player {
 
     @SerializedName("nm")
     private String name;
-    @SerializedName("ip")
     private String ip;
-    @SerializedName("pr")
     private int port;
 
-    public User(String name, String ip, int port) {
+    public Player(String name, String ip, int port) {
         this.name = name;
         this.ip = ip;
         this.port = port;
