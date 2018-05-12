@@ -12,6 +12,7 @@
         <module>DuelServer</module>
         <module>LobbyServer</module>
         <module>Common</module>
+        <module>VersionServer</module>
     </modules>
 
     <properties>
