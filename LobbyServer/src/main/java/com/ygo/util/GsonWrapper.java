@@ -10,7 +10,7 @@ import com.google.gson.GsonBuilder;
  * 统一设置字段忽略策略
  * 
  * @author Egan
- * @date 2018/5/12 10:15
+ * @date 2018/5/12 10:26
  **/
 
 public class GsonWrapper{
@@ -21,7 +21,7 @@ public class GsonWrapper{
         builder = new GsonBuilder();
         
         setExclusionStrategies();
-        
+
     }
     
     private void setExclusionStrategies(){
