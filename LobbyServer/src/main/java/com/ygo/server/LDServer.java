@@ -19,7 +19,11 @@ import java.net.InetSocketAddress;
  **/
 public class LDServer {
 
-    private int port = 0000;
+    private int port;
+
+    public LDServer(int port){
+        this.port = port;
+    }
 
     public void start() throws InterruptedException {
         LDServerHandler handler = new LDServerHandler();
