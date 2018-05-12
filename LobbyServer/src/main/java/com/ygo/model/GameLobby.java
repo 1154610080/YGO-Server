@@ -1,7 +1,5 @@
 package com.ygo.model;
 
-import com.google.gson.annotations.SerializedName;
-
 import java.util.HashMap;
 import java.util.Map;
 
@@ -10,13 +8,17 @@ import java.util.Map;
  * @author EganChen
  * @date 2018/4/16 14:15
  */
-public class Lobby {
+public class GameLobby {
+
+    private static final int MAXIMUM = 500;
 
     private static Map<String, Room> roomMap = new HashMap<>();
 
-    @SerializedName("rs")
-    public static Map<String, Room> getRooms() {
+    public static Map<String, Room> getRoomMap() {
         return roomMap;
     }
 
+    public static int getMAXIMUM() {
+        return MAXIMUM;
+    }
 }
