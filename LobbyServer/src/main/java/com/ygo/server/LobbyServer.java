@@ -26,7 +26,7 @@ public class LobbyServer {
 
     private int port;
 
-    LobbyServer(int port){this.port = port;}
+    public LobbyServer(int port){this.port = port;}
 
     public void start() throws InterruptedException {
         EventLoopGroup group = new NioEventLoopGroup();
