@@ -33,9 +33,9 @@ public class RequestParser {
             //Get请求
             QueryStringDecoder decoder = new QueryStringDecoder(req.uri());
 
-            decoder.parameters().entrySet().forEach( entry -> {
+            decoder.parameters().forEach((key, value) -> {
                 //entry是一个list，只取第一个元素
-                paramMap.put(entry.getKey(), entry.getValue().get(0));
+                paramMap.put(key, value.get(0));
             });
         }else if(HttpMethod.POST == method){
             //Post请求
