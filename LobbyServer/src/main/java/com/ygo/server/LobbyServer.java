@@ -41,7 +41,7 @@ public class LobbyServer {
                             socketChannel.pipeline().addLast(new HttpResponseEncoder());
                             //解码
                             socketChannel.pipeline().addLast(new HttpRequestDecoder());
-                            socketChannel.pipeline().addLast(new LobbyServerInboundServer());
+                            socketChannel.pipeline().addLast(new LobbyServerHandler());
                         }
                     }).option(ChannelOption.SO_BACKLOG, 128)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);

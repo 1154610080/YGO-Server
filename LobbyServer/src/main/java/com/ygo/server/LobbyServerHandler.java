@@ -18,7 +18,7 @@ import java.util.Map;
  * @author Egan
  * @date 2018/5/7 22:54
  **/
-public class LobbyServerInboundServer extends ChannelInboundHandlerAdapter {
+public class LobbyServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 
