@@ -9,22 +9,36 @@ import java.util.Map;
 
 /**
  * 游戏大厅类
+ * 采用线程安全的单列模式
+ *
  * @author EganChen
  * @date 2018/4/16 14:15
  */
 public class GameLobby {
 
+    private volatile GameLobby lobby;
+
+    public GameLobby getLobby() {
+        if(lobby == null){
+            synchronized (GameLobby.class){
+                if (lobby == null)
+                    lobby = new GameLobby();
+            }
+        }
+        return lobby;
+    }
+
     @SerializedName("mx")
-    private static final int MAXIMUM = 500;
+    private final int MAXIMUM = 500;
 
     @SerializedName("rm")
-    private static List<Room> rooms = new LinkedList<>();
+    private List<Room> rooms = new LinkedList<>();
 
-    public static int getMAXIMUM() {
+    public int getMAXIMUM() {
         return MAXIMUM;
     }
 
-    public static List<Room> getRooms() { return rooms; }
+    public List<Room> getRooms() { return rooms; }
 
-    public static void setRooms(List<Room> rooms) { GameLobby.rooms = rooms; }
+    public void setRooms(List<Room> rooms) { this.rooms = rooms; }
 }
