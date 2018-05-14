@@ -16,7 +16,6 @@ public class LobbyServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
 
-        if(msg instanceof FullHttpRequest || msg instanceof HttpRequest){
             FullHttpResponse response = new DefaultFullHttpResponse
                     (HttpVersion.HTTP_1_1, HttpResponseStatus.OK,
                             Unpooled.wrappedBuffer(LobbyController.response((HttpRequest)msg)));
@@ -24,7 +23,6 @@ public class LobbyServerHandler extends ChannelInboundHandlerAdapter {
             response.headers().set("CONTENT-LENGTH", response.content().readableBytes());
             ctx.write(response);
             ctx.flush();
-        }
     }
 
     @Override

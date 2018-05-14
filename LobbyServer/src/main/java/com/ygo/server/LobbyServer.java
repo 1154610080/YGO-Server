@@ -9,8 +9,8 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import io.netty.handler.codec.http.HttpRequestDecoder;
-import io.netty.handler.codec.http.HttpResponseEncoder;
+import io.netty.handler.codec.http.HttpObjectAggregator;
+import io.netty.handler.codec.http.HttpServerCodec;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -37,10 +37,8 @@ public class LobbyServer {
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
-                            //编码
-                            socketChannel.pipeline().addLast(new HttpResponseEncoder());
-                            //解码
-                            socketChannel.pipeline().addLast(new HttpRequestDecoder());
+                            socketChannel.pipeline().addLast(new HttpServerCodec());
+                            socketChannel.pipeline().addLast(new HttpObjectAggregator(65536));
                             socketChannel.pipeline().addLast(new LobbyServerHandler());
                         }
                     }).option(ChannelOption.SO_BACKLOG, 128)
