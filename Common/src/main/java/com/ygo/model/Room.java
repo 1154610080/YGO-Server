@@ -63,7 +63,7 @@ public class Room {
 
     public Room(int id, String name, String desc, String password,
                 boolean hasPwd, boolean isPlaying,
-                Player host, Player guests) {
+                Player host, Player guest) {
         this.id = id;
         this.name = name;
         this.desc = desc;
