@@ -12,44 +12,63 @@ import java.util.List;
  */
 public class Room {
 
+    /**
+     * 房间ID
+     **/
     @SerializedName("id")
     private String id;
+
+    /**
+     * 房间名称
+     **/
     @SerializedName("un")
     private String name;
 
+    /**
+     * 房间描述
+     **/
+    @SerializedName("ds")
+    private String desc;
+
+    /**
+     * 房间密码
+     **/
     private String password;
 
-    @SerializedName("mp")
-    private int MaxPlayer;
+    /**
+     * 房间是否存在密码
+     **/
+    private boolean hasPwd = false;
 
-    @SerializedName("is")
-    private boolean isStarting = false;
+    /**
+     * 房间是否已经开始游戏
+     **/
+    @SerializedName("ip")
+    private boolean isPlaying = false;
 
-    @SerializedName("pa")
-    private List<Player>players = new LinkedList<>();
+    /**
+     * 房主
+     **/
+    @SerializedName("hs")
+    private Player host;
 
-    public Room(String id, String name, String password, List<Player> players) {
+    /**
+     * 房客
+     **/
+    @SerializedName("gs")
+    private List<Player>guests = new LinkedList<>();
+
+    public Room(String id, String name, String desc, String password,
+                boolean hasPwd, boolean isPlaying,
+                Player host, List<Player> guests) {
         this.id = id;
         this.name = name;
+        this.desc = desc;
         this.password = password;
-        this.players = players;
-    }
-
-    public int getMaxPlayer() {
-        return MaxPlayer;
-    }
-
-    public void setMaxPlayer(int maxPlayer) {
-        MaxPlayer = maxPlayer;
-    }
-
-
-    public List<Player> getPlayers() {
-        return players;
-    }
-
-    public void setPlayers(List<Player> players) {
-        this.players = players;
+        this.hasPwd = hasPwd;
+        this.isPlaying = isPlaying;
+        this.host = host;
+        this.guests = guests;
     }
 
     public String getId() {
@@ -68,6 +87,14 @@ public class Room {
         this.name = name;
     }
 
+    public String getDesc() {
+        return desc;
+    }
+
+    public void setDesc(String desc) {
+        this.desc = desc;
+    }
+
     public String getPassword() {
         return password;
     }
@@ -76,11 +103,35 @@ public class Room {
         this.password = password;
     }
 
-    public boolean isStarting() {
-        return isStarting;
+    public boolean isHasPwd() {
+        return hasPwd;
     }
 
-    public void setStarting(boolean starting) {
-        isStarting = starting;
+    public void setHasPwd(boolean hasPwd) {
+        this.hasPwd = hasPwd;
+    }
+
+    public boolean isPlaying() {
+        return isPlaying;
+    }
+
+    public void setPlaying(boolean playing) {
+        isPlaying = playing;
+    }
+
+    public Player getHost() {
+        return host;
+    }
+
+    public void setHost(Player host) {
+        this.host = host;
+    }
+
+    public List<Player> getGuests() {
+        return guests;
+    }
+
+    public void setGuests(List<Player> guests) {
+        this.guests = guests;
     }
 }
