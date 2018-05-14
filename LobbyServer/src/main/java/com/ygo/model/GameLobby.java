@@ -20,11 +20,11 @@ public class GameLobby {
     @SerializedName("rm")
     private static List<Room> rooms = new LinkedList<>();
 
-    public static List<Room> getRoomMap() {
-        return rooms;
-    }
-
     public static int getMAXIMUM() {
         return MAXIMUM;
     }
+
+    public static List<Room> getRooms() { return rooms; }
+
+    public static void setRooms(List<Room> rooms) { GameLobby.rooms = rooms; }
 }
