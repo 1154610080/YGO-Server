@@ -2,8 +2,8 @@ package com.ygo.util;
 
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
-import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import io.netty.util.CharsetUtil;
 
 /**
  * Gson封装类
@@ -39,7 +39,7 @@ public class GsonWrapper{
         });
     }
     
-    public Gson create(){
-        return builder.create();
+    public byte[] toJson(Object object){
+        return builder.create().toJson(object).getBytes(CharsetUtil.UTF_8);
     }
 }
