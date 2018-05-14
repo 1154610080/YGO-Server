@@ -21,7 +21,7 @@ public class Room {
     /**
      * 房间名称
      **/
-    @SerializedName("un")
+    @SerializedName("nm")
     private String name;
 
     /**
@@ -33,6 +33,7 @@ public class Room {
     /**
      * 房间密码
      **/
+    @SerializedName("pw")
     private String password;
 
     /**
@@ -43,7 +44,7 @@ public class Room {
     /**
      * 房间是否已经开始游戏
      **/
-    @SerializedName("ip")
+    @SerializedName("isp")
     private boolean isPlaying = false;
 
     /**

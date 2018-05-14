@@ -44,7 +44,7 @@ public class LobbyController {
 
         byte[] bytes = new byte[120];
         request.content().readBytes(bytes);
-        Room room = new GsonWrapper().toRoom(bytes);
+        Room room = new GsonWrapper().toObject(bytes, Room.class);
         GameLobby.getLobby().getRooms().add(room);
 
         return new ResponseStatus().ok();

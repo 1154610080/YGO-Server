@@ -25,7 +25,6 @@ public class RequestParser {
      * @return java.util.Map<java.lang.String,java.lang.String>
      */
     public static Map<String, String> parse(HttpRequest req) throws IOException {
-        HttpMethod method = req.method();
 
         Map<String, String> paramMap = new HashMap<>();
 
