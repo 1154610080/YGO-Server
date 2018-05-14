@@ -12,6 +12,10 @@ import java.util.HashMap;
  **/
 public class ResponseStatus extends HashMap<String, Object>{
 
+    public ResponseStatus(){
+
+    }
+
     public ResponseStatus(int code, String msg){
         super.put("code", code);
         super.put("msg", msg);
