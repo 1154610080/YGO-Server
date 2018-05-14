@@ -42,11 +42,9 @@ public class LobbyController {
      * @date 2018/5/14 21:55
      **/
     public static ResponseStatus addRoom(FullHttpRequest request){
-        System.out.println("add a new room");
 
         byte[] bytes = new byte[request.content().readableBytes()];
         request.content().readBytes(bytes);
-        System.out.println(new String(bytes));
         Room room = new GsonWrapper().toObject(bytes, Room.class);
         GameLobby.getLobby().getRooms().add(room);
 
