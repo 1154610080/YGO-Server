@@ -16,9 +16,9 @@ import java.util.Map;
  */
 public class GameLobby {
 
-    private volatile GameLobby lobby;
+    private static volatile GameLobby lobby;
 
-    public GameLobby getLobby() {
+    public static GameLobby getLobby() {
         if(lobby == null){
             synchronized (GameLobby.class){
                 if (lobby == null)
