@@ -9,10 +9,42 @@ import com.google.gson.annotations.SerializedName;
  */
 public class Player {
 
+    /**
+     * 玩家名
+     **/
     @SerializedName("nm")
     private String name;
+
+    /**
+     * 玩家头像图片
+     **/
+    @SerializedName("head")
+    private byte[] head;
+
+    /**
+     * 玩家主机IP地址
+     **/
+    @SerializedName("ad")
     private String ip;
+
+
+    /**
+     * 玩家主机端口号
+     **/
+    @SerializedName("pr")
     private int port;
+
+    /**
+     * 玩家（房主）是否进入开始状态
+     **/
+    @SerializedName("iss")
+    private boolean isStarting;
+
+    /**
+     * 玩家（房客）是否进入准备状态
+     **/
+    @SerializedName("isp")
+    private boolean isPrepared;
 
     public Player(String name, String ip, int port) {
         this.name = name;
