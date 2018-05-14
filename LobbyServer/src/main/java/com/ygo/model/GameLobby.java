@@ -1,6 +1,10 @@
 package com.ygo.model;
 
+import com.google.gson.annotations.SerializedName;
+
 import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -10,12 +14,14 @@ import java.util.Map;
  */
 public class GameLobby {
 
+    @SerializedName("mx")
     private static final int MAXIMUM = 500;
 
-    private static Map<String, Room> roomMap = new HashMap<>();
+    @SerializedName("rm")
+    private static List<Room> rooms = new LinkedList<>();
 
-    public static Map<String, Room> getRoomMap() {
-        return roomMap;
+    public static List<Room> getRoomMap() {
+        return rooms;
     }
 
     public static int getMAXIMUM() {
