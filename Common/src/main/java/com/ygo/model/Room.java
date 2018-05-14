@@ -58,6 +58,8 @@ public class Room {
     @SerializedName("gs")
     private List<Player>guests = new LinkedList<>();
 
+    public Room(){}
+
     public Room(int id, String name, String desc, String password,
                 boolean hasPwd, boolean isPlaying,
                 Player host, List<Player> guests) {

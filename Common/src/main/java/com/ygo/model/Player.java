@@ -46,6 +46,8 @@ public class Player {
     @SerializedName("isp")
     private boolean isPrepared;
 
+    public Player(){}
+
     public Player(String name, String ip, int port) {
         this.name = name;
         this.ip = ip;

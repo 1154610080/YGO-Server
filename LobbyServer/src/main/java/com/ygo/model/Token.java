@@ -22,6 +22,8 @@ public class Token {
      **/
     private Long expireTime;
 
+    public Token(){}
+
     public Token(String ID, String value, Long updateTime, Long expireTime) {
         this.ID = ID;
         this.value = value;
