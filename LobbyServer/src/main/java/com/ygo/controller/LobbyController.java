@@ -6,6 +6,7 @@ import com.ygo.util.GsonWrapper;
 import com.ygo.util.ResponseStatus;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
+import io.netty.handler.codec.http.HttpRequest;
 
 /**
  * 大厅控制类
@@ -22,14 +23,14 @@ public class LobbyController {
      * @author Egan
      * @date 2018/5/14 22:08
      **/
-    public static byte[] response(FullHttpRequest request){
+    public static byte[] response(HttpRequest request){
 
         GsonWrapper wrapper = new GsonWrapper();
 
         if (request.method() == HttpMethod.GET)
             return wrapper.toJson(GameLobby.getLobby());
         else if(request.method() == HttpMethod.POST)
-            return wrapper.toJson(addRoom(request));
+            return wrapper.toJson(addRoom((FullHttpRequest)request));
         return wrapper.toJson(new ResponseStatus().error("不支持其他方法"));
     }
 
@@ -41,9 +42,11 @@ public class LobbyController {
      * @date 2018/5/14 21:55
      **/
     public static ResponseStatus addRoom(FullHttpRequest request){
+        System.out.println("add a new room");
 
-        byte[] bytes = new byte[120];
+        byte[] bytes = new byte[request.content().readableBytes()];
         request.content().readBytes(bytes);
+        System.out.println(new String(bytes));
         Room room = new GsonWrapper().toObject(bytes, Room.class);
         GameLobby.getLobby().getRooms().add(room);
 
