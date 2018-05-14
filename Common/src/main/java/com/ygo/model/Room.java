@@ -16,7 +16,7 @@ public class Room {
      * 房间ID
      **/
     @SerializedName("id")
-    private String id;
+    private int id;
 
     /**
      * 房间名称
@@ -58,7 +58,7 @@ public class Room {
     @SerializedName("gs")
     private List<Player>guests = new LinkedList<>();
 
-    public Room(String id, String name, String desc, String password,
+    public Room(int id, String name, String desc, String password,
                 boolean hasPwd, boolean isPlaying,
                 Player host, List<Player> guests) {
         this.id = id;
@@ -71,11 +71,11 @@ public class Room {
         this.guests = guests;
     }
 
-    public String getId() {
+    public int getId() {
         return id;
     }
 
-    public void setId(String id) {
+    public void setId(int id) {
         this.id = id;
     }
 
