@@ -2,8 +2,9 @@ package com.ygo.controller;
 
 import com.ygo.model.GameLobby;
 import com.ygo.model.Room;
+import com.ygo.model.StatusCode;
 import com.ygo.util.GsonWrapper;
-import com.ygo.util.ResponseStatus;
+import com.ygo.model.ResponseStatus;
 import io.netty.handler.codec.http.FullHttpRequest;
 import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
@@ -31,7 +32,7 @@ public class LobbyController {
             return wrapper.toJson(GameLobby.getLobby());
         else if(request.method() == HttpMethod.POST)
             return wrapper.toJson(addRoom((FullHttpRequest)request));
-        return wrapper.toJson(new ResponseStatus().error("不支持其他方法"));
+        return wrapper.toJson(new ResponseStatus(StatusCode.UNSUPPORTED_METHOD));
     }
 
     /**
@@ -46,7 +47,12 @@ public class LobbyController {
         byte[] bytes = new byte[request.content().readableBytes()];
         request.content().readBytes(bytes);
         Room room = new GsonWrapper().toObject(bytes, Room.class);
-        GameLobby.getLobby().getRooms().add(room);
+
+        GameLobby lobby = GameLobby.getLobby();
+        if(lobby.getRooms().size() < lobby.getMAXIMUM())
+            lobby.getRooms().add(room);
+        else
+            return new ResponseStatus(StatusCode.FULL_LOBBY);
 
         return new ResponseStatus().ok();
     }

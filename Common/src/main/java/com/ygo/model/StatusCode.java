@@ -12,12 +12,12 @@ public enum StatusCode {
     OK(2000, "success"),
     INCORRECT(4316, "incorrect password"),
     INVALID_TOKEN(4317, "invalid token"),
-    Playing(4381, "room is playing"),
-    Unprepared(4382, "guest is unprepared"),
-    Dimissed(4383, "room is dismissed"),
+    PlAYING(4381, "room is playing"),
+    UNPREPARED(4382, "guest is unprepared"),
+    DISMISSED(4383, "room is dismissed"),
     FULL_LOBBY(4391, "lobby is full"),
     FULL_ROOM(4392, "room is full"),
-    UNSUPPPORTED_METHOD(4050, "unsupported request method"),
+    UNSUPPORTED_METHOD(4050, "unsupported request method"),
     INTERNAL_SERVER_ERROR(5000, "internal server error");
 
 
