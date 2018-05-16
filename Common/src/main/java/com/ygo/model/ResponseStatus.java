@@ -1,4 +1,4 @@
-package com.ygo.util;
+package com.ygo.model;
 
 import org.apache.http.HttpStatus;
 
@@ -19,6 +19,11 @@ public class ResponseStatus extends HashMap<String, Object>{
     public ResponseStatus(int code, String msg){
         super.put("code", code);
         super.put("msg", msg);
+    }
+
+    public ResponseStatus(StatusCode status){
+        super.put("code", status.getCode());
+        super.put("msg", status.getMsg());
     }
 
     public ResponseStatus ok(){

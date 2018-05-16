@@ -18,11 +18,11 @@ public enum StatusCode {
 
 
     private int code;
-    private String name;
+    private String msg;
 
-    StatusCode(int code, String name) {
+    StatusCode(int code, String msg) {
         this.code = code;
-        this.name = name;
+        this.msg = msg;
     }
 
     public int getCode() {
@@ -33,11 +33,11 @@ public enum StatusCode {
         this.code = code;
     }
 
-    public String getName() {
-        return name;
+    public String getMsg() {
+        return msg;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setMsg(String msg) {
+        this.msg = msg;
     }
 }
