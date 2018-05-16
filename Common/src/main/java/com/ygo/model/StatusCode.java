@@ -17,6 +17,7 @@ public enum StatusCode {
     Dimissed(4383, "room is dismissed"),
     FULL_LOBBY(4391, "lobby is full"),
     FULL_ROOM(4392, "room is full"),
+    UNSUPPPORTED_METHOD(4050, "unsupported request method"),
     INTERNAL_SERVER_ERROR(5000, "internal server error");
 
 
