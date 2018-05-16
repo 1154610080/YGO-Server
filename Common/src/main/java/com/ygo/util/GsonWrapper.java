@@ -2,6 +2,7 @@ package com.ygo.util;
 
 import com.google.gson.ExclusionStrategy;
 import com.google.gson.FieldAttributes;
+import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.ygo.model.Room;
 import io.netty.util.CharsetUtil;
@@ -26,6 +27,17 @@ public class GsonWrapper{
         setExclusionStrategies();
 
     }
+    
+    /**
+     * 如果请求来自决斗服务器，不字段设置忽略策略
+     **/
+    public GsonWrapper(boolean isDuelServer){
+        builder = new GsonBuilder();
+        if(!isDuelServer)
+            setExclusionStrategies();
+        
+    }
+
     
     private void setExclusionStrategies(){
         builder.serializeNulls().setExclusionStrategies(new ExclusionStrategy() {

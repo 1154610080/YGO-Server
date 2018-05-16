@@ -24,13 +24,15 @@ public class DuelServer {
     private static Log log = LogFactory.getLog(HttpServer.class);
     private int port;
 
-    DuelServer(int port){
+    public DuelServer(int port){
         this.port = port;
     }
 
     public void start() throws InterruptedException {
         EventLoopGroup group = new NioEventLoopGroup();
+
         try{
+
             ServerBootstrap b = new ServerBootstrap();
             b.group(group)
                     .channel(NioServerSocketChannel.class)
@@ -45,6 +47,7 @@ public class DuelServer {
                     .option(ChannelOption.SO_BACKLOG, 128)  //最大客户端连接数
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
             ChannelFuture f = b.bind().sync();
+            log.info("Duel Server is running...");
             f.channel().closeFuture().sync();
         }finally {
             group.shutdownGracefully().sync();
@@ -54,7 +57,6 @@ public class DuelServer {
     public static void main(String[] args) throws InterruptedException {
 
         DuelServer server = new DuelServer(2333);
-        log.info("Server has run......");
         server.start();
     }
 
