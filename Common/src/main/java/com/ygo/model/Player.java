@@ -18,7 +18,7 @@ public class Player {
     /**
      * 玩家头像图片
      **/
-    @SerializedName("head")
+    @SerializedName("hd")
     private byte[] head;
 
     /**
@@ -48,10 +48,15 @@ public class Player {
 
     public Player(){}
 
-    public Player(String name, String ip, int port) {
+    public Player(String name, byte[] head,
+                  String ip, int port,
+                  boolean isStarting, boolean isPrepared) {
         this.name = name;
+        this.head = head;
         this.ip = ip;
         this.port = port;
+        this.isStarting = isStarting;
+        this.isPrepared = isPrepared;
     }
 
     public String getName() {

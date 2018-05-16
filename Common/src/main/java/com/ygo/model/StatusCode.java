@@ -1,5 +1,7 @@
 package com.ygo.model;
 
+import org.omg.CORBA.INTERNAL;
+
 /**
  * 响应状态码枚举
  *
@@ -14,7 +16,8 @@ public enum StatusCode {
     Unprepared(4382, "guest is unprepared"),
     Dimissed(4383, "room is dismissed"),
     FULL_LOBBY(4391, "lobby is full"),
-    FULL_ROOM(4392, "room is full");
+    FULL_ROOM(4392, "room is full"),
+    INTERNAL_SERVER_ERROR(5000, "internal server error");
 
 
     private int code;

@@ -39,6 +39,7 @@ public class Room {
     /**
      * 房间是否存在密码
      **/
+    @SerializedName("hp")
     private boolean hasPwd = false;
 
     /**

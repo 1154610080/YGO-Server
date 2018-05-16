@@ -27,27 +27,12 @@ public class ResponseStatus extends HashMap<String, Object>{
     }
 
     public ResponseStatus ok(){
-        return new ResponseStatus(HttpStatus.SC_OK, "success");
-    }
-
-    public ResponseStatus ok(String msg){
-        return new ResponseStatus(HttpStatus.SC_OK, msg);
-    }
-
-    public ResponseStatus ok(int code, String msg){
-        return new ResponseStatus(code, msg);
+        return new ResponseStatus(StatusCode.OK);
     }
 
     public ResponseStatus error(){
-        return new ResponseStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR, "failure");
+        return new ResponseStatus(StatusCode.INTERNAL_SERVER_ERROR);
     }
 
-    public ResponseStatus error(String msg){
-        return new ResponseStatus(HttpStatus.SC_INTERNAL_SERVER_ERROR, msg);
-    }
-
-    public ResponseStatus error(int code, String msg){
-        return new ResponseStatus(code, msg);
-    }
 
 }
