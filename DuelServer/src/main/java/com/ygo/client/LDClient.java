@@ -7,6 +7,9 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioSocketChannel;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.http.protocol.HTTP;
 
 import java.net.InetSocketAddress;
 
@@ -17,17 +20,20 @@ import java.net.InetSocketAddress;
  * @author Egan
  * @date 2018/5/12 11:22
  **/
-public class LDClient {
+public class LDClient implements Runnable{
 
     private String host;
     private int port;
+
+    private static Log log = LogFactory.getLog(HTTP.class);
 
     public LDClient(String host, int port){
         this.host = host;
         this.port = port;
     }
 
-    public void start() throws InterruptedException {
+    @Override
+    public void run() {
         EventLoopGroup group = new NioEventLoopGroup();
         Bootstrap b = new Bootstrap();
         LDClientHandler handler = new LDClientHandler();
@@ -42,9 +48,16 @@ public class LDClient {
                         }
                     });
             ChannelFuture future = b.bind().sync();
+            log.info("Lobby-Duel client has connected to server.");
             future.channel().closeFuture().sync();
-        }finally {
-            group.shutdownGracefully().sync();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                group.shutdownGracefully().sync();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 

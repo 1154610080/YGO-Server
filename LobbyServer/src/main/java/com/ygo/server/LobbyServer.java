@@ -61,11 +61,11 @@ public class LobbyServer implements Runnable{
 
     public static void main(String[] args) throws InterruptedException {
 
-        LobbyServer lobbyServer = new LobbyServer(8844);
-        LDServer ldServer = new LDServer(19208);
+        LobbyServer lobby = new LobbyServer(8844);
+        LDServer ld = new LDServer(19208);
 
-        Thread lobbyThread = new Thread(lobbyServer);
-        Thread ldThread = new Thread(ldServer);
+        Thread lobbyThread = new Thread(lobby);
+        Thread ldThread = new Thread(ld);
 
         lobbyThread.start();
         ldThread.start();

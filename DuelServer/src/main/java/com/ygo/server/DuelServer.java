@@ -1,6 +1,7 @@
 package com.ygo.server;
 
 import com.sun.net.httpserver.HttpServer;
+import com.ygo.client.LDClient;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -19,7 +20,7 @@ import java.net.InetSocketAddress;
  * @author EganChen
  * @date 2018/4/16 13:48
  */
-public class DuelServer {
+public class DuelServer implements Runnable{
 
     private static Log log = LogFactory.getLog(HttpServer.class);
     private int port;
@@ -28,7 +29,8 @@ public class DuelServer {
         this.port = port;
     }
 
-    public void start() throws InterruptedException {
+    @Override
+    public void run() {
         EventLoopGroup group = new NioEventLoopGroup();
 
         try{
@@ -47,17 +49,30 @@ public class DuelServer {
                     .option(ChannelOption.SO_BACKLOG, 128)  //最大客户端连接数
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
             ChannelFuture f = b.bind().sync();
-            log.info("Duel Server is running...");
+            log.info("Duel Server listening on " + port);
             f.channel().closeFuture().sync();
-        }finally {
-            group.shutdownGracefully().sync();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                group.shutdownGracefully().sync();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public static void main(String[] args) throws InterruptedException {
 
-        DuelServer server = new DuelServer(2333);
-        server.start();
+        DuelServer duel = new DuelServer(2333);
+        LDClient ld = new LDClient("http://localhost/", 19208);
+
+        Thread duelThread = new Thread(duel);
+        Thread ldThread = new Thread(ld);
+
+        duelThread.start();
+        ldThread.start();
     }
+
 
 }
