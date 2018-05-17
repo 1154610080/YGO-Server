@@ -60,6 +60,11 @@ public class Room {
     @SerializedName("gs")
     private Player guest;
 
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof Room && id == ((Room) obj).id;
+    }
+
     public Room(){}
 
     public Room(int id, String name, String desc, String password,

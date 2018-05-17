@@ -46,6 +46,14 @@ public class Player {
     @SerializedName("isp")
     private boolean isPrepared;
 
+    @Override
+    public boolean equals(Object obj) {
+
+        return obj instanceof Player &&
+                ((Player)obj).ip.equals(ip) &&
+                ((Player)obj).port == port;
+    }
+
     public Player(){}
 
     public Player(String name, byte[] head,

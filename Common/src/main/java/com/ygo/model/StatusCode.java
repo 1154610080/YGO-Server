@@ -20,11 +20,10 @@ public enum StatusCode {
     UNSUPPORTED_METHOD(4050, "unsupported request method"),
     INTERNAL_SERVER_ERROR(5000, "internal server error");
 
-
     private int code;
     private String msg;
 
-    StatusCode(int code2018/5/17m21:01
+    StatusCode(int code, String msg){
         this.code = code;
         this.msg = msg;
     }
