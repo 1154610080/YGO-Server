@@ -1,13 +1,15 @@
 package com.ygo.server;
 
 import com.ygo.controller.LobbyController;
+import com.ygo.model.ResponseStatus;
+import com.ygo.model.StatusCode;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.handler.codec.http.*;
 
 /**
- * 处理客户端请求
+ * 大厅服务器处理器
  *
  * @author Egan
  * @date 2018/5/7 22:54
@@ -32,6 +34,7 @@ public class LobbyServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
+        ctx.writeAndFlush(new ResponseStatus(StatusCode.INTERNAL_SERVER_ERROR, "msg"));
         cause.printStackTrace();
         ctx.close();
     }

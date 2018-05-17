@@ -1,5 +1,6 @@
 package com.ygo.server;
 
+import io.netty.channel.ChannelHandler;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
@@ -9,6 +10,7 @@ import io.netty.channel.ChannelInboundHandlerAdapter;
  * @author Egan
  * @date 2018/5/12 9:52
  **/
+@ChannelHandler.Sharable
 public class LDServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override

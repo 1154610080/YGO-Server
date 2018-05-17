@@ -24,7 +24,7 @@ public enum StatusCode {
     private int code;
     private String msg;
 
-    StatusCode(int code, String msg) {
+    StatusCode(int code2018/5/17m21:01
         this.code = code;
         this.msg = msg;
     }

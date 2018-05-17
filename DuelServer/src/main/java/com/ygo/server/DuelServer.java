@@ -65,7 +65,7 @@ public class DuelServer implements Runnable{
     public static void main(String[] args) throws InterruptedException {
 
         DuelServer duel = new DuelServer(2333);
-        LDClient ld = new LDClient("http://localhost/", 19208);
+        LDClient ld = new LDClient("127.0.0.1", 19208);
 
         Thread duelThread = new Thread(duel);
         Thread ldThread = new Thread(ld);

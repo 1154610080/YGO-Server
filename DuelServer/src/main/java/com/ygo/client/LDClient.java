@@ -47,7 +47,7 @@ public class LDClient implements Runnable{
                             socketChannel.pipeline().addLast(handler);
                         }
                     });
-            ChannelFuture future = b.bind().sync();
+            ChannelFuture future = b.connect().sync();
             log.info("Lobby-Duel client has connected to server.");
             future.channel().closeFuture().sync();
         } catch (InterruptedException e) {
