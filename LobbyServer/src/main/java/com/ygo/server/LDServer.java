@@ -8,6 +8,9 @@ import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.http.protocol.HTTP;
 
 import java.net.InetSocketAddress;
 
@@ -18,15 +21,18 @@ import java.net.InetSocketAddress;
  * @author Egan
  * @date 2018/5/12 9:34
  **/
-public class LDServer {
+public class LDServer implements Runnable{
 
     private int port;
+
+    private static Log log = LogFactory.getLog(HTTP.class);
 
     public LDServer(int port){
         this.port = port;
     }
 
-    public void start() throws InterruptedException {
+    @Override
+    public void run(){
         LDServerHandler handler = new LDServerHandler();
         EventLoopGroup group = new NioEventLoopGroup();
         try {
@@ -41,10 +47,16 @@ public class LDServer {
                         }
                     }).option(ChannelOption.SO_BACKLOG, 1);
             ChannelFuture f = bootstrap.bind().sync();
+            log.info("Lobby-Duel server listening on " + port);
             f.channel().closeFuture().sync();
-        }finally {
-            group.shutdownGracefully().sync();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                group.shutdownGracefully().sync();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
-
 }

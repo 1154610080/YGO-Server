@@ -20,7 +20,7 @@ import org.apache.commons.logging.LogFactory;
  * @author Egan
  * @date 2018/5/7 22:55
  **/
-public class LobbyServer {
+public class LobbyServer implements Runnable{
 
     private static Log log = LogFactory.getLog(HttpServer.class);
 
@@ -28,7 +28,8 @@ public class LobbyServer {
 
     public LobbyServer(int port){this.port = port;}
 
-    public void start() throws InterruptedException {
+    @Override
+    public void run() {
         EventLoopGroup group = new NioEventLoopGroup();
         try {
             ServerBootstrap b = new ServerBootstrap();
@@ -45,15 +46,30 @@ public class LobbyServer {
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
 
             ChannelFuture future = b.bind(port).sync();
+            log.info("GameLobby server listening on 8844...");
             future.channel().closeFuture().sync();
-        }finally {
-            group.shutdownGracefully();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        } finally {
+            try {
+                group.shutdownGracefully().sync();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     public static void main(String[] args) throws InterruptedException {
-        LobbyServer server = new LobbyServer(8844);
-        log.info("GameLobby server listening on 8844...");
-        server.start();
+
+        LobbyServer lobbyServer = new LobbyServer(8844);
+        LDServer ldServer = new LDServer(19208);
+
+        Thread lobbyThread = new Thread(lobbyServer);
+        Thread ldThread = new Thread(ldServer);
+
+        lobbyThread.start();
+        ldThread.start();
     }
+
+
 }
