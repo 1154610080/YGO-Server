@@ -39,3 +39,14 @@ sysinfo.txt
 *.out
 *.iml
 */src/test
+/out
+Common/src/main/resources/
+Common/target/
+DuelServer/src/main/resources/
+DuelServer/target/
+LobbyServer/src/main/java/META-INF/
+LobbyServer/src/main/java/com/ygo/util/
+LobbyServer/src/main/resources/
+LobbyServer/target/
+VersionServer/src/
+out/
