@@ -12,7 +12,7 @@ import com.ygo.constant.MessageType;
  * @author Egan
  * @date 2018/5/19 11:02
  **/
-public class DataPaket {
+public class DataPacket {
 
 
     /**
@@ -45,12 +45,12 @@ public class DataPaket {
      **/
     private String body;
 
-    public DataPaket(MessageType type, String body) {
+    public DataPacket(MessageType type, String body) {
         this.type = type;
         this.body = body;
     }
 
-    public DataPaket(int start, int version, MessageType type, int magic, int len, String body) {
+    public DataPacket(int start, int version, MessageType type, int magic, int len, String body) {
         this.start = start;
         this.version = version;
         this.type = type;

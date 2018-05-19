@@ -7,6 +7,9 @@ package com.ygo.constant;
  * @date 2018/5/19 15:44
  **/
 public class YGOP {
+
+    public static final String CHARSET = "utf-8";
+
     /*
     * 协议开始标志
     */
@@ -32,7 +35,6 @@ public class YGOP {
     * 协议的段数
     */
     public static final int PART_COUNT = 6;
-
 
     /*
     * 开始标志所占长度
