@@ -4,11 +4,21 @@ import com.ygo.constant.MessageType;
 
 /**
  * 自定义协议YGOP的数据包类
- *
+ *  +——--------——+——---------——+——------------——+——------------——+——-------——+
+ *  |  开始标志   |  版本号(4)  |  消息类型(4)    |  魔数校验码(4)  |  长度(4)  |
+ *  +——--------——+——---------——+——------------——+——------------——+——-------——+
+ *  |                                 JSON数据(UNKNOW)                       |
+ *  +——--------------------------------------------------------------------——+
  * @author Egan
  * @date 2018/5/19 11:02
  **/
 public class DataPaket {
+
+
+    /**
+     * 开始标志
+     **/
+    private int start;
 
     /**
      * 版本号
@@ -40,12 +50,21 @@ public class DataPaket {
         this.body = body;
     }
 
-    public DataPaket(int version, MessageType type, int magic, int len, String body) {
+    public DataPaket(int start, int version, MessageType type, int magic, int len, String body) {
+        this.start = start;
         this.version = version;
         this.type = type;
         this.magic = magic;
         this.len = len;
         this.body = body;
+    }
+
+    public int getStart() {
+        return start;
+    }
+
+    public void setStart(int start) {
+        this.start = start;
     }
 
     public int getVersion() {
