@@ -2,7 +2,7 @@ package com.ygo.server;
 
 import com.ygo.controller.LobbyController;
 import com.ygo.model.ResponseStatus;
-import com.ygo.model.StatusCode;
+import com.ygo.constant.StatusCode;
 import io.netty.buffer.Unpooled;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
