@@ -16,7 +16,7 @@ import com.ygo.model.DataPacket;
 public class YGOPEncoder extends MessageToByteEncoder<DataPacket>{
 
     /**
-     * 将YGOP数据包解码并写入响应中
+     * 将YGOP数据包出站时将其编码并写入响应中
      *
      * @date 2018/5/19 20:28
      * @param channelHandlerContext 通道处理器的上下文

@@ -10,8 +10,9 @@ import org.omg.CORBA.INTERNAL;
  **/
 public enum StatusCode {
     OK(2000, "success"),
+    COMMUNICATION_ERROR(4121, "the communication protocol is different"),
+    OUT_OF_SCOPE(4131, "the request too long"),
     INCORRECT(4316, "incorrect password"),
-    INVALID_TOKEN(4317, "invalid token"),
     PlAYING(4381, "room is playing"),
     UNPREPARED(4382, "guest is unprepared"),
     DISMISSED(4383, "room is dismissed"),

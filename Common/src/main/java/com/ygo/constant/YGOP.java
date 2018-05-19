@@ -1,5 +1,7 @@
 package com.ygo.constant;
 
+import java.nio.charset.Charset;
+
 /**
  * YGOP协议的常量
  *
@@ -8,7 +10,7 @@ package com.ygo.constant;
  **/
 public class YGOP {
 
-    public static final String CHARSET = "utf-8";
+    public static final Charset CHARSET = Charset.forName("utf-8");
 
     /*
     * 协议开始标志
