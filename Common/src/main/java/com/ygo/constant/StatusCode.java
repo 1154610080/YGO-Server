@@ -1,4 +1,4 @@
-package com.ygo.model;
+package com.ygo.constant;
 
 import org.omg.CORBA.INTERNAL;
 

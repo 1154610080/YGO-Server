@@ -1,6 +1,6 @@
 package com.ygo.model;
 
-import org.apache.http.HttpStatus;
+import com.ygo.constant.StatusCode;
 
 import java.util.HashMap;
 

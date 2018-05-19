@@ -2,7 +2,7 @@ package com.ygo.controller;
 
 import com.ygo.model.GameLobby;
 import com.ygo.model.Room;
-import com.ygo.model.StatusCode;
+import com.ygo.constant.StatusCode;
 import com.ygo.util.GsonWrapper;
 import com.ygo.model.ResponseStatus;
 import io.netty.handler.codec.http.FullHttpRequest;
