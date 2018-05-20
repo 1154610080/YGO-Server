@@ -2,10 +2,8 @@ package com.ygo.model;
 
 import com.google.gson.annotations.SerializedName;
 
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
 /**
  * 游戏大厅类

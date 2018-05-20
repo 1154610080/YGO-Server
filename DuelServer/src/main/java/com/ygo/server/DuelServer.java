@@ -61,8 +61,8 @@ public class DuelServer{
 
     public static void main(String[] args) throws InterruptedException {
 
-        DuelServer server = new DuelServer(2333);
-
+        DuelServer server = new DuelServer(19208);
+        server.start();
     }
 
     static {

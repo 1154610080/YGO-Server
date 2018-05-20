@@ -49,8 +49,8 @@ public class DuelServerHandler extends ChannelInboundHandlerAdapter{
         DataPacket packet = (DataPacket)msg;
         System.out.println(packet.getVersion() + "  |  " + packet.getType().name() + "  |  " +
                 packet.getMagic() + "  |  " + packet.getLen() + "  |  " + packet.getBody());
-        ctx.channel().write(new DataPacket("你好，我是服务器", MessageType.CHAT));
-        ctx.channel().write(new DataPacket("还是我，你能解析这条消息吗？", MessageType.CHAT));
+        ctx.channel().write(new DataPacket("Hello, I'm Duel-Server.", MessageType.CHAT));
+        ctx.channel().write(new DataPacket("Hello again, can you parse it?", MessageType.CHAT));
     }
 
     /**

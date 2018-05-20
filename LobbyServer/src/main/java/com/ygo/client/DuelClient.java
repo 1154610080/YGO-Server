@@ -1,4 +1,4 @@
-﻿package com.ygo.client;
+package com.ygo.client;
 
 import com.ygo.util.CommonLog;
 import com.ygo.util.YGOPDecoder;
