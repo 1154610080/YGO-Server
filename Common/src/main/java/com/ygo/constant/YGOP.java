@@ -100,4 +100,23 @@ public class YGOP {
      * 协议的段数
      */
     public static final int PART_COUNT = 6;
+
+    //其他相关常量
+
+    /**
+     * 未出拳
+     **/
+    public static final int NO_FINGER = 0x0;
+    /**
+     * 剪刀
+     **/
+    public static final int SCISSORS = 0x1;
+    /**
+     * 石头
+     **/
+    public static final int ROCK = 0x10;
+    /**
+     * 布
+     **/
+    public static final int PAPER = 0X100;
 }

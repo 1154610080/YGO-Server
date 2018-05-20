@@ -50,7 +50,8 @@ public class GsonWrapper{
             @Override
             public boolean shouldSkipField(FieldAttributes fieldAttributes) {
                 String name = fieldAttributes.getName();
-                return name.contains("password") || name.contains("ip") || name.contains("port");
+                return name.contains("password") || name.contains("ip") ||
+                        name.contains("port") || name.contains("finger");
             }
 
             @Override

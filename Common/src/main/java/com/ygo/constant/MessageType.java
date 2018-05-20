@@ -5,21 +5,17 @@ import java.util.Map;
 
 public enum MessageType {
     /**
-     * 聊天消息
+     * 玩家创建房间
      **/
-    CHAT(0x1),
-    /**
-     * 操作消息
-     **/
-    OPERATE(CHAT.code << 1),
+    CREATE(0x1),
     /**
      * 玩家加入房间
      **/
-    JOIN(OPERATE.code << 1),
+    JOIN(CREATE.code << 1),
     /**
      * 玩家离开房间
      **/
-    LEAVE(OPERATE.code << 1),
+    LEAVE(JOIN.code << 1),
     /**
      * 玩家被踢出房间
      **/
@@ -40,6 +36,14 @@ public enum MessageType {
      * 校验客户端文件完整性
      **/
     VERITY(COUNT_DOWN.code << 1),
+    /**
+     * 聊天消息
+     **/
+    CHAT(0x1),
+    /**
+     * 操作消息
+     **/
+    OPERATE(CHAT.code << 1),
     /**
      * 发送卡牌信息
      **/

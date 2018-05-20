@@ -35,16 +35,28 @@ public class Player {
     private int port;
 
     /**
+     * 玩家是否为房主
+     **/
+    @SerializedName("ih")
+    private boolean isHost = false;
+
+    /**
+     * 玩家猜拳的结果
+     **/
+    @SerializedName("fg")
+    private int finger = 0x0;
+
+    /**
      * 玩家（房主）是否进入开始状态
      **/
     @SerializedName("iss")
-    private boolean isStarting;
+    private boolean isStarting = false;
 
     /**
      * 玩家（房客）是否进入准备状态
      **/
     @SerializedName("isp")
-    private boolean isPrepared;
+    private boolean isPrepared = false;
 
     @Override
     public boolean equals(Object obj) {
