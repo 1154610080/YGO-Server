@@ -42,7 +42,7 @@ public class YGODecoder extends ByteToMessageDecoder{
                 return;
             }
 
-            int version = byteBuf.readInt();
+            float version = byteBuf.readFloat();
             MessageType type = MessageType.values()[byteBuf.readInt()];
             int magic = byteBuf.readInt();
             int len = byteBuf.readInt();

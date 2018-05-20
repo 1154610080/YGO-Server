@@ -1,6 +1,7 @@
 package com.ygo.model;
 
 import com.ygo.constant.MessageType;
+import com.ygo.constant.YGOP;
 
 /**
  * 自定义协议YGOP的数据包类
@@ -17,7 +18,7 @@ public class DataPacket {
     /**
      * 版本号
      **/
-    private int version;
+    private float version;
 
     /**
      * 消息类型
@@ -40,11 +41,14 @@ public class DataPacket {
     private String body;
 
     public DataPacket(String body, MessageType type) {
+        this.version = YGOP.VERSION;
         this.type = type;
+        this.magic = YGOP.MAGIC;
+        this.len = body.getBytes(YGOP.CHARSET).length;
         this.body = body;
     }
 
-    public DataPacket(int version, MessageType type, int magic, int len, String body) {
+    public DataPacket(float version, MessageType type, int magic, int len, String body) {
         this.version = version;
         this.type = type;
         this.magic = magic;
@@ -52,11 +56,11 @@ public class DataPacket {
         this.body = body;
     }
 
-    public int getVersion() {
+    public float getVersion() {
         return version;
     }
 
-    public void setVersion(int version) {
+    public void setVersion(float version) {
         this.version = version;
     }
 

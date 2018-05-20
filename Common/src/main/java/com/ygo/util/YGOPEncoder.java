@@ -28,7 +28,7 @@ public class YGOPEncoder extends MessageToByteEncoder<DataPacket>{
     protected void encode(ChannelHandlerContext channelHandlerContext,
                           DataPacket dataPacket, ByteBuf byteBuf) throws Exception {
         if(dataPacket != null){
-            byteBuf.writeInt(dataPacket.getVersion());
+            byteBuf.writeFloat(dataPacket.getVersion());
             byteBuf.writeInt(dataPacket.getType().getCode());
             byteBuf.writeInt(dataPacket.getMagic());
             byteBuf.writeInt(dataPacket.getLen());
