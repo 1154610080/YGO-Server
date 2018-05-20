@@ -80,7 +80,9 @@ public class GsonWrapper{
      * @param type 目标类类型
      * @return com.ygo.model.Room
      **/
-    public Room toObject(byte[] json, Type type){
+    public <T> T toObject(byte[] json, Type type){
         return builder.create().fromJson(new String(json), type);
     }
+
+
 }
