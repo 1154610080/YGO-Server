@@ -47,7 +47,17 @@ public enum MessageType {
     /**
      * 发送警告信息
      **/
-    WARING(EXIT.code << 1);
+    WARING(EXIT.code << 1),
+
+    //服务器特有的消息类型
+    /**
+     * 决斗服务器向大厅服务器请求房间列表消息
+     **/
+    REQUIRED_ROOMS(WARING.code << 1),
+    /**
+     * 大厅服务器向决斗服务器发送房间列表消息
+     **/
+    RETURN_ROOMS(REQUIRED_ROOMS.code << 1);
 
 
     private static final Map<Integer, MessageType> integerToMessageType = new HashMap<>();

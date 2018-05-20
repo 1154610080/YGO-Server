@@ -1,6 +1,8 @@
 package com.ygo.server;
 
 import com.sun.net.httpserver.HttpServer;
+import com.ygo.client.DuelClient;
+import com.ygo.constant.YGOP;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -42,7 +44,7 @@ public class LobbyServer implements Runnable{
                             socketChannel.pipeline().addLast(new HttpObjectAggregator(65536));
                             socketChannel.pipeline().addLast(new LobbyServerHandler());
                         }
-                    }).option(ChannelOption.SO_BACKLOG, 128)
+                    }).option(ChannelOption.SO_BACKLOG, YGOP.HEAD_LEN + YGOP.MAX_LEN)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
 
             ChannelFuture future = b.bind(port).sync();
@@ -61,11 +63,14 @@ public class LobbyServer implements Runnable{
 
     public static void main(String[] args) throws InterruptedException {
 
-        LobbyServer lobby = new LobbyServer(8844);
+        LobbyServer server = new LobbyServer(8844);
+        DuelClient client = new DuelClient("127.0.0.1", 19208);
 
-        Thread lobbyThread = new Thread(lobby);
+        Thread lobbyThread = new Thread(server);
+        Thread duelThread = new Thread(client);
 
         lobbyThread.start();
+        duelThread.start();
     }
 
 
