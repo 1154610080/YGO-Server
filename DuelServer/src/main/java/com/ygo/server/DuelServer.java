@@ -1,6 +1,7 @@
 package com.ygo.server;
 
 import com.sun.net.httpserver.HttpServer;
+import com.ygo.util.CommonLog;
 import com.ygo.util.YGOPDecoder;
 import com.ygo.util.YGOPEncoder;
 import io.netty.bootstrap.ServerBootstrap;
@@ -51,9 +52,9 @@ public class DuelServer{
                     .option(ChannelOption.SO_BACKLOG, 128)  //最大客户端连接数
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
             ChannelFuture f = b.bind().sync();
-            log.info("Duel Server listening on " + port);
+            CommonLog.log.info("Duel Server listening on " + port);
             f.channel().closeFuture().sync();
-        }finally {
+        } finally {
             group.shutdownGracefully().sync();
         }
     }
@@ -61,8 +62,10 @@ public class DuelServer{
     public static void main(String[] args) throws InterruptedException {
 
         DuelServer server = new DuelServer(2333);
-        server.start();
+
     }
 
-
+    static {
+        CommonLog.log = LogFactory.getLog("Duel-Server(TCP)");
+    }
 }

@@ -1,5 +1,6 @@
 package com.ygo.constant;
 
+import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 
 /**
@@ -9,29 +10,6 @@ import java.nio.charset.Charset;
  * @date 2018/5/19 15:44
  **/
 public class YGOP {
-
-    public static final Charset CHARSET = Charset.forName("utf-8");
-
-    /*
-    * 当前版本
-    */
-    public static final float VERSION = 1.0F;
-    /*
-    * 魔数
-    */
-    public static final int MAGIC = 0x3cb;
-    /*
-    * 数据包头的固定长度
-    */
-    public static final int HEAD_LEN = 20;
-    /*
-    * 最大内容长度
-    */
-    public static final int MAX_LEN = 1024;
-    /*
-    * 协议的段数
-    */
-    public static final int PART_COUNT = 6;
 
     /*
     * 版本所占字节数
@@ -90,4 +68,36 @@ public class YGOP {
     * 消息体的位置
     */
     public static final int BODY_POS = LEN_POS + LEN_LEN;
+
+
+    /**
+     * 默认编码
+     **/
+    public static final Charset CHARSET = Charset.forName("utf-8");
+
+    /**
+     * 大厅服务器的决斗客户端的地址和端口
+     **/
+    public static final InetSocketAddress LOBBY_SERVER_ADDR = new InetSocketAddress("127.0.0.1", 19208);
+
+    /*
+     * 当前版本
+     */
+    public static final float VERSION = 1.0F;
+    /*
+     * 魔数
+     */
+    public static final int MAGIC = 0x3cb;
+    /*
+     * 数据包头的固定长度
+     */
+    public static final int HEAD_LEN = 20;
+    /*
+     * 最大内容长度
+     */
+    public static final int MAX_LEN = 1024;
+    /*
+     * 协议的段数
+     */
+    public static final int PART_COUNT = 6;
 }

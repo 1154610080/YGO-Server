@@ -1,5 +1,6 @@
 ﻿package com.ygo.client;
 
+import com.ygo.util.CommonLog;
 import com.ygo.util.YGOPDecoder;
 import com.ygo.util.YGOPEncoder;
 import io.netty.bootstrap.Bootstrap;
@@ -50,6 +51,7 @@ public class DuelClient implements Runnable{
                         }
                     });
             ChannelFuture future = b.connect().sync();
+            CommonLog.log.info("Duel Client has connect to Duel Server successfully");
             future.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();

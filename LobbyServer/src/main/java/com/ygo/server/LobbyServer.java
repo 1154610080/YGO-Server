@@ -3,6 +3,7 @@ package com.ygo.server;
 import com.sun.net.httpserver.HttpServer;
 import com.ygo.client.DuelClient;
 import com.ygo.constant.YGOP;
+import com.ygo.util.CommonLog;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -23,8 +24,6 @@ import org.apache.commons.logging.LogFactory;
  * @date 2018/5/7 22:55
  **/
 public class LobbyServer implements Runnable{
-
-    private static Log log = LogFactory.getLog(HttpServer.class);
 
     private int port;
 
@@ -48,7 +47,7 @@ public class LobbyServer implements Runnable{
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
 
             ChannelFuture future = b.bind(port).sync();
-            log.info("GameLobby server listening on 8844...");
+            CommonLog.log.info("GameLobby server listening on 8844...");
             future.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -73,5 +72,7 @@ public class LobbyServer implements Runnable{
         duelThread.start();
     }
 
-
+    static{
+        CommonLog.log = LogFactory.getLog("Lobby-Server(HTTP/TCP)");
+    }
 }
