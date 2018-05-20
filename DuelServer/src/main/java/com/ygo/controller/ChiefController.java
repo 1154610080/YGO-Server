@@ -3,7 +3,9 @@ package com.ygo.controller;
 import com.ygo.constant.MessageType;
 import com.ygo.constant.StatusCode;
 import com.ygo.model.DataPacket;
+import com.ygo.model.Lobby;
 import com.ygo.model.ResponseStatus;
+import com.ygo.util.CommonLog;
 import io.netty.channel.Channel;
 
 /**
@@ -19,7 +21,7 @@ public class ChiefController extends AbstractController{
     }
 
     @Override
-    protected void assign() {
+    protected void assign(){
 
         int type = packet.getType().getCode();
 
@@ -39,8 +41,19 @@ public class ChiefController extends AbstractController{
 
             new GameController(packet, channel);
 
+        else if(type == MessageType.RETURN_ROOMS.getCode())
+
+            Lobby.refresh(packet.getBody());
+
+        else if (type == MessageType.WARING.getCode())
+
+            CommonLog.log.info(packet.getBody());
+
         else{
-            channel.writeAndFlush(new ResponseStatus(StatusCode.COMMUNICATION_ERROR));
+            channel.writeAndFlush(
+                    new DataPacket(new ResponseStatus(StatusCode.COMMUNICATION_ERROR,
+                            "Nonexistent Type"),
+                            MessageType.WARING));
             channel.closeFuture();
         }
 

@@ -41,13 +41,13 @@ public class Lobby {
      * @param jsonStr 数据包的json消息体
      * @return void
      **/
-    public static void refresh(String jsonStr) throws UnsupportedEncodingException {
+    public static void refresh(String jsonStr){
         JsonObject json = new JsonObject();
         maxRoom = json.get("mx").getAsInt();
 
         String roomsJsonStr = json.get("rm").getAsString();
 
-        rooms = new GsonWrapper().toObject(roomsJsonStr.getBytes(YGOP.CHARSET.name()),
+        rooms = new GsonWrapper().toObject(roomsJsonStr.getBytes(YGOP.CHARSET),
                 new TypeToken<LinkedList<Room>>(){}.getType());
 
     }
