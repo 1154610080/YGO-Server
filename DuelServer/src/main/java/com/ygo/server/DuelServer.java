@@ -1,7 +1,6 @@
 package com.ygo.server;
 
 import com.sun.net.httpserver.HttpServer;
-import com.ygo.client.LDClient;
 import com.ygo.util.YGOPDecoder;
 import com.ygo.util.YGOPEncoder;
 import io.netty.bootstrap.ServerBootstrap;
@@ -22,7 +21,7 @@ import java.net.InetSocketAddress;
  * @author EganChen
  * @date 2018/4/16 13:48
  */
-public class DuelServer implements Runnable{
+public class DuelServer{
 
     private static Log log = LogFactory.getLog(HttpServer.class);
     private int port;
@@ -31,8 +30,7 @@ public class DuelServer implements Runnable{
         this.port = port;
     }
 
-    @Override
-    public void run() {
+    public void start() throws InterruptedException {
         EventLoopGroup group = new NioEventLoopGroup();
 
         try{
@@ -55,27 +53,15 @@ public class DuelServer implements Runnable{
             ChannelFuture f = b.bind().sync();
             log.info("Duel Server listening on " + port);
             f.channel().closeFuture().sync();
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                group.shutdownGracefully().sync();
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
+        }finally {
+            group.shutdownGracefully().sync();
         }
     }
 
     public static void main(String[] args) throws InterruptedException {
 
-        DuelServer duel = new DuelServer(2333);
-        LDClient ld = new LDClient("127.0.0.1", 19208);
-
-        Thread duelThread = new Thread(duel);
-        Thread ldThread = new Thread(ld);
-
-        duelThread.start();
-        ldThread.start();
+        DuelServer server = new DuelServer(2333);
+        server.start();
     }
 
 
