@@ -2,6 +2,8 @@ package com.ygo.server;
 
 import com.sun.net.httpserver.HttpServer;
 import com.ygo.client.LDClient;
+import com.ygo.util.YGOPDecoder;
+import com.ygo.util.YGOPEncoder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
 import io.netty.channel.ChannelInitializer;
@@ -43,6 +45,8 @@ public class DuelServer implements Runnable{
 
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
+                            socketChannel.pipeline().addLast(new YGOPEncoder());
+                            socketChannel.pipeline().addLast(new YGOPDecoder());
                             socketChannel.pipeline().addLast(new DuelServerHandler());
                         }
                     })

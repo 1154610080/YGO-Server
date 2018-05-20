@@ -1,11 +1,10 @@
 package com.ygo.server;
 
-import io.netty.buffer.ByteBuf;
+import com.ygo.constant.MessageType;
+import com.ygo.model.DataPacket;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.util.CharsetUtil;
-
 
 /**
  * 出入站事件处理类
@@ -24,7 +23,7 @@ public class DuelServerHandler extends ChannelInboundHandlerAdapter{
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         super.handlerAdded(ctx);
-        System.out.println(ctx.channel().id() + "进来了");
+        System.out.println(ctx.channel().id() + " has come.");
     }
 
     /**
@@ -36,7 +35,7 @@ public class DuelServerHandler extends ChannelInboundHandlerAdapter{
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
         super.handlerRemoved(ctx);
-        System.out.println(ctx.channel().id() + "出去了");
+        System.out.println(ctx.channel().id() + " has out.");
     }
 
     /**
@@ -47,8 +46,11 @@ public class DuelServerHandler extends ChannelInboundHandlerAdapter{
      */
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        ByteBuf in = (ByteBuf)msg;
-        System.out.println("客户端"+ctx.channel().id()+"说"+in.toString(CharsetUtil.UTF_8));
+        DataPacket packet = (DataPacket)msg;
+        System.out.println(packet.getVersion() + "  |  " + packet.getType().name() + "  |  " +
+                packet.getMagic() + "  |  " + packet.getLen() + "  |  " + packet.getBody());
+        ctx.channel().write(new DataPacket("你好，我是服务器", MessageType.CHAT));
+        ctx.channel().write(new DataPacket("还是我，你能解析这条消息吗？", MessageType.CHAT));
     }
 
     /**
@@ -60,7 +62,7 @@ public class DuelServerHandler extends ChannelInboundHandlerAdapter{
     @Override
     public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
         ctx.flush();
-        ctx.close();
+        //ctx.close();
     }
 
     /**
