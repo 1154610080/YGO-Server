@@ -6,11 +6,9 @@ import com.ygo.constant.YGOP;
 import com.ygo.model.DataPacket;
 import com.ygo.model.ResponseStatus;
 import io.netty.buffer.ByteBuf;
-import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 
-import java.io.Console;
 import java.util.List;
 
 /**
