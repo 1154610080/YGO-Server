@@ -1,18 +1,13 @@
 package com.ygo.server;
 
-import com.sun.net.httpserver.HttpServer;
 import com.ygo.util.CommonLog;
 import com.ygo.util.YGOPDecoder;
 import com.ygo.util.YGOPEncoder;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
+import io.netty.channel.*;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import java.net.InetSocketAddress;
@@ -24,7 +19,11 @@ import java.net.InetSocketAddress;
  */
 public class DuelServer{
 
-    private static Log log = LogFactory.getLog(HttpServer.class);
+    /**
+     * 连接游戏大厅服务器的通道
+     **/
+    public static Channel lobbyChannel;
+
     private int port;
 
     public DuelServer(int port){

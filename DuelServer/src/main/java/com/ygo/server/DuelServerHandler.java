@@ -1,10 +1,13 @@
 package com.ygo.server;
 
 import com.ygo.constant.MessageType;
+import com.ygo.constant.YGOP;
 import com.ygo.model.DataPacket;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
+
+import java.net.InetSocketAddress;
 
 /**
  * 出入站事件处理类
@@ -17,19 +20,24 @@ public class DuelServerHandler extends ChannelInboundHandlerAdapter{
     /**
     * 处理入站事件
     * @date 2018/4/16
-    * @param [ctx]
     * @return
     */
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         super.handlerAdded(ctx);
         System.out.println(ctx.channel().id() + " has come.");
+
+        //如果连接来自大厅服务器，保存通道
+        if(DuelServer.lobbyChannel == null
+                && ((InetSocketAddress)ctx.channel().remoteAddress()).getAddress()
+                == YGOP.LOBBY_SERVER_ADDR.getAddress()){
+            DuelServer.lobbyChannel = ctx.channel();
+        }
     }
 
     /**
     * 处理出站事件
     * @date 2018/4/16
-    * @param [ctx]
     * @return
     */
     @Override
@@ -41,7 +49,6 @@ public class DuelServerHandler extends ChannelInboundHandlerAdapter{
     /**
      * 处理接收到的消息
      * @date 2018/4/16
-     * @param [ctx, msg]
      * @return
      */
     @Override
@@ -56,7 +63,6 @@ public class DuelServerHandler extends ChannelInboundHandlerAdapter{
     /**
     * 将未决消息冲刷到远程节点，并关闭连接
     * @date 2018/4/16
-    * @param [ctx]
     * @return
     */
     @Override
@@ -68,7 +74,6 @@ public class DuelServerHandler extends ChannelInboundHandlerAdapter{
     /**
     * 捕获并打印异常，关闭连接
     * @date 2018/4/16
-    * @param [ctx, cause]
     * @return
     */
     @Override
