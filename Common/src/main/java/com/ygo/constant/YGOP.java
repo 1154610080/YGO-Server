@@ -13,11 +13,6 @@ public class YGOP {
     public static final Charset CHARSET = Charset.forName("utf-8");
 
     /*
-    * 协议开始标志
-    */
-    public static final int START_MARK = 0x97;
-
-    /*
     * 当前版本
     */
     public static final float VERSION = 1.0F;
@@ -39,10 +34,6 @@ public class YGOP {
     public static final int PART_COUNT = 6;
 
     /*
-    * 开始标志所占长度
-    */
-    public static final int START_LEN = 4;
-    /*
     * 版本所占字节数
     */
     public static final int VERSION_LEN = 4;
@@ -59,13 +50,9 @@ public class YGOP {
     */
     public static final int LEN_LEN = 4;
     /*
-    * 开始标志的顺序
-    */
-    public static final int START_ORDER = 0;
-    /*
     * 版本的顺序
     */
-    public static final int VERSION_ORDER = START_ORDER + 1;
+    public static final int VERSION_ORDER = 0;
     /*
     * 类型的顺序
     */
@@ -82,14 +69,11 @@ public class YGOP {
     * 消息体的顺序
     */
     public static final int BODY_ORDER = LEN_ORDER + 1;
-    /*
-    * 开始协议的位置
-    */
-    public static final int START_POS = 0;
+
     /*
     * 版本的位置
     */
-    public static final int VERSION_POS = START_POS + START_LEN;
+    public static final int VERSION_POS = 0;
     /*
     * 类型的位置
     */

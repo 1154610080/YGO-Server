@@ -4,21 +4,15 @@ import com.ygo.constant.MessageType;
 
 /**
  * 自定义协议YGOP的数据包类
- *  +——--------——+——---------——+——------------——+——------------——+——-------——+
- *  |  开始标志   |  版本号(4)  |  消息类型(4)    |  魔数校验码(4)  |  长度(4)  |
- *  +——--------——+——---------——+——------------——+——------------——+——-------——+
- *  |                                 JSON数据(UNKNOW)                       |
- *  +——--------------------------------------------------------------------——+
+ *  +——---------——+——------------——+——------------——+——-------——+
+ *  |  版本号(4)  |  消息类型(4)    |  魔数校验码(4)  |  长度(4)  |
+ *  +——--------——+——------------——+——------------——+——-------——+
+ *  |                   JSON数据(UNKNOW)                       |
+ *  +——-----------------------------------------------------——+
  * @author Egan
  * @date 2018/5/19 11:02
  **/
 public class DataPacket {
-
-
-    /**
-     * 开始标志
-     **/
-    private int start;
 
     /**
      * 版本号
@@ -45,26 +39,17 @@ public class DataPacket {
      **/
     private String body;
 
-    public DataPacket(MessageType type, String body) {
+    public DataPacket(String body, MessageType type) {
         this.type = type;
         this.body = body;
     }
 
-    public DataPacket(int start, int version, MessageType type, int magic, int len, String body) {
-        this.start = start;
+    public DataPacket(int version, MessageType type, int magic, int len, String body) {
         this.version = version;
         this.type = type;
         this.magic = magic;
         this.len = len;
         this.body = body;
-    }
-
-    public int getStart() {
-        return start;
-    }
-
-    public void setStart(int start) {
-        this.start = start;
     }
 
     public int getVersion() {

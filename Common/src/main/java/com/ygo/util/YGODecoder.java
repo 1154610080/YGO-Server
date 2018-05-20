@@ -42,7 +42,6 @@ public class YGODecoder extends ByteToMessageDecoder{
                 return;
             }
 
-            int start = byteBuf.readInt();
             int version = byteBuf.readInt();
             MessageType type = MessageType.values()[byteBuf.readInt()];
             int magic = byteBuf.readInt();
@@ -55,7 +54,7 @@ public class YGODecoder extends ByteToMessageDecoder{
 
             String body = byteBuf.readBytes(len).toString(YGOP.CHARSET);
 
-            DataPacket packet = new DataPacket(start, version, type, magic, len, body);
+            DataPacket packet = new DataPacket(version, type, magic, len, body);
 
             list.add(packet);
         }
