@@ -21,9 +21,13 @@ public enum MessageType {
      **/
     LEAVE(OPERATE.code << 1),
     /**
+     * 玩家被踢出房间
+     **/
+    KICK_OUT(LEAVE.code << 1),
+    /**
      * 玩家进入\取消准备状态
      **/
-    PREPARED(LEAVE.code << 1),
+    PREPARED(KICK_OUT.code << 1),
     /**
      * 玩家进入\取消开始状态
      **/
@@ -41,9 +45,13 @@ public enum MessageType {
      **/
     DECK(VERITY.code << 1),
     /**
+     * 猜拳消息
+     **/
+    FINGER_GUESS(DECK.code << 1),
+    /**
      * 玩家退出游戏
      **/
-    EXIT(DECK.code << 1),
+    EXIT(FINGER_GUESS.code << 1),
     /**
      * 发送警告信息
      **/
