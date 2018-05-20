@@ -1,6 +1,9 @@
 package com.ygo.controller;
 
+import com.ygo.constant.MessageType;
+import com.ygo.constant.StatusCode;
 import com.ygo.model.DataPacket;
+import com.ygo.model.ResponseStatus;
 import io.netty.channel.Channel;
 
 /**
@@ -17,6 +20,30 @@ public class ChiefController extends AbstractController{
 
     @Override
     protected void assign() {
+
+        int type = packet.getType().getCode();
+
+        if(type >= MessageType.CREATE.getCode() && type <= MessageType.KICK_OUT.getCode())
+
+            new IOboundController(packet, channel);
+
+        else if(type <= MessageType.COUNT_DOWN.getCode())
+
+            new RoomStatusController(packet, channel);
+
+        else if(type <= MessageType.FINGER_GUESS.getCode())
+
+            new PreparatoryController(packet, channel);
+
+        else if (type <= MessageType.EXIT.getCode())
+
+            new GameController(packet, channel);
+
+        else{
+            channel.writeAndFlush(new ResponseStatus(StatusCode.COMMUNICATION_ERROR));
+            channel.closeFuture();
+        }
+
 
     }
 }

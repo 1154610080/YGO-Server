@@ -37,14 +37,6 @@ public enum MessageType {
      **/
     VERITY(COUNT_DOWN.code << 1),
     /**
-     * 聊天消息
-     **/
-    CHAT(0x1),
-    /**
-     * 操作消息
-     **/
-    OPERATE(CHAT.code << 1),
-    /**
      * 发送卡牌信息
      **/
     DECK(VERITY.code << 1),
@@ -53,9 +45,17 @@ public enum MessageType {
      **/
     FINGER_GUESS(DECK.code << 1),
     /**
+     * 聊天消息
+     **/
+    CHAT(FINGER_GUESS.code << 1),
+    /**
+     * 操作消息
+     **/
+    OPERATE(CHAT.code << 1),
+    /**
      * 玩家退出游戏
      **/
-    EXIT(FINGER_GUESS.code << 1),
+    EXIT(OPERATE.code << 1),
     /**
      * 发送警告信息
      **/
