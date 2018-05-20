@@ -6,9 +6,11 @@ import com.ygo.constant.YGOP;
 import com.ygo.model.DataPacket;
 import com.ygo.model.ResponseStatus;
 import io.netty.buffer.ByteBuf;
+import io.netty.buffer.ByteBufUtil;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 
+import java.io.Console;
 import java.util.List;
 
 /**
@@ -17,7 +19,7 @@ import java.util.List;
  * @author Egan
  * @date 2018/5/19 20:50
  **/
-public class YGODecoder extends ByteToMessageDecoder{
+public class YGOPDecoder extends ByteToMessageDecoder{
     /**
      * 将字节流解码为协议
      *
@@ -43,7 +45,8 @@ public class YGODecoder extends ByteToMessageDecoder{
             }
 
             float version = byteBuf.readFloat();
-            MessageType type = MessageType.values()[byteBuf.readInt()];
+            int typeInt =byteBuf.readInt();
+            MessageType type = MessageType.fromInt32(typeInt);
             int magic = byteBuf.readInt();
             int len = byteBuf.readInt();
 
@@ -56,7 +59,10 @@ public class YGODecoder extends ByteToMessageDecoder{
 
             DataPacket packet = new DataPacket(version, type, magic, len, body);
 
+            System.out.println("");
+
             list.add(packet);
         }
     }
+
 }

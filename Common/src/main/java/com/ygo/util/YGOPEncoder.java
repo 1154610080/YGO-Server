@@ -33,6 +33,7 @@ public class YGOPEncoder extends MessageToByteEncoder<DataPacket>{
             byteBuf.writeInt(dataPacket.getMagic());
             byteBuf.writeInt(dataPacket.getLen());
             byteBuf.writeBytes(dataPacket.getBody().getBytes(YGOP.CHARSET));
+
         }
     }
 }
