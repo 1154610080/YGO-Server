@@ -2,6 +2,7 @@ package com.ygo.model;
 
 import com.ygo.constant.MessageType;
 import com.ygo.constant.YGOP;
+import com.ygo.util.GsonWrapper;
 
 /**
  * 自定义协议YGOP的数据包类
@@ -39,6 +40,14 @@ public class DataPacket {
      * 消息体
      **/
     private String body;
+
+    public DataPacket(ResponseStatus status, MessageType type) {
+        this.version = YGOP.VERSION;
+        this.type = type;
+        this.magic = YGOP.MAGIC;
+        this.len = body.getBytes(YGOP.CHARSET).length;
+        this.body = new String(new GsonWrapper().toJson(status));
+    }
 
     public DataPacket(String body, MessageType type) {
         this.version = YGOP.VERSION;
