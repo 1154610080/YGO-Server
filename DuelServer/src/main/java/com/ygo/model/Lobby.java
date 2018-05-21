@@ -2,11 +2,8 @@ package com.ygo.model;
 
 import com.google.gson.JsonObject;
 import com.google.gson.reflect.TypeToken;
-import com.ygo.constant.YGOP;
 import com.ygo.util.GsonWrapper;
 import io.netty.channel.Channel;
-
-import java.io.UnsupportedEncodingException;
 import java.util.LinkedList;
 import java.util.List;
 
@@ -47,7 +44,7 @@ public class Lobby {
 
         String roomsJsonStr = json.get("rm").getAsString();
 
-        rooms = new GsonWrapper().toObject(roomsJsonStr.getBytes(YGOP.CHARSET),
+        rooms = new GsonWrapper().toObject(roomsJsonStr,
                 new TypeToken<LinkedList<Room>>(){}.getType());
 
     }

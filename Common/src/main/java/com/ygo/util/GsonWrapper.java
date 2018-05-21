@@ -78,10 +78,22 @@ public class GsonWrapper{
      * @date 2018/5/17 19:35
      * @param json json字节数组
      * @param type 目标类类型
-     * @return com.ygo.model.Room
+     * @return T
      **/
     public <T> T toObject(byte[] json, Type type){
         return builder.create().fromJson(new String(json), type);
+    }
+
+    /**
+     * 将json字符串转换成目标类的实例
+     *
+     * @date 2018/5/21 8:27
+     * @param json json字符串
+	 * @param type 目标类类型
+     * @return T
+     **/
+    public <T> T toObject(String json, Type type){
+        return builder.create().fromJson(json, type);
     }
 
 
