@@ -4,10 +4,7 @@ import io.netty.handler.codec.http.HttpMethod;
 import io.netty.handler.codec.http.HttpRequest;
 import io.netty.handler.codec.http.QueryStringDecoder;
 
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 /**
  * Http工具类
@@ -41,5 +38,4 @@ public class HttpUtils {
 
         return requestParamMap;
     }
-
 }

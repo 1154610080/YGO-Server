@@ -1,16 +1,17 @@
 package com.ygo.controller;
 
+
 import com.ygo.model.GameLobby;
-import com.ygo.model.Room;
-import com.ygo.constant.StatusCode;
 import com.ygo.util.GsonWrapper;
-import com.ygo.model.ResponseStatus;
-import io.netty.handler.codec.http.FullHttpRequest;
-import io.netty.handler.codec.http.HttpMethod;
+import com.ygo.util.HttpUtils;
 import io.netty.handler.codec.http.HttpRequest;
 
+import java.util.HashMap;
+import java.util.Map;
+
 /**
- * 大厅控制类
+ * 大厅控制器
+ * 处理来自客户端的Http请求
  *
  * @author Egan
  * @date 2018/5/14 21:32
@@ -18,56 +19,86 @@ import io.netty.handler.codec.http.HttpRequest;
 public class LobbyController {
 
 
+    private HttpRequest request;
+    private GsonWrapper wrapper;
+
+    public LobbyController(HttpRequest request){
+        this.request = request;
+        this.wrapper = new GsonWrapper();
+    }
+
+
     /**
-     * 处理客户端的GET和POST请求
+     * 根据URL响应不同的信息
      *
-     * @author Egan
-     * @date 2018/5/14 22:08
+     * @date 2018/5/21 9:29
+     * @param
+     * @return byte[] 响应结果
      **/
-    public static byte[] response(HttpRequest request){
+    public byte[] response(){
 
         GsonWrapper wrapper = new GsonWrapper();
 
-        if (request.method() == HttpMethod.GET)
-            return wrapper.toJson(GameLobby.getLobby());
-        else if(request.method() == HttpMethod.POST)
-            return wrapper.toJson(addRoom((FullHttpRequest)request));
-        return wrapper.toJson(new ResponseStatus(StatusCode.UNSUPPORTED_METHOD));
+        String parameter =
+                HttpUtils.getRequestParams(request).keySet().iterator().next();
+
+
+        switch (parameter){
+            case "bulletin":
+                return getBulletin();
+            case "version":
+                return getVersion();
+            case "rooms":
+                default:
+                    return getRooms();
+        }
+
     }
 
     /**
-     * 创建房间
-     * 处理客户端的创建新房间请求(POST)
-     * 
-     * @author Egan
-     * @date 2018/5/14 21:55
+     * 获取房间列表
+     *
+     * @date 2018/5/21 9:27
+     * @param
+     * @return byte[]
      **/
-    public static ResponseStatus addRoom(FullHttpRequest request){
+    public byte[] getRooms(){
 
-        byte[] bytes = new byte[request.content().readableBytes()];
-        request.content().readBytes(bytes);
-        Room room = new GsonWrapper().toObject(bytes, Room.class);
+        return wrapper.toJson(GameLobby.getLobby());
 
-        GameLobby lobby = GameLobby.getLobby();
-        if(lobby.getRooms().size() < lobby.getMAXIMUM())
-            lobby.getRooms().add(room);
-        else
-            return new ResponseStatus(StatusCode.FULL_LOBBY);
-
-        return new ResponseStatus().ok();
     }
 
-    public static ResponseStatus joinRoom(FullHttpRequest request){
-        return new ResponseStatus().ok();
-    }
-    
     /**
-     * 决斗服务器拥有删除房间的权限
-     * 
-     * @author Egan
-     * @date 2018/5/14 21:44
+     * 获取公告信息
+     *
+     * @date 2018/5/21 9:42
+     * @param
+     * @return byte[]
      **/
-    public static ResponseStatus removeRoom(FullHttpRequest request){
-        return new ResponseStatus().ok();
+    public byte[] getBulletin(){
+
+        Map<String, String> bulletin = new HashMap<>();
+
+        bulletin.put("bt", "欢迎使用YGO\n以下模块以开放：\n 1.游戏大厅");
+
+        return wrapper.toJson(bulletin);
+
     }
+
+    /**
+     * 获取版本信息
+     *
+     * @date 2018/5/21 9:42
+     * @param
+     * @return byte[]
+     **/
+    public byte[] getVersion(){
+
+        Map<String, Float> version = new HashMap<>();
+
+        version.put("vs", 1.0f);
+
+        return wrapper.toJson(version);
+    }
+
 }
