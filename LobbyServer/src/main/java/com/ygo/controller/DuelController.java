@@ -3,8 +3,14 @@ package com.ygo.controller;
 import com.ygo.constant.MessageType;
 import com.ygo.constant.StatusCode;
 import com.ygo.model.DataPacket;
+import com.ygo.model.GameLobby;
 import com.ygo.model.ResponseStatus;
+import com.ygo.model.Room;
+import com.ygo.util.CommonLog;
+import com.ygo.util.GsonWrapper;
 import io.netty.channel.Channel;
+
+import java.util.List;
 
 
 /**
@@ -64,7 +70,31 @@ public class DuelController {
      * @param
      * @return void
      **/
-    private void addRoom(){
+    private synchronized void addRoom(){
+
+        try {
+            Room room = new GsonWrapper().toObject(packet.getBody(), Room.class);
+            if(room == null || room.getHost() == null)
+            {
+                CommonLog.log.error("Incomplete room which come from Duel-Server!");
+                return;
+            }
+
+            //分配id
+
+            List<Room> rooms = GameLobby.getLobby().getRooms();
+
+            int id = 0;
+            room.setId(0);
+            for (; id < rooms.size() && id == rooms.get(id).getId()-1; id++ );
+
+            room.setId(id + 1);
+
+            rooms.add(id, room);
+
+        }catch (Exception e){
+            CommonLog.log.error(e.toString());
+        }
 
     }
 

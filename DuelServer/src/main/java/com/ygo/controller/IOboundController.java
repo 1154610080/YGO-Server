@@ -2,10 +2,12 @@ package com.ygo.controller;
 
 import com.ygo.constant.MessageType;
 import com.ygo.constant.StatusCode;
-import com.ygo.model.DataPacket;
-import com.ygo.model.Lobby;
-import com.ygo.model.ResponseStatus;
+import com.ygo.model.*;
+import com.ygo.util.CommonLog;
+import com.ygo.util.GsonWrapper;
 import io.netty.channel.Channel;
+
+import java.net.InetSocketAddress;
 
 /**
  * 房间出入控制器
@@ -61,6 +63,29 @@ public class IOboundController extends AbstractController{
      * @return void
      **/
     private void createRoom(){
+
+        try{
+            Room room = new GsonWrapper().toObject(packet.getBody(), Room.class);
+            if(room == null || room.getHost() == null)
+            {
+                channel.writeAndFlush(
+                        new DataPacket("房间信息不全", MessageType.WARING)
+                );
+                return;
+            }
+
+            Player host = room.getHost();
+            //分配ip地址和端口号
+            InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
+            host.setIp(address.getHostName());
+            host.setPort(address.getPort());
+
+            Lobby.getChannel().writeAndFlush(
+                    new DataPacket(packet.getBody(), MessageType.CREATE)
+            );
+        }catch(Exception e){
+            CommonLog.log.error(e.toString());
+        }
 
     }
 
