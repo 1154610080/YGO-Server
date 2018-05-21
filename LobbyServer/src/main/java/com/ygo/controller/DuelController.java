@@ -1,6 +1,9 @@
 package com.ygo.controller;
 
+import com.ygo.constant.MessageType;
+import com.ygo.constant.StatusCode;
 import com.ygo.model.DataPacket;
+import com.ygo.model.ResponseStatus;
 import io.netty.channel.Channel;
 
 
@@ -43,6 +46,13 @@ public class DuelController {
                 getRooms();break;
             case LEAVE:
                 removeRoom();break;
+            default:
+                channel.writeAndFlush(
+                        new DataPacket(
+                                new ResponseStatus(StatusCode.COMMUNICATION_ERROR,
+                                "Nonexistent Type"),
+                                MessageType.WARING)
+                );
         }
 
     }
