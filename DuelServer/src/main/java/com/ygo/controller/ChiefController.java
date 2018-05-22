@@ -16,7 +16,7 @@ import io.netty.channel.Channel;
  **/
 public class ChiefController extends AbstractController{
 
-    ChiefController(DataPacket packet, Channel channel) {
+    public ChiefController(DataPacket packet, Channel channel) {
         super(packet, channel);
     }
 

@@ -1,5 +1,6 @@
 package com.ygo.server;
 
+import com.ygo.constant.YGOP;
 import com.ygo.util.CommonLog;
 import com.ygo.util.YGOPDecoder;
 import com.ygo.util.YGOPEncoder;
@@ -18,11 +19,6 @@ import java.net.InetSocketAddress;
  * @date 2018/4/16 13:48
  */
 public class DuelServer{
-
-    /**
-     * 连接游戏大厅服务器的通道
-     **/
-    public static Channel lobbyChannel;
 
     private int port;
 
@@ -60,7 +56,7 @@ public class DuelServer{
 
     public static void main(String[] args) throws InterruptedException {
 
-        DuelServer server = new DuelServer(19208);
+        DuelServer server = new DuelServer(16384);
         server.start();
     }
 

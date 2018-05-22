@@ -10,9 +10,6 @@ import com.ygo.util.CommonLog;
 import com.ygo.util.GsonWrapper;
 import io.netty.channel.Channel;
 
-import java.util.List;
-
-
 /**
  * 决斗控制器
  * 用于处理来自决斗服务器的请求
@@ -52,6 +49,7 @@ public class DuelController {
                 getRooms();break;
             case LEAVE:
                 removeRoom();break;
+            case CHAT:break;
             default:
                 channel.writeAndFlush(
                         new DataPacket(
@@ -70,7 +68,7 @@ public class DuelController {
      * @param
      * @return void
      **/
-    private synchronized void addRoom(){
+    private void addRoom(){
 
         try {
             Room room = new GsonWrapper().toObject(packet.getBody(), Room.class);
@@ -80,17 +78,7 @@ public class DuelController {
                 return;
             }
 
-            //分配id
-
-            List<Room> rooms = GameLobby.getLobby().getRooms();
-
-            int id = 0;
-            room.setId(0);
-            for (; id < rooms.size() && id == rooms.get(id).getId()-1; id++ );
-
-            room.setId(id + 1);
-
-            rooms.add(id, room);
+            GameLobby.getLobby().getRooms().add(room.getId()-1, room);
 
         }catch (Exception e){
             CommonLog.log.error(e.toString());

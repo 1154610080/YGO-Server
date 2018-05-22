@@ -2,7 +2,10 @@ package com.ygo.server;
 
 import com.ygo.constant.MessageType;
 import com.ygo.constant.YGOP;
+import com.ygo.controller.ChiefController;
 import com.ygo.model.DataPacket;
+import com.ygo.model.Lobby;
+import com.ygo.util.CommonLog;
 import io.netty.channel.ChannelHandler.Sharable;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
@@ -25,13 +28,16 @@ public class DuelServerHandler extends ChannelInboundHandlerAdapter{
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         super.handlerAdded(ctx);
-        System.out.println(ctx.channel().id() + " has come.");
+
+        InetSocketAddress channelAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+
+        CommonLog.log.info(channelAddress.getAddress() + ":" +channelAddress.getPort() + " has come.");
 
         //如果连接来自大厅服务器，保存通道
-        if(DuelServer.lobbyChannel == null
-                && ((InetSocketAddress)ctx.channel().remoteAddress()).getAddress()
-                == YGOP.LOBBY_SERVER_ADDR.getAddress()){
-            DuelServer.lobbyChannel = ctx.channel();
+        if(Lobby.getChannel() == null
+                && YGOP.LOBBY_SERVER_ADDR.getAddress().equals(channelAddress.getAddress())){
+            Lobby.setChannel(ctx.channel());
+            CommonLog.log.info("Lobby-Server has connected successfully");
         }
     }
 
@@ -43,7 +49,9 @@ public class DuelServerHandler extends ChannelInboundHandlerAdapter{
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
         super.handlerRemoved(ctx);
-        System.out.println(ctx.channel().id() + " has out.");
+        InetSocketAddress channelAddress = (InetSocketAddress) ctx.channel().remoteAddress();
+
+        CommonLog.log.info(channelAddress.getAddress() + ":" +channelAddress.getPort() + " has out.");
     }
 
     /**
@@ -54,10 +62,11 @@ public class DuelServerHandler extends ChannelInboundHandlerAdapter{
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         DataPacket packet = (DataPacket)msg;
-        System.out.println(packet.getVersion() + "  |  " + packet.getType().name() + "  |  " +
-                packet.getMagic() + "  |  " + packet.getLen() + "  |  " + packet.getBody());
+
+        CommonLog.log.info(new String(packet.getBody().getBytes(), YGOP.CHARSET));
         ctx.channel().write(new DataPacket("Hello, I'm Duel-Server.", MessageType.CHAT));
         ctx.channel().write(new DataPacket("Hello again, can you parse it?", MessageType.CHAT));
+        ChiefController chief = new ChiefController(packet, ctx.channel());
     }
 
     /**

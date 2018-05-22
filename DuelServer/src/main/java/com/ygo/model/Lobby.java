@@ -24,7 +24,7 @@ public class Lobby {
     /**
      * 房间列表
      **/
-    private static List<Room> rooms;
+    private static List<Room> rooms = new LinkedList<>();
 
     /**
      * 连接游戏大厅服务器的通道

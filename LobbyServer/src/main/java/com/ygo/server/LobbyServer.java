@@ -3,6 +3,9 @@ package com.ygo.server;
 import com.sun.net.httpserver.HttpServer;
 import com.ygo.client.DuelClient;
 import com.ygo.constant.YGOP;
+import com.ygo.model.GameLobby;
+import com.ygo.model.Player;
+import com.ygo.model.Room;
 import com.ygo.util.CommonLog;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.ChannelFuture;
@@ -47,7 +50,7 @@ public class LobbyServer implements Runnable{
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
 
             ChannelFuture future = b.bind(port).sync();
-            CommonLog.log.info("GameLobby server listening on 8844...");
+            CommonLog.log.info(new String(("游戏大厅正在监听端口 " + port + "...").getBytes(), YGOP.CHARSET));
             future.channel().closeFuture().sync();
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -62,8 +65,32 @@ public class LobbyServer implements Runnable{
 
     public static void main(String[] args) throws InterruptedException {
 
-        LobbyServer server = new LobbyServer(8844);
-        DuelClient client = new DuelClient("127.0.0.1", 19208);
+//        Player player1 = new Player();
+//        player1.setName("测试房主1");
+//        Player player2 = new Player();
+//        player2.setName("测试房客1");
+//        Player player3 = new Player();
+//        player3.setName("测试房主2");
+//        Player player4 = new Player();
+//        player4.setName("测试房客2");
+//        Room room1 = new Room();
+//        room1.setId(1);
+//        room1.setHost(player1);
+//        room1.setGuest(player2);
+//        room1.setName("测试房间1");
+//        room1.setDesc("用于测试的房间");
+//        Room room2 = new Room();
+//        room2.setId(2);
+//        room2.setHost(player3);
+//        room2.setGuest(player4);
+//        room2.setName("测试房间2");
+//        room2.setDesc("用于测试的房间");
+//        GameLobby.getLobby().getRooms().add(room1);
+//        GameLobby.getLobby().getRooms().add(room2);
+
+
+        LobbyServer server = new LobbyServer(8192);
+        DuelClient client = new DuelClient("127.0.0.1", 16384);
 
         Thread lobbyThread = new Thread(server);
         Thread duelThread = new Thread(client);

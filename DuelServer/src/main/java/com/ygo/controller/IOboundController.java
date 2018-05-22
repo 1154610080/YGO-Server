@@ -2,12 +2,14 @@ package com.ygo.controller;
 
 import com.ygo.constant.MessageType;
 import com.ygo.constant.StatusCode;
+import com.ygo.constant.YGOP;
 import com.ygo.model.*;
 import com.ygo.util.CommonLog;
 import com.ygo.util.GsonWrapper;
 import io.netty.channel.Channel;
 
 import java.net.InetSocketAddress;
+import java.util.List;
 
 /**
  * 房间出入控制器
@@ -26,6 +28,7 @@ public class IOboundController extends AbstractController{
     protected void assign() {
 
         if(Lobby.getChannel() == null){
+            CommonLog.log.error("The lobby is null");
             channel.writeAndFlush(
                     new DataPacket(new ResponseStatus(StatusCode.INTERNAL_SERVER_ERROR,
                     "游戏大厅服务器维护中"), MessageType.WARING));
@@ -33,6 +36,7 @@ public class IOboundController extends AbstractController{
         }
 
         Lobby.getChannel().writeAndFlush(new DataPacket("", MessageType.REQUIRED_ROOMS));
+
 
         switch (packet.getType()){
             case CREATE:
@@ -62,10 +66,15 @@ public class IOboundController extends AbstractController{
      * @param
      * @return void
      **/
-    private void createRoom(){
+    private synchronized void createRoom(){
 
         try{
-            Room room = new GsonWrapper().toObject(packet.getBody(), Room.class);
+
+
+
+            GsonWrapper gson = new GsonWrapper();
+
+            Room room = gson.toObject(packet.getBody(), Room.class);
             if(room == null || room.getHost() == null)
             {
                 channel.writeAndFlush(
@@ -74,17 +83,26 @@ public class IOboundController extends AbstractController{
                 return;
             }
 
-            Player host = room.getHost();
+            //分配ID
+            List<Room> rooms = Lobby.getRooms();
+            int id = 0;
+            System.out.println(rooms.size());
+            for (; id < rooms.size() && id == rooms.get(id).getId()-1; id++ ){
+                System.out.println(id);
+            };
+            room.setId(id + 1);
+
             //分配ip地址和端口号
+            Player host = room.getHost();
             InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
             host.setIp(address.getHostName());
             host.setPort(address.getPort());
 
             Lobby.getChannel().writeAndFlush(
-                    new DataPacket(packet.getBody(), MessageType.CREATE)
+                    new DataPacket(new String(gson.toJson(room), YGOP.CHARSET), MessageType.CREATE)
             );
         }catch(Exception e){
-            CommonLog.log.error(e.toString());
+            CommonLog.log.error(e);
         }
 
     }

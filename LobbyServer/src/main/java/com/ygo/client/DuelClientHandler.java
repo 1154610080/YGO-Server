@@ -2,6 +2,7 @@ package com.ygo.client;
 
 import com.ygo.constant.MessageType;
 import com.ygo.constant.YGOP;
+import com.ygo.controller.DuelController;
 import com.ygo.model.DataPacket;
 import com.ygo.util.CommonLog;
 import io.netty.channel.ChannelHandlerContext;
@@ -24,6 +25,7 @@ public class DuelClientHandler extends SimpleChannelInboundHandler<DataPacket> {
     protected void channelRead0
             (ChannelHandlerContext channelHandlerContext,
              DataPacket dataPacket) throws Exception {
-        CommonLog.log.info("DuelServer: " + dataPacket.getBody());
+        CommonLog.log.info(new String(("DuelServer: " + dataPacket.getBody()).getBytes(), YGOP.CHARSET));
+        new DuelController(channelHandlerContext.channel(), dataPacket);
     }
 }

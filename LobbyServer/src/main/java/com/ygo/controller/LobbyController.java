@@ -2,11 +2,14 @@ package com.ygo.controller;
 
 
 import com.ygo.model.GameLobby;
+import com.ygo.model.Room;
+import com.ygo.util.CommonLog;
 import com.ygo.util.GsonWrapper;
 import com.ygo.util.HttpUtils;
 import io.netty.handler.codec.http.HttpRequest;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 
 /**
@@ -39,8 +42,9 @@ public class LobbyController {
 
         GsonWrapper wrapper = new GsonWrapper();
 
-        String parameter =
-                HttpUtils.getRequestParams(request).keySet().iterator().next();
+        Iterator<String> iterator = HttpUtils.getRequestParams(request).keySet().iterator();
+
+        String parameter = iterator.hasNext() ? iterator.next() : "";
 
 
         switch (parameter){
@@ -63,9 +67,7 @@ public class LobbyController {
      * @return byte[]
      **/
     public byte[] getRooms(){
-
         return wrapper.toJson(GameLobby.getLobby());
-
     }
 
     /**
@@ -79,7 +81,7 @@ public class LobbyController {
 
         Map<String, String> bulletin = new HashMap<>();
 
-        bulletin.put("bt", "欢迎使用YGO\n以下模块以开放：\n 1.游戏大厅");
+        bulletin.put("bt", "欢迎使用YGO\n以下模块已开放：\t\n 1.游戏大厅");
 
         return wrapper.toJson(bulletin);
 
