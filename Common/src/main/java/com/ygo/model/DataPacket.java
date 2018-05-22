@@ -45,8 +45,8 @@ public class DataPacket {
         this.version = YGOP.VERSION;
         this.type = type;
         this.magic = YGOP.MAGIC;
-        this.len = body.getBytes(YGOP.CHARSET).length;
         this.body = new String(new GsonWrapper().toJson(status));
+        this.len = body.getBytes(YGOP.CHARSET).length;
     }
 
     public DataPacket(String body, MessageType type) {

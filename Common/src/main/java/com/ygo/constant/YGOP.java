@@ -27,48 +27,6 @@ public class YGOP {
     * 消息体长度所占字节数
     */
     public static final int LEN_LEN = 4;
-    /*
-    * 版本的顺序
-    */
-    public static final int VERSION_ORDER = 0;
-    /*
-    * 类型的顺序
-    */
-    public static final int TYPE_ORDER = VERSION_ORDER + 1;
-    /*
-    * 魔数的顺序
-    */
-    public static final int MAGIC_ORDER = TYPE_ORDER + 1;
-    /*
-    * 消息体长度的顺序
-    */
-    public static final int LEN_ORDER = MAGIC_ORDER + 1;
-    /*
-    * 消息体的顺序
-    */
-    public static final int BODY_ORDER = LEN_ORDER + 1;
-
-    /*
-    * 版本的位置
-    */
-    public static final int VERSION_POS = 0;
-    /*
-    * 类型的位置
-    */
-    public static final int TYPE_POS = VERSION_POS + VERSION_LEN;
-    /*
-    * 魔数的位置
-    */
-    public static final int MAGIC_POS = TYPE_POS + TYPE_LEN;
-    /*
-    * 消息体长度的位置
-    */
-    public static final int LEN_POS = MAGIC_POS + MAGIC_LEN;
-    /*
-    * 消息体的位置
-    */
-    public static final int BODY_POS = LEN_POS + LEN_LEN;
-
 
     /**
      * 默认编码
@@ -91,15 +49,11 @@ public class YGOP {
     /*
      * 数据包头的固定长度
      */
-    public static final int HEAD_LEN = 20;
+    public static final int HEAD_LEN = VERSION_LEN + TYPE_LEN + MAGIC_LEN + LEN_LEN;
     /*
      * 最大内容长度
      */
     public static final int MAX_LEN = 1024;
-    /*
-     * 协议的段数
-     */
-    public static final int PART_COUNT = 6;
 
     //其他相关常量
 

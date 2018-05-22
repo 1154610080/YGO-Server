@@ -5,9 +5,13 @@ import java.util.Map;
 
 public enum MessageType {
     /**
+     * 获取房间列表
+     **/
+    GET(0x1),
+    /**
      * 玩家创建房间
      **/
-    CREATE(0x1),
+    CREATE(GET.code << 1),
     /**
      * 玩家加入房间
      **/
@@ -23,11 +27,11 @@ public enum MessageType {
     /**
      * 玩家进入\取消准备状态
      **/
-    PREPARED(KICK_OUT.code << 1),
+    READY(KICK_OUT.code << 1),
     /**
      * 玩家进入\取消开始状态
      **/
-    STARTED(PREPARED.code << 1),
+    STARTED(READY.code << 1),
     /**
      * 请玩家开始倒计时
      **/
