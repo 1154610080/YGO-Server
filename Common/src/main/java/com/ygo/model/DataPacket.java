@@ -41,9 +41,9 @@ public class DataPacket {
      **/
     private String body;
 
-    public DataPacket(ResponseStatus status, MessageType type) {
+    public DataPacket(ResponseStatus status) {
         this.version = YGOP.VERSION;
-        this.type = type;
+        this.type = MessageType.WARING;
         this.magic = YGOP.MAGIC;
         this.body = new String(new GsonWrapper().toJson(status));
         this.len = body.getBytes(YGOP.CHARSET).length;

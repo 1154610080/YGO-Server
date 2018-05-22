@@ -1,6 +1,7 @@
 package com.ygo.server;
 
 import com.ygo.controller.LobbyController;
+import com.ygo.model.DataPacket;
 import com.ygo.model.ResponseStatus;
 import com.ygo.constant.StatusCode;
 import io.netty.buffer.Unpooled;
@@ -28,11 +29,12 @@ public class LobbyServerHandler extends ChannelInboundHandlerAdapter {
         ctx.write(response);
         ctx.flush();
 
-    }
+        if(msg instanceof DataPacket){
 
-    @Override
-    public void channelReadComplete(ChannelHandlerContext ctx) throws Exception {
-        ctx.flush();
+        }else {
+            ctx.writeAndFlush(new DataPacket(new ResponseStatus(StatusCode.COMMUNICATION_ERROR)));
+        }
+
     }
 
     @Override

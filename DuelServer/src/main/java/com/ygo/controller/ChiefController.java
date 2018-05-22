@@ -52,8 +52,7 @@ public class ChiefController extends AbstractController{
         else{
             channel.writeAndFlush(
                     new DataPacket(new ResponseStatus(StatusCode.COMMUNICATION_ERROR,
-                            "Nonexistent Type"),
-                            MessageType.WARING));
+                            "Nonexistent Type")));
             channel.closeFuture();
         }
 
