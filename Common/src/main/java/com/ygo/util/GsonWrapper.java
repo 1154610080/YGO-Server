@@ -62,12 +62,23 @@ public class GsonWrapper{
     }
     
     /**
-     * 将对象转换成json
+     * 将对象转换成json字符串
      *
      * @date 2018/5/17 19:40  
      * @param object 需要转换的对象  
-     * @return byte[] json字节数组 
+     * @return byte[] json字符串
      **/   
+    public String toJsonStr(Object object){
+        return builder.create().toJson(object);
+    }
+
+    /**
+     * 将对象转换成json
+     *
+     * @date 2018/5/17 19:40
+     * @param object 需要转换的对象
+     * @return byte[] json字节数组
+     **/
     public byte[] toJson(Object object){
         return builder.create().toJson(object).getBytes(CharsetUtil.UTF_8);
     }

@@ -89,13 +89,13 @@ public class IOboundController extends AbstractController{
             System.out.println(rooms.size());
             for (; id < rooms.size() && id == rooms.get(id).getId()-1; id++ ){
                 System.out.println(id);
-            };
+            }
             room.setId(id + 1);
 
             //分配ip地址和端口号
             Player host = room.getHost();
             InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
-            host.setIp(address.getHostName());
+            host.setIp(address.getHostString());
             host.setPort(address.getPort());
 
             Lobby.getChannel().writeAndFlush(

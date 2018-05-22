@@ -17,7 +17,7 @@ public class ChiefController extends AbstractController{
 
         int type = packet.getType().getCode();
 
-        if(type >= MessageType.GET.getCode() && type <= MessageType.JOIN.getCode())
+        if(type >= MessageType.GET_ROOMS.getCode() && type <= MessageType.JOIN.getCode())
             new LobbyController(packet, channel);
         else if(type >= MessageType.LEAVE.getCode() && type <= MessageType.COUNT_DOWN.getCode())
             new RoomController(packet, channel);

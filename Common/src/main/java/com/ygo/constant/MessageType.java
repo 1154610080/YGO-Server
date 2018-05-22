@@ -7,11 +7,11 @@ public enum MessageType {
     /**
      * 获取房间列表
      **/
-    GET(0x1),
+    GET_ROOMS(0x1),
     /**
      * 玩家创建房间
      **/
-    CREATE(GET.code << 1),
+    CREATE(GET_ROOMS.code << 1),
     /**
      * 玩家加入房间
      **/
@@ -61,9 +61,17 @@ public enum MessageType {
      **/
     EXIT(OPERATE.code << 1),
     /**
+     * 获取版本信息
+     **/
+    GET_VESION(EXIT.code << 1),
+    /**
+     * 获取公告板
+     **/
+    GET_BULLETIN(GET_VESION.code << 1),
+    /**
      * 发送警告信息
      **/
-    WARING(EXIT.code << 1),
+    WARING(GET_BULLETIN.code << 1),
 
     //服务器特有的消息类型
     /**

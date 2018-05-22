@@ -1,106 +1,125 @@
 package com.ygo.controller;
 
 
-import com.ygo.model.GameLobby;
-import com.ygo.model.Room;
+import com.ygo.constant.MessageType;
+import com.ygo.constant.StatusCode;
+import com.ygo.constant.YGOP;
+import com.ygo.model.*;
 import com.ygo.util.CommonLog;
 import com.ygo.util.GsonWrapper;
 import com.ygo.util.HttpUtils;
+import io.netty.channel.Channel;
 import io.netty.handler.codec.http.HttpRequest;
 
+import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Map;
 
 /**
  * 大厅控制器
- * 处理来自客户端的Http请求
+ * 处理来自玩家在游戏大厅内的请求
  *
  * @author Egan
  * @date 2018/5/14 21:32
  **/
-public class LobbyController {
+public class LobbyController extends AbstractController{
 
+    private GsonWrapper wrapper = new GsonWrapper();
 
-    private HttpRequest request;
-    private GsonWrapper wrapper;
-
-    public LobbyController(HttpRequest request){
-        this.request = request;
-        this.wrapper = new GsonWrapper();
+    LobbyController(DataPacket packet, Channel channel) {
+        super(packet, channel);
     }
 
-
-    /**
-     * 根据URL响应不同的信息
-     *
-     * @date 2018/5/21 9:29
-     * @param
-     * @return byte[] 响应结果
-     **/
-    public byte[] response(){
-
-        GsonWrapper wrapper = new GsonWrapper();
-
-        Iterator<String> iterator = HttpUtils.getRequestParams(request).keySet().iterator();
-
-        String parameter = iterator.hasNext() ? iterator.next() : "";
-
-
-        switch (parameter){
-            case "bulletin":
-                return getBulletin();
-            case "version":
-                return getVersion();
-            case "rooms":
-                default:
-                    return getRooms();
+    @Override
+    protected void assign() {
+        switch (packet.getType()){
+            case GET_ROOMS: getRooms(); break;
+            case CREATE: createRoom(); break;
+            case JOIN: joinRoom(); break;
+            default:
+                channel.writeAndFlush(
+                        new DataPacket(
+                                new ResponseStatus(
+                                        StatusCode.COMMUNICATION_ERROR,
+                                        "Unsupported Type")));
+                CommonLog.log.
+                        error("The type \""+packet.getType() + "\" is unsupported in Lobby-Controller");
         }
-
     }
 
     /**
      * 获取房间列表
      *
-     * @date 2018/5/21 9:27
+     * @date 2018/5/22 13:22
      * @param
-     * @return byte[]
+     * @return void
      **/
-    public byte[] getRooms(){
-        return wrapper.toJson(GameLobby.getLobby());
-    }
+    private void getRooms(){
 
-    /**
-     * 获取公告信息
-     *
-     * @date 2018/5/21 9:42
-     * @param
-     * @return byte[]
-     **/
-    public byte[] getBulletin(){
+        String lobbyStr = new String(wrapper.toJson(GameLobby.getLobby()), YGOP.CHARSET);
 
-        Map<String, String> bulletin = new HashMap<>();
-
-        bulletin.put("bt", "欢迎使用YGO\n以下模块已开放：\t\n 1.游戏大厅");
-
-        return wrapper.toJson(bulletin);
+        channel.writeAndFlush(new DataPacket(lobbyStr, MessageType.GET_ROOMS));
 
     }
 
     /**
-     * 获取版本信息
+     * 创建房间
      *
-     * @date 2018/5/21 9:42
+     * @date 2018/5/22 13:25
      * @param
-     * @return byte[]
+     * @return void
      **/
-    public byte[] getVersion(){
+    private synchronized void createRoom(){
 
-        Map<String, Float> version = new HashMap<>();
 
-        version.put("vs", 1.0f);
+        try{
+            List<Room> rooms = GameLobby.getLobby().getRooms();
 
-        return wrapper.toJson(version);
+            if(rooms.size() >= GameLobby.getLobby().getMAXIMUM()){
+                channel.writeAndFlush( new DataPacket(
+                        new ResponseStatus(StatusCode.FULL_LOBBY)));
+                CommonLog.log.error(StatusCode.FULL_LOBBY);
+            }
+
+            //获取房间
+            Room room = wrapper.toObject(packet.getBody(), Room.class);
+
+            //分配ip和端口
+
+            InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
+
+            Player host = room.getHost();
+            host.setIp(address.getAddress().toString());
+            host.setPort(address.getPort());
+
+            //分配房间ID
+
+            int id = 0;
+            while (id++ < rooms.size() && id == rooms.get(id).getId()-1);
+            room.setId(id + 1);
+            rooms.add(id, room);
+
+            //向客户端发送新的房间ID
+            channel.writeAndFlush(new DataPacket(
+                    wrapper.toJsonStr(id), MessageType.CREATE)
+            );
+
+        }catch (Exception e){
+            CommonLog.log.error(e + " in creatRoom() of Lobby-Controller");
+        }
+
     }
 
+    /**
+     * 加入房间
+     *
+     * @date 2018/5/22 13:25
+     * @param
+     * @return void
+     **/
+    private void joinRoom(){
+
+    }
 }
