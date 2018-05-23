@@ -30,8 +30,8 @@ public class IOboundController extends AbstractController{
         if(Lobby.getChannel() == null){
             CommonLog.log.error("The lobby is null");
             channel.writeAndFlush(
-                    new DataPacket(new ResponseStatus(StatusCode.INTERNAL_SERVER_ERROR,
-                    "游戏大厅服务器维护中"), MessageType.WARING));
+                    new DataPacket(new ResponseStatus(
+                            StatusCode.INTERNAL_SERVER_ERROR,"游戏大厅服务器维护中")));
             return;
         }
 

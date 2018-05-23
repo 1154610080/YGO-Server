@@ -16,19 +16,16 @@ public class ResponseStatus extends HashMap<String, Object>{
 
     }
 
-    public ResponseStatus(int code, String msg){
+    public ResponseStatus(int code){
         super.put("code", code);
-        super.put("msg", msg);
     }
 
     public ResponseStatus(StatusCode status){
         super.put("code", status.getCode());
-        super.put("msg", status.getMsg());
     }
 
     public ResponseStatus(StatusCode status, String msg){
         super.put("code", status.getCode());
-        super.put("msg", msg);
     }
 
     /**

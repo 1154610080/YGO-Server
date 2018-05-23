@@ -1,13 +1,15 @@
 package com.ygo.server;
 
-import com.ygo.controller.LobbyController;
+import com.ygo.constant.YGOP;
+import com.ygo.controller.ChiefController;
 import com.ygo.model.DataPacket;
 import com.ygo.model.ResponseStatus;
 import com.ygo.constant.StatusCode;
-import io.netty.buffer.Unpooled;
+import com.ygo.util.CommonLog;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
-import io.netty.handler.codec.http.*;
+
+import java.net.InetSocketAddress;
 
 /**
  * 大厅服务器处理器
@@ -16,22 +18,28 @@ import io.netty.handler.codec.http.*;
  * @date 2018/5/7 22:54
  **/
 public class LobbyServerHandler extends ChannelInboundHandlerAdapter {
+
+    @Override
+    public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
+        InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
+        CommonLog.log.info(address.getHostString() + " has the inbound.");
+    }
+
+    @Override
+    public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
+        InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
+        CommonLog.log.info(address.getHostString() + " has the outbound.");
+    }
+
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-
-        LobbyController controller = new LobbyController((HttpRequest)msg);
-
-        FullHttpResponse response = new DefaultFullHttpResponse
-                (HttpVersion.HTTP_1_1, HttpResponseStatus.OK,
-                        Unpooled.wrappedBuffer(controller.response()));
-        response.headers().set("CONTENT-TYPE", "text/plain");
-        response.headers().set("CONTENT-LENGTH", response.content().readableBytes());
-        ctx.write(response);
-        ctx.flush();
-
         if(msg instanceof DataPacket){
-
+            DataPacket packet = (DataPacket)msg;
+            CommonLog.log.info(
+                    new String((packet.getType() +  " : " + packet.getBody()).getBytes(), YGOP.CHARSET));
+            new ChiefController(packet, ctx.channel());
         }else {
+            CommonLog.log.error("The message isn't a Data Packet");
             ctx.writeAndFlush(new DataPacket(new ResponseStatus(StatusCode.COMMUNICATION_ERROR)));
         }
 
@@ -40,7 +48,7 @@ public class LobbyServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         ctx.writeAndFlush(new ResponseStatus(StatusCode.INTERNAL_SERVER_ERROR, "msg"));
-        cause.printStackTrace();
+        CommonLog.log.error(cause + " in Lobby-Server-Handler");
         ctx.close();
     }
 

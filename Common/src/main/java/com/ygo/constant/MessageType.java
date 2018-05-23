@@ -37,13 +37,9 @@ public enum MessageType {
      **/
     COUNT_DOWN(STARTED.code << 1),
     /**
-     * 校验客户端文件完整性
-     **/
-    VERITY(COUNT_DOWN.code << 1),
-    /**
      * 发送卡牌信息
      **/
-    DECK(VERITY.code << 1),
+    DECK(COUNT_DOWN.code << 1),
     /**
      * 猜拳消息
      **/
@@ -63,25 +59,19 @@ public enum MessageType {
     /**
      * 获取版本信息
      **/
-    GET_VESION(EXIT.code << 1),
+    GET_VERSION(EXIT.code << 1),
     /**
      * 获取公告板
      **/
-    GET_BULLETIN(GET_VESION.code << 1),
+    GET_BULLETIN(GET_VERSION.code << 1),
+    /**
+     * 校验客户端文件完整性
+     **/
+    VERITY(GET_BULLETIN.code << 1),
     /**
      * 发送警告信息
      **/
-    WARING(GET_BULLETIN.code << 1),
-
-    //服务器特有的消息类型
-    /**
-     * 决斗服务器向大厅服务器请求房间列表消息
-     **/
-    REQUIRED_ROOMS(WARING.code << 1),
-    /**
-     * 大厅服务器向决斗服务器发送房间列表消息
-     **/
-    RETURN_ROOMS(REQUIRED_ROOMS.code << 1);
+    WARING(VERITY.code << 1);
 
 
     private static final Map<Integer, MessageType> integerToMessageType = new HashMap<>();

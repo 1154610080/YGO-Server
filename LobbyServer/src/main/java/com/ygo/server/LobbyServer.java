@@ -1,6 +1,10 @@
 package com.ygo.server;
 
 import com.ygo.constant.YGOP;
+import com.ygo.controller.IpFilterHandler;
+import com.ygo.model.GameLobby;
+import com.ygo.model.Player;
+import com.ygo.model.Room;
 import com.ygo.util.CommonLog;
 import com.ygo.util.YGOPDecoder;
 import com.ygo.util.YGOPEncoder;
@@ -37,9 +41,11 @@ public class LobbyServer{
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
+
                             socketChannel.pipeline().addLast(new YGOPEncoder());
                             socketChannel.pipeline().addLast(new YGOPDecoder());
                             socketChannel.pipeline().addLast(new LobbyServerHandler());
+                            socketChannel.pipeline().addLast(new IpFilterHandler());
                         }
                     }).option(ChannelOption.SO_BACKLOG, YGOP.HEAD_LEN + YGOP.MAX_LEN)
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
@@ -55,28 +61,28 @@ public class LobbyServer{
 
     public static void main(String[] args) throws InterruptedException {
 
-//        Player player1 = new Player();
-//        player1.setName("测试房主1");
-//        Player player2 = new Player();
-//        player2.setName("测试房客1");
-//        Player player3 = new Player();
-//        player3.setName("测试房主2");
-//        Player player4 = new Player();
-//        player4.setName("测试房客2");
-//        Room room1 = new Room();
-//        room1.setId(1);
-//        room1.setHost(player1);
-//        room1.setGuest(player2);
-//        room1.setName("测试房间1");
-//        room1.setDesc("用于测试的房间");
-//        Room room2 = new Room();
-//        room2.setId(2);
-//        room2.setHost(player3);
-//        room2.setGuest(player4);
-//        room2.setName("测试房间2");
-//        room2.setDesc("用于测试的房间");
-//        GameLobby.getLobby().getRooms().add(room1);
-//        GameLobby.getLobby().getRooms().add(room2);
+        Player player1 = new Player();
+        player1.setName("测试房主1");
+        Player player2 = new Player();
+        player2.setName("测试房客1");
+        Player player3 = new Player();
+        player3.setName("测试房主2");
+        Player player4 = new Player();
+        player4.setName("测试房客2");
+        Room room1 = new Room();
+        room1.setId(1);
+        room1.setHost(player1);
+        room1.setGuest(player2);
+        room1.setName("测试房间1");
+        room1.setDesc("用于测试的房间");
+        Room room2 = new Room();
+        room2.setId(3);
+        room2.setHost(player3);
+        room2.setGuest(player4);
+        room2.setName("测试房间2");
+        room2.setDesc("用于测试的房间");
+        GameLobby.getLobby().getRooms().add(room1);
+        GameLobby.getLobby().getRooms().add(room2);
 
 
         LobbyServer server = new LobbyServer(8192);

@@ -26,7 +26,6 @@ import java.util.Map;
  **/
 public class LobbyController extends AbstractController{
 
-    private GsonWrapper wrapper = new GsonWrapper();
 
     LobbyController(DataPacket packet, Channel channel) {
         super(packet, channel);
@@ -97,13 +96,13 @@ public class LobbyController extends AbstractController{
             //分配房间ID
 
             int id = 0;
-            while (id++ < rooms.size() && id == rooms.get(id).getId()-1);
+            while (id < rooms.size() && id == rooms.get(id).getId()-1){id++;};
             room.setId(id + 1);
             rooms.add(id, room);
 
             //向客户端发送新的房间ID
             channel.writeAndFlush(new DataPacket(
-                    wrapper.toJsonStr(id), MessageType.CREATE)
+                    wrapper.toJsonStr(room.getId()), MessageType.CREATE)
             );
 
         }catch (Exception e){
