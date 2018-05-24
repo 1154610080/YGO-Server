@@ -1,6 +1,6 @@
 package ygo.loby.controller;
 
-
+import com.google.gson.GsonBuilder;
 import ygo.loby.model.GameLobby;
 import ygo.comn.constant.MessageType;
 import ygo.comn.constant.StatusCode;
@@ -12,9 +12,9 @@ import ygo.comn.model.ResponseStatus;
 import ygo.comn.model.Room;
 import ygo.comn.util.CommonLog;
 import io.netty.channel.Channel;
-
 import java.net.InetSocketAddress;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
  * 大厅控制器
@@ -25,9 +25,11 @@ import java.util.List;
  **/
 public class LobbyController extends AbstractController {
 
-
     LobbyController(DataPacket packet, Channel channel) {
         super(packet, channel);
+        gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+        assign();
+
     }
 
     @Override
@@ -56,7 +58,7 @@ public class LobbyController extends AbstractController {
      **/
     private void getRooms(){
 
-        String lobbyStr = new String(wrapper.toJson(GameLobby.getLobby()), YGOP.CHARSET);
+        String lobbyStr = new String(gson.toJson(GameLobby.getLobby()).getBytes(), YGOP.CHARSET);
 
         channel.writeAndFlush(new DataPacket(lobbyStr, MessageType.GET_ROOMS));
 
@@ -73,35 +75,36 @@ public class LobbyController extends AbstractController {
 
 
         try{
-            List<Room> rooms = GameLobby.getLobby().getRooms();
+            GameLobby lobby = GameLobby.getLobby();
 
-            if(rooms.size() >= GameLobby.getLobby().getMAXIMUM()){
+            if(lobby.size() >= lobby.getMAXIMUM()){
                 channel.writeAndFlush( new DataPacket(
                         new ResponseStatus(StatusCode.FULL_LOBBY)));
                 CommonLog.log.error(StatusCode.FULL_LOBBY);
+                channel.close();
             }
 
             //获取房间
-            Room room = wrapper.toObject(packet.getBody(), Room.class);
+            Room room = gson.fromJson(packet.getBody(), Room.class);
 
             //分配ip和端口
 
             InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
 
             Player host = room.getHost();
-            host.setIp(address.getAddress().toString());
+            host.setIp(address.getHostString());
             host.setPort(address.getPort());
 
             //分配房间ID
 
             int id = 0;
-            while (id < rooms.size() && id == rooms.get(id).getId()-1){id++;};
+            while (id < lobby.size() && id == lobby.getRoomByIndex(id).getId()-1){id++;};
             room.setId(id + 1);
-            rooms.add(id, room);
+            lobby.addRoom(id, room);
 
             //向客户端发送新的房间ID
             channel.writeAndFlush(new DataPacket(
-                    wrapper.toJsonStr(room.getId()), MessageType.CREATE)
+                    gson.toJson(room.getId()), MessageType.CREATE)
             );
 
         }catch (Exception e){
@@ -117,7 +120,47 @@ public class LobbyController extends AbstractController {
      * @param
      * @return void
      **/
-    private void joinRoom(){
+    private synchronized void joinRoom(){
 
+        Map map = new HashMap<>();
+
+        map = gson.fromJson(packet.getBody(), map.getClass());
+
+        CommonLog.log.info(map.get("id"));
+        CommonLog.log.info(map.get("gs"));
+        CommonLog.log.info(map.get("pw"));
+
+        int id = gson.fromJson(map.get("id").toString(), Integer.class);
+        Player guest = gson.fromJson(map.get("gs").toString(), Player.class);
+        String pw = map.get("pw").toString();
+
+        Room room = GameLobby.getLobby().getRoomById(id);
+
+        if(room == null){
+            DataPacket packet = new DataPacket(
+                    new ResponseStatus(StatusCode.DISMISSED)
+            );
+            channel.writeAndFlush(packet);
+            return;
+        }else if(room.getGuest() != null){
+            DataPacket packet = new DataPacket(
+                    new ResponseStatus(StatusCode.FULL_ROOM)
+            );
+            channel.writeAndFlush(packet);
+            return;
+        }else if(room.isHasPwd() && !pw.equals(room.getPassword())){
+            DataPacket packet = new DataPacket(
+                    new ResponseStatus(StatusCode.INCORRECT)
+            );
+            channel.writeAndFlush(packet);
+            return;
+        }
+
+        room.setGuest(guest);
+
+        DataPacket packet = new DataPacket(
+                gson.toJson(room), MessageType.JOIN);
+
+        channel.writeAndFlush(packet);
     }
 }

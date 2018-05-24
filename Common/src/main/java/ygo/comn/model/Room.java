@@ -1,5 +1,6 @@
 package ygo.comn.model;
 
+import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
 /**
@@ -12,48 +13,56 @@ public class Room {
     /**
      * 房间ID
      **/
+    @Expose()
     @SerializedName("id")
     private int id;
 
     /**
      * 房间名称
      **/
-    @SerializedName("nm")
+    @Expose()
+    //@SerializedName("nm")
     private String name;
 
     /**
      * 房间描述
      **/
+    @Expose()
     @SerializedName("ds")
     private String desc;
 
     /**
      * 房间密码
      **/
+    @Expose(serialize = false)
     @SerializedName("pw")
     private String password;
 
     /**
      * 房间是否存在密码
      **/
+    @Expose()
     @SerializedName("hp")
     private boolean hasPwd = false;
 
     /**
      * 房间是否已经开始游戏
      **/
+    @Expose()
     @SerializedName("isp")
     private boolean isPlaying = false;
 
     /**
      * 房主
      **/
+    @Expose()
     @SerializedName("hs")
     private Player host;
 
     /**
      * 房客
      **/
+    @Expose()
     @SerializedName("gs")
     private Player guest;
 
@@ -140,4 +149,6 @@ public class Room {
     public void setGuest(Player guest) {
         this.guest = guest;
     }
+
+
 }

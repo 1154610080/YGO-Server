@@ -74,13 +74,13 @@ public class LobbyServer{
         room1.setName("测试房间1");
         room1.setDesc("用于测试的房间");
         Room room2 = new Room();
-        room2.setId(3);
+        room2.setId(2);
         room2.setHost(player3);
         room2.setGuest(player4);
         room2.setName("测试房间2");
         room2.setDesc("用于测试的房间");
-        GameLobby.getLobby().getRooms().add(room1);
-        GameLobby.getLobby().getRooms().add(room2);
+        GameLobby.getLobby().addRoom(room1);
+        GameLobby.getLobby().addRoom(room2);
 
 
         LobbyServer server = new LobbyServer(8192);

@@ -1,9 +1,8 @@
 package ygo.comn.model;
 
+import com.google.gson.GsonBuilder;
 import ygo.comn.constant.MessageType;
 import ygo.comn.constant.YGOP;
-import ygo.comn.util.GsonWrapper;
-
 /**
  * 自定义协议YGOP的数据包类
  *  +——---------——+——------------——+——------------——+——-------——+
@@ -45,7 +44,7 @@ public class DataPacket {
         this.version = YGOP.VERSION;
         this.type = MessageType.WARING;
         this.magic = YGOP.MAGIC;
-        this.body = new String(new GsonWrapper().toJson(status));
+        this.body = new GsonBuilder().create().toJson(status);
         this.len = body.getBytes(YGOP.CHARSET).length;
     }
 

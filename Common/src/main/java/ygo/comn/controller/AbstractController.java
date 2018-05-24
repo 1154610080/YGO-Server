@@ -1,7 +1,7 @@
 package ygo.comn.controller;
 
+import com.google.gson.Gson;
 import ygo.comn.model.DataPacket;
-import ygo.comn.util.GsonWrapper;
 import io.netty.channel.Channel;
 
 /**
@@ -16,13 +16,11 @@ public abstract class AbstractController {
 
     protected Channel channel;
 
-    protected GsonWrapper wrapper;
+    protected Gson gson;
 
     protected AbstractController(DataPacket packet, Channel channel) {
-        wrapper = new GsonWrapper();
         this.packet = packet;
         this.channel = channel;
-        assign();
     }
 
     /**
