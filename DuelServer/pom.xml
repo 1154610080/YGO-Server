@@ -24,7 +24,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>com.ygo.server.DuelServer</mainClass>
+                    <mainClass>ygo.duel.server.DuelServer</mainClass>
                 </configuration>
             </plugin>
         </plugins>
