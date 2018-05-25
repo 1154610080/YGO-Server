@@ -88,19 +88,19 @@ public class LobbyController extends AbstractController {
             Room room = gson.fromJson(packet.getBody(), Room.class);
 
             //分配ip和端口
-
             InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
-
             Player host = room.getHost();
             host.setIp(address.getHostString());
             host.setPort(address.getPort());
 
             //分配房间ID
-
             int id = 0;
             while (id < lobby.size() && id == lobby.getRoomByIndex(id).getId()-1){id++;};
             room.setId(id + 1);
             lobby.addRoom(id, room);
+
+            //记录通道
+            host.setChannel(channel);
 
             //向客户端发送新的房间ID
             channel.writeAndFlush(new DataPacket(
@@ -126,16 +126,13 @@ public class LobbyController extends AbstractController {
 
         map = gson.fromJson(packet.getBody(), map.getClass());
 
-        CommonLog.log.info(map.get("id"));
-        CommonLog.log.info(map.get("gs"));
-        CommonLog.log.info(map.get("pw"));
-
         int id = gson.fromJson(map.get("id").toString(), Integer.class);
         Player guest = gson.fromJson(map.get("gs").toString(), Player.class);
         String pw = map.get("pw").toString();
 
         Room room = GameLobby.getLobby().getRoomById(id);
 
+        //判断是否满足加入房间的条件
         if(room == null){
             DataPacket packet = new DataPacket(
                     new ResponseStatus(StatusCode.DISMISSED)
@@ -156,11 +153,18 @@ public class LobbyController extends AbstractController {
             return;
         }
 
+        //记录房客通道和房客
+        guest.setChannel(channel);
         room.setGuest(guest);
 
+        //向房客返回目标房间
         DataPacket packet = new DataPacket(
                 gson.toJson(room), MessageType.JOIN);
-
         channel.writeAndFlush(packet);
+
+        //通知房主新房客的信息
+        packet = new DataPacket(
+                gson.toJson(guest), MessageType.JOIN);
+        room.getHost().getChannel().writeAndFlush(packet);
     }
 }

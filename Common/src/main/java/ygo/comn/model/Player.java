@@ -2,6 +2,7 @@ package ygo.comn.model;
 
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
+import io.netty.channel.Channel;
 
 /**
  * 用户类
@@ -60,6 +61,12 @@ public class Player {
     @SerializedName("isp")
     private boolean isPrepared = false;
 
+    /**
+     * 联系玩家的通道
+     **/
+    @Expose(serialize = false, deserialize = false)
+    private Channel channel;
+
     @Override
     public boolean equals(Object obj) {
 
@@ -69,17 +76,6 @@ public class Player {
     }
 
     public Player(){}
-
-    public Player(String name, String head,
-                  String ip, int port,
-                  boolean isStarting, boolean isPrepared) {
-        this.name = name;
-        this.head = head;
-        this.ip = ip;
-        this.port = port;
-        this.isStarting = isStarting;
-        this.isPrepared = isPrepared;
-    }
 
     public String getName() {
         return name;
@@ -135,5 +131,13 @@ public class Player {
 
     public void setPrepared(boolean prepared) {
         isPrepared = prepared;
+    }
+
+    public Channel getChannel() {
+        return channel;
+    }
+
+    public void setChannel(Channel channel) {
+        this.channel = channel;
     }
 }
