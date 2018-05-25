@@ -11,7 +11,7 @@ import io.netty.channel.Channel;
  * @author Egan
  * @date 2018/5/22 13:16
  **/
-public class RoomController extends AbstractController {
+public class RoomController extends AbstractController{
 
     RoomController(DataPacket packet, Channel channel) {
         super(packet, channel);
@@ -21,4 +21,5 @@ public class RoomController extends AbstractController {
     protected void assign() {
 
     }
+
 }

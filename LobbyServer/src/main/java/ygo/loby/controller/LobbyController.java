@@ -1,15 +1,12 @@
 package ygo.loby.controller;
 
 import com.google.gson.GsonBuilder;
+import ygo.comn.model.*;
 import ygo.loby.model.GameLobby;
 import ygo.comn.constant.MessageType;
 import ygo.comn.constant.StatusCode;
 import ygo.comn.constant.YGOP;
 import ygo.comn.controller.AbstractController;
-import ygo.comn.model.DataPacket;
-import ygo.comn.model.Player;
-import ygo.comn.model.ResponseStatus;
-import ygo.comn.model.Room;
 import ygo.comn.util.CommonLog;
 import io.netty.channel.Channel;
 import java.net.InetSocketAddress;
@@ -87,11 +84,12 @@ public class LobbyController extends AbstractController {
             //获取房间
             Room room = gson.fromJson(packet.getBody(), Room.class);
 
-            //分配ip和端口
+            //分配ip和端口，并在房间记录中记录玩家
             InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
             Player host = room.getHost();
             host.setIp(address.getHostString());
             host.setPort(address.getPort());
+            RoomRecord.getRecord().put(address, room);
 
             //分配房间ID
             int id = 0;
@@ -101,6 +99,9 @@ public class LobbyController extends AbstractController {
 
             //记录通道
             host.setChannel(channel);
+
+            //记录房主
+            RoomRecord.getRecord().put(address, room);
 
             //向客户端发送新的房间ID
             channel.writeAndFlush(new DataPacket(
@@ -152,6 +153,12 @@ public class LobbyController extends AbstractController {
             channel.writeAndFlush(packet);
             return;
         }
+
+        //分配ip给房客
+        InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
+        guest.setIp(address.getHostString());
+        guest.setPort(address.getPort());
+        RoomRecord.getRecord().put(address, room);
 
         //记录房客通道和房客
         guest.setChannel(channel);

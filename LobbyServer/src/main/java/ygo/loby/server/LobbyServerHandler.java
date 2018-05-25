@@ -1,6 +1,9 @@
 package ygo.loby.server;
 
+import ygo.comn.constant.MessageType;
 import ygo.comn.constant.YGOP;
+import ygo.comn.model.Room;
+import ygo.comn.model.RoomRecord;
 import ygo.loby.controller.ChiefController;
 import ygo.comn.model.DataPacket;
 import ygo.comn.model.ResponseStatus;
@@ -29,6 +32,19 @@ public class LobbyServerHandler extends ChannelInboundHandlerAdapter {
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
         InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
         CommonLog.log.info(address.getHostString() + " has the outbound.");
+
+        //如果在房间记录里存在玩家的地址键，说明玩家掉线
+        Room room = RoomRecord.getRecord().get(address);
+        if(room != null){
+            DataPacket packet = new DataPacket("", MessageType.EXIT);
+            //判断是哪一位玩家掉线
+            if(new InetSocketAddress(room.getHost().getIp(), room.getHost().getPort())
+                    .equals(address)){
+                room.getGuest().getChannel().writeAndFlush(packet);
+            }else {
+                room.getHost().getChannel().writeAndFlush(packet);
+            }
+        }
     }
 
     @Override
