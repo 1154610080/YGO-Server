@@ -1,8 +1,14 @@
 package ygo.comn.controller;
 
 import com.google.gson.Gson;
+import com.ygo.constant.StatusCode;
+import com.ygo.model.ResponseStatus;
 import ygo.comn.model.DataPacket;
 import io.netty.channel.Channel;
+import ygo.comn.model.Player;
+import ygo.comn.model.Room;
+import ygo.comn.model.RoomRecord;
+import java.net.InetSocketAddress;
 
 /**
  * 抽象控制器
@@ -32,4 +38,32 @@ public abstract class AbstractController {
      **/
     protected abstract void assign();
 
+    /**
+     * 发送聊天消息
+     *
+     * @date 2018/5/25 22:31
+     * @param
+     * @return void
+     **/
+    protected void chat()
+    {
+        InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
+        Room room = RoomRecord.getRecord().get(address);
+        //如果找不到房间，说明房间已解散
+        if (room == null){
+            channel.writeAndFlush(
+                    new ResponseStatus(StatusCode.DISMISSED)
+            );
+            return;
+        }
+
+        Player host = room.getHost();
+        Player guest = room.getGuest();
+
+        //向双方广播消息
+        if (host!=null)
+            host.getChannel().writeAndFlush(packet);
+        if(guest!=null)
+            guest.getChannel().writeAndFlush(packet);
+    }
 }
