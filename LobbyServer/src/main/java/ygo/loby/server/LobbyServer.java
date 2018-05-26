@@ -53,7 +53,6 @@ public class LobbyServer{
             future.channel().closeFuture().sync();
         }finally {
             group.shutdownGracefully().sync();
-
         }
     }
 

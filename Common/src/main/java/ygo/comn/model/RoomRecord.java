@@ -22,32 +22,50 @@ public class RoomRecord extends HashMap<InetSocketAddress, Room>{
     }
 
     /**
-     * 将主机名和端口作为键，向记录映射中推入键值
+     * 根据地址判断消息是否来自房主
      *
-     * @date 2018/5/17 23:47
-     * @param hostname 主机名
-     * @param port 端口号
-     * @param room 房间
-     * @return boolean 键值对不存在，推入成功
+     * @date 2018/5/26 9:15
+     * @param address 地址
+	 * @param room 所在房间
+     * @return boolean 是否来自房主
      **/
-    public static boolean put(String hostname, int port, Room room){
-        InetSocketAddress key = new InetSocketAddress(hostname, port);
-        if(record.get(key) != null)
+    public static boolean isHost(InetSocketAddress address, Room room){
+        if(room.getHost() == null)
             return false;
-        record.put(key, room);
-        return true;
+        InetSocketAddress host =
+                new InetSocketAddress(room.getHost().getIp(), room.getHost().getPort());
+        return host.equals(address);
     }
 
-    /**
-     * 将主机名和端口作为键，删除记录映射中的键值对
-     *
-     * @date 2018/5/18 0:11
-     * @param hostname 主机名
-	 * @param port 端口号
-	 * @param room 房间
-     * @return boolean 键值对存在，删除成功
-     **/
-    public static boolean remove(String hostname, int port, Room room){
-        return record.remove(new InetSocketAddress(hostname, port)) != null;
-    }
+//    /**
+//     * 将主机名和端口作为键，向记录映射中推入键值
+//     *
+//     * @date 2018/5/17 23:47
+//     * @param hostname 主机名
+//     * @param port 端口号
+//     * @param room 房间
+//     * @return boolean 键值对不存在，推入成功
+//     **/
+//    public static boolean put(String hostname, int port, Room room){
+//        InetSocketAddress key = new InetSocketAddress(hostname, port);
+//        if(record.get(key) != null)
+//            return false;
+//        record.put(key, room);
+//        return true;
+//    }
+//
+//    /**
+//     * 将主机名和端口作为键，删除记录映射中的键值对
+//     *
+//     * @date 2018/5/18 0:11
+//     * @param hostname 主机名
+//	 * @param port 端口号
+//	 * @param room 房间
+//     * @return boolean 键值对存在，删除成功
+//     **/
+//    public static boolean remove(String hostname, int port, Room room){
+//        return record.remove(new InetSocketAddress(hostname, port)) != null;
+//    }
+//
+//
 }

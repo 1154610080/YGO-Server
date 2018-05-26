@@ -37,21 +37,21 @@ public enum MessageType {
      **/
     COUNT_DOWN(STARTED.code << 1),
     /**
+     * 聊天消息
+     **/
+    CHAT(COUNT_DOWN.code << 1),
+    /**
      * 发送卡牌信息
      **/
-    DECK(COUNT_DOWN.code << 1),
+    DECK(CHAT.code << 1),
     /**
      * 猜拳消息
      **/
     FINGER_GUESS(DECK.code << 1),
     /**
-     * 聊天消息
-     **/
-    CHAT(FINGER_GUESS.code << 1),
-    /**
      * 操作消息
      **/
-    OPERATE(CHAT.code << 1),
+    OPERATE(FINGER_GUESS.code << 1),
     /**
      * 玩家退出游戏
      **/

@@ -21,7 +21,7 @@ public class ChiefController extends AbstractController {
 
         if(type >= MessageType.GET_ROOMS.getCode() && type <= MessageType.JOIN.getCode())
             new LobbyController(packet, channel);
-        else if(type >= MessageType.LEAVE.getCode() && type <= MessageType.COUNT_DOWN.getCode())
+        else if(type >= MessageType.LEAVE.getCode() && type <= MessageType.CHAT.getCode())
             new RoomController(packet, channel);
         else {
             channel.writeAndFlush(

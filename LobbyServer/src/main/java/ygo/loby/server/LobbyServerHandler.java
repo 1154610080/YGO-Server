@@ -41,8 +41,14 @@ public class LobbyServerHandler extends ChannelInboundHandlerAdapter {
             if(new InetSocketAddress(room.getHost().getIp(), room.getHost().getPort())
                     .equals(address)){
                 room.getGuest().getChannel().writeAndFlush(packet);
+                CommonLog.log.warn(new String
+                        (("the player " + room.getHost().getName() + " has lost the connection")
+                                .getBytes(), YGOP.CHARSET));
             }else {
                 room.getHost().getChannel().writeAndFlush(packet);
+                CommonLog.log.warn(new String
+                        (("the player " + room.getGuest().getName() + " has lost the connection")
+                                .getBytes(), YGOP.CHARSET));
             }
         }
     }

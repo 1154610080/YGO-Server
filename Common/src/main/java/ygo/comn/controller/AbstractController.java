@@ -1,8 +1,6 @@
 package ygo.comn.controller;
 
 import com.google.gson.Gson;
-import com.ygo.constant.StatusCode;
-import com.ygo.model.ResponseStatus;
 import ygo.comn.model.DataPacket;
 import io.netty.channel.Channel;
 import ygo.comn.model.Player;
@@ -52,7 +50,7 @@ public abstract class AbstractController {
         //如果找不到房间，说明房间已解散
         if (room == null){
             channel.writeAndFlush(
-                    new ResponseStatus(StatusCode.DISMISSED)
+                    new ygo.comn.model.ResponseStatus(ygo.comn.constant.StatusCode.DISMISSED)
             );
             return;
         }
