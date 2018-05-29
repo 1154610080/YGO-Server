@@ -1,6 +1,5 @@
 package ygo.loby.controller;
 
-import com.google.gson.GsonBuilder;
 import ygo.comn.model.*;
 import ygo.loby.model.GameLobby;
 import ygo.comn.constant.MessageType;
@@ -9,7 +8,6 @@ import ygo.comn.constant.YGOP;
 import ygo.comn.controller.AbstractController;
 import ygo.comn.util.CommonLog;
 import io.netty.channel.Channel;
-import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,9 +22,6 @@ public class LobbyController extends AbstractController {
 
     LobbyController(DataPacket packet, Channel channel) {
         super(packet, channel);
-        gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-        assign();
-
     }
 
     @Override
@@ -85,7 +80,6 @@ public class LobbyController extends AbstractController {
             Room room = gson.fromJson(packet.getBody(), Room.class);
 
             //分配ip和端口，并在房间记录中记录玩家
-            InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
             Player host = room.getHost();
             host.setIp(address.getHostString());
             host.setPort(address.getPort());
@@ -155,7 +149,6 @@ public class LobbyController extends AbstractController {
         }
 
         //分配ip给房客
-        InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
         guest.setIp(address.getHostString());
         guest.setPort(address.getPort());
         RoomRecord.getRecord().put(address, room);

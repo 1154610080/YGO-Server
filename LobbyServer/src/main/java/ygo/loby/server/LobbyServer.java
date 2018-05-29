@@ -58,28 +58,28 @@ public class LobbyServer{
 
     public static void main(String[] args) throws InterruptedException {
 
-        Player player1 = new Player();
-        player1.setName("测试房主1");
-        Player player2 = new Player();
-        player2.setName("测试房客1");
-        Player player3 = new Player();
-        player3.setName("测试房主2");
-        Player player4 = new Player();
-        player4.setName("测试房客2");
-        Room room1 = new Room();
-        room1.setId(1);
-        room1.setHost(player1);
-        room1.setGuest(player2);
-        room1.setName("测试房间1");
-        room1.setDesc("用于测试的房间");
-        Room room2 = new Room();
-        room2.setId(2);
-        room2.setHost(player3);
-        room2.setGuest(player4);
-        room2.setName("测试房间2");
-        room2.setDesc("用于测试的房间");
-        GameLobby.getLobby().addRoom(room1);
-        GameLobby.getLobby().addRoom(room2);
+//        Player player1 = new Player();
+//        player1.setName("测试房主1");
+//        Player player2 = new Player();
+//        player2.setName("测试房客1");
+//        Player player3 = new Player();
+//        player3.setName("测试房主2");
+//        Player player4 = new Player();
+//        player4.setName("测试房客2");
+//        Room room1 = new Room();
+//        room1.setId(1);
+//        room1.setHost(player1);
+//        room1.setGuest(player2);
+//        room1.setName("测试房间1");
+//        room1.setDesc("用于测试的房间");
+//        Room room2 = new Room();
+//        room2.setId(2);
+//        room2.setHost(player3);
+//        room2.setGuest(player4);
+//        room2.setName("测试房间2");
+//        room2.setDesc("用于测试的房间");
+//        GameLobby.getLobby().addRoom(room1);
+//        GameLobby.getLobby().addRoom(room2);
 
 
         LobbyServer server = new LobbyServer(8192);

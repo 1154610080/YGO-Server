@@ -1,12 +1,8 @@
 package ygo.loby.server;
 
-import ygo.comn.constant.MessageType;
 import ygo.comn.constant.YGOP;
-import ygo.comn.model.Room;
-import ygo.comn.model.RoomRecord;
+import ygo.comn.model.*;
 import ygo.loby.controller.ChiefController;
-import ygo.comn.model.DataPacket;
-import ygo.comn.model.ResponseStatus;
 import ygo.comn.constant.StatusCode;
 import ygo.comn.util.CommonLog;
 import io.netty.channel.ChannelHandlerContext;
@@ -33,23 +29,13 @@ public class LobbyServerHandler extends ChannelInboundHandlerAdapter {
         InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
         CommonLog.log.info(address.getHostString() + " has the outbound.");
 
-        //如果在房间记录里存在玩家的地址键，说明玩家掉线
-        Room room = RoomRecord.getRecord().get(address);
-        if(room != null){
-            DataPacket packet = new DataPacket("", MessageType.EXIT);
-            //判断是哪一位玩家掉线
-            if(new InetSocketAddress(room.getHost().getIp(), room.getHost().getPort())
-                    .equals(address)){
-                room.getGuest().getChannel().writeAndFlush(packet);
-                CommonLog.log.warn(new String
-                        (("the player " + room.getHost().getName() + " has lost the connection")
-                                .getBytes(), YGOP.CHARSET));
-            }else {
-                room.getHost().getChannel().writeAndFlush(packet);
-                CommonLog.log.warn(new String
-                        (("the player " + room.getGuest().getName() + " has lost the connection")
-                                .getBytes(), YGOP.CHARSET));
-            }
+        //检查玩家是否掉线
+        if(RoomRecord.getRecord().removeAndInform(address)){
+            CommonLog.log.warn(new String
+                    (("A player("
+                            + address.getHostString() + ":" + address.getPort()
+                            + ") has lost the connection")
+                            .getBytes(), YGOP.CHARSET));
         }
     }
 

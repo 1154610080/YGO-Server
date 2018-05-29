@@ -1,6 +1,5 @@
 package ygo.loby.controller;
 
-import com.google.gson.GsonBuilder;
 import ygo.comn.constant.MessageType;
 import ygo.comn.constant.StatusCode;
 import ygo.comn.controller.AbstractController;
@@ -21,8 +20,6 @@ public class RoomController extends AbstractController{
 
     RoomController(DataPacket packet, Channel channel) {
         super(packet, channel);
-        gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
-        assign();
     }
 
     @Override
@@ -31,6 +28,8 @@ public class RoomController extends AbstractController{
         switch (packet.getType()){
             case CHAT:
                 chat(); break;
+            case LEAVE:
+                leave(); break;
             default:
                 channel.writeAndFlush(
                         new DataPacket(
@@ -43,39 +42,57 @@ public class RoomController extends AbstractController{
     }
 
 
-    private void leaveRoom()
+    /**
+     * 离开房间
+     *
+     * @date 2018/5/29 16:58
+     * @param
+     * @return void
+     **/
+    private void leave()
     {
-
-        InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
         Map<InetSocketAddress, Room> record = RoomRecord.getRecord();
-        Room room = record.get(address);
 
-        if(room != null) {
+        if(RoomRecord.getRecord().remove(address) == null)
+            CommonLog.log.error("Unexpected Error: The player("
+                    + address.getHostString() + ":" + address.getPort()
+            +") can't leave the room cause he not in here.");
+    }
 
-            DataPacket packet = new DataPacket("", MessageType.LEAVE);
-
-            Player host = room.getHost();
-            Player guest = room.getGuest();
-
-            InetSocketAddress hostAddress =
-                    host != null ?
-                            new InetSocketAddress(host.getIp(), host.getPort()) : null;
-            InetSocketAddress guestAddress =
-                    guest != null ?
-                            new InetSocketAddress(guest.getIp(), guest.getPort()) : null;
-
-            //判断消息来源
-            if (RoomRecord.isHost(address, room)) {
-                //如果房主离开房间，解散房间，并通知房客
-                if(guest != null)
-                    guest.getChannel().writeAndFlush(packet);
-                record.remove(hostAddress);
-                record.remove(guestAddress);
-            }else {
-                if(host != null)
-                    host.getChannel().writeAndFlush(packet);
-                record.remove(guestAddress);
+    /**
+     * 改变玩家状态(开始、准备)
+     *
+     * @date 2018/5/29 16:59
+     * @param
+     * @return void
+     **/
+    private void changeStatus(){
+        Room room = RoomRecord.getRecord().get(address);
+        if(room != null){
+            DataPacket packet = new DataPacket("", MessageType.READY);
+            synchronized (room){
+                if(RoomRecord.isHost(address, room)){
+                    //房主改变开始状态
+                    //如果房客未准备，警告房主
+                    if (!room.getGuest().isPrepared()){
+                        channel.writeAndFlush(new DataPacket(new ResponseStatus(StatusCode.UNPREPARED)));
+                        return;
+                    }
+                    Player host = room.getHost();
+                    host.setStarting(!host.isStarting());
+                    packet.setType(MessageType.STARTED);
+                    channel.writeAndFlush(packet);
+                    room.getGuest().getChannel().writeAndFlush(packet);
+                }else {
+                    //房客改变准备状态
+                    Player guest = room.getGuest();
+                    guest.setPrepared(!guest.isPrepared());
+                    //通知房主和房客
+                    channel.writeAndFlush(packet);
+                    room.getHost().getChannel().writeAndFlush(packet);
+                }
             }
+
         }
     }
 
