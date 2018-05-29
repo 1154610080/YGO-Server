@@ -23,17 +23,6 @@ public class GameController extends AbstractController {
     }
 
     /**
-     * 发送聊天消息
-     *
-     * @date 2018/5/20 23:15
-     * @param
-     * @return void
-     **/
-    private void chat(){
-
-    }
-
-    /**
      * 发送操作消息
      *
      * @date 2018/5/20 23:16

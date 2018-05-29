@@ -1,6 +1,7 @@
 package ygo.comn.controller;
 
 import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import ygo.comn.model.DataPacket;
 import io.netty.channel.Channel;
 import ygo.comn.model.Player;
@@ -22,9 +23,14 @@ public abstract class AbstractController {
 
     protected Gson gson;
 
+    protected InetSocketAddress address;
+
     protected AbstractController(DataPacket packet, Channel channel) {
         this.packet = packet;
         this.channel = channel;
+        this.gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+        this.address = (InetSocketAddress) channel.remoteAddress();
+        assign();
     }
 
     /**

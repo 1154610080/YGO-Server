@@ -1,8 +1,9 @@
 package ygo.comn.model;
 
+import ygo.comn.constant.MessageType;
+import ygo.comn.util.CommonLog;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
-import java.util.Map;
 
 /**
  * 房间记录类
@@ -17,7 +18,7 @@ public class RoomRecord extends HashMap<InetSocketAddress, Room>{
     private static RoomRecord record =
             new RoomRecord();
 
-    public static Map<InetSocketAddress, Room> getRecord() {
+    public static RoomRecord getRecord() {
         return record;
     }
 
@@ -37,35 +38,41 @@ public class RoomRecord extends HashMap<InetSocketAddress, Room>{
         return host.equals(address);
     }
 
-//    /**
-//     * 将主机名和端口作为键，向记录映射中推入键值
-//     *
-//     * @date 2018/5/17 23:47
-//     * @param hostname 主机名
-//     * @param port 端口号
-//     * @param room 房间
-//     * @return boolean 键值对不存在，推入成功
-//     **/
-//    public static boolean put(String hostname, int port, Room room){
-//        InetSocketAddress key = new InetSocketAddress(hostname, port);
-//        if(record.get(key) != null)
-//            return false;
-//        record.put(key, room);
-//        return true;
-//    }
-//
-//    /**
-//     * 将主机名和端口作为键，删除记录映射中的键值对
-//     *
-//     * @date 2018/5/18 0:11
-//     * @param hostname 主机名
-//	 * @param port 端口号
-//	 * @param room 房间
-//     * @return boolean 键值对存在，删除成功
-//     **/
-//    public static boolean remove(String hostname, int port, Room room){
-//        return record.remove(new InetSocketAddress(hostname, port)) != null;
-//    }
-//
-//
+    /**
+     * 删除记录并通知对方
+     *
+     * @date 2018/5/29 13:23
+     * @param key 地址键
+     * @return void
+     **/
+    public boolean removeAndInform(InetSocketAddress key){
+        Room room = remove(key);
+        //房间存在
+        if(room != null){
+            DataPacket packet = new DataPacket("", MessageType.LEAVE);
+            //判断对方
+            boolean isHost = isHost(key, room);
+
+
+            if(isHost){
+                //如果是房主，通知房客，并删除房客的房间记录
+                Player guest = room.getGuest();
+                if(guest != null){
+                    guest.getChannel().writeAndFlush(packet);
+                    remove(new InetSocketAddress(guest.getIp(), guest.getPort()));
+                }
+            }else {
+                //如果是房客，通知房主(房主一般不会为空)
+                Player host = room.getHost();
+                if(host == null)
+                    CommonLog.log.error(
+                            "Unexpected Error: The host was null when guest left the room.");
+                else
+                    host.getChannel().writeAndFlush(packet);
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
