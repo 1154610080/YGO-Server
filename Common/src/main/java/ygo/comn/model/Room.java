@@ -21,7 +21,7 @@ public class Room {
      * 房间名称
      **/
     @Expose()
-    //@SerializedName("nm")
+    @SerializedName("nm")
     private String name;
 
     /**
