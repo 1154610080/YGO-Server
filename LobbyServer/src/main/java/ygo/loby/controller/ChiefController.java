@@ -11,7 +11,6 @@ public class ChiefController extends AbstractController {
 
     public ChiefController(DataPacket packet, Channel channel) {
         super(packet, channel);
-        assign();
     }
 
     @Override

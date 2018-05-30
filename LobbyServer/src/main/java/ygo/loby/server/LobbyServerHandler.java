@@ -30,7 +30,7 @@ public class LobbyServerHandler extends ChannelInboundHandlerAdapter {
         CommonLog.log.info(address.getHostString() + " has the outbound.");
 
         //检查玩家是否掉线
-        if(RoomRecord.getRecord().removeAndInform(address)){
+        if(Lobby.getLobby().removeAndInform(address)){
             CommonLog.log.warn(new String
                     (("A player("
                             + address.getHostString() + ":" + address.getPort()
@@ -59,6 +59,5 @@ public class LobbyServerHandler extends ChannelInboundHandlerAdapter {
         CommonLog.log.error(cause + " in Lobby-Server-Handler");
         ctx.close();
     }
-
 
 }

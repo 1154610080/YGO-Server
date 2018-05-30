@@ -1,15 +1,14 @@
 package ygo.loby.controller;
 
 import ygo.comn.model.*;
-import ygo.loby.model.GameLobby;
 import ygo.comn.constant.MessageType;
 import ygo.comn.constant.StatusCode;
 import ygo.comn.constant.YGOP;
 import ygo.comn.controller.AbstractController;
 import ygo.comn.util.CommonLog;
 import io.netty.channel.Channel;
-import java.util.HashMap;
-import java.util.Map;
+
+import java.util.*;
 
 /**
  * 大厅控制器
@@ -50,7 +49,8 @@ public class LobbyController extends AbstractController {
      **/
     private void getRooms(){
 
-        String lobbyStr = new String(gson.toJson(GameLobby.getLobby()).getBytes(), YGOP.CHARSET);
+        CommonLog.log.info("send list of room");
+        String lobbyStr = new String(gson.toJson(Lobby.getLobby()).getBytes(), YGOP.CHARSET);
 
         channel.writeAndFlush(new DataPacket(lobbyStr, MessageType.GET_ROOMS));
 
@@ -67,9 +67,8 @@ public class LobbyController extends AbstractController {
 
 
         try{
-            GameLobby lobby = GameLobby.getLobby();
 
-            if(lobby.size() >= lobby.getMAXIMUM()){
+            if(lobby.size() >= lobby.MAX_ROOMS){
                 channel.writeAndFlush( new DataPacket(
                         new ResponseStatus(StatusCode.FULL_LOBBY)));
                 CommonLog.log.error(StatusCode.FULL_LOBBY);
@@ -79,23 +78,19 @@ public class LobbyController extends AbstractController {
             //获取房间
             Room room = gson.fromJson(packet.getBody(), Room.class);
 
-            //分配ip和端口，并在房间记录中记录玩家
+            //分配ip和端口
             Player host = room.getHost();
             host.setIp(address.getHostString());
             host.setPort(address.getPort());
-            RoomRecord.getRecord().put(address, room);
 
             //分配房间ID
             int id = 0;
             while (id < lobby.size() && id == lobby.getRoomByIndex(id).getId()-1){id++;};
             room.setId(id + 1);
-            lobby.addRoom(id, room);
 
-            //记录通道
+            //记录通道和房间
             host.setChannel(channel);
-
-            //记录房主
-            RoomRecord.getRecord().put(address, room);
+            lobby.addRoom(room);
 
             //向客户端发送新的房间ID
             channel.writeAndFlush(new DataPacket(
@@ -103,7 +98,7 @@ public class LobbyController extends AbstractController {
             );
 
         }catch (Exception e){
-            CommonLog.log.error(e + " in creatRoom() of Lobby-Controller");
+            CommonLog.log.error(e + " in createRoom() of Lobby-Controller");
         }
 
     }
@@ -121,11 +116,12 @@ public class LobbyController extends AbstractController {
 
         map = gson.fromJson(packet.getBody(), map.getClass());
 
+        //解析消息体
         int id = gson.fromJson(map.get("id").toString(), Integer.class);
         Player guest = gson.fromJson(map.get("gs").toString(), Player.class);
         String pw = map.get("pw").toString();
 
-        Room room = GameLobby.getLobby().getRoomById(id);
+        Room room = lobby.getRoomById(id);
 
         //判断是否满足加入房间的条件
         if(room == null){
@@ -151,11 +147,10 @@ public class LobbyController extends AbstractController {
         //分配ip给房客
         guest.setIp(address.getHostString());
         guest.setPort(address.getPort());
-        RoomRecord.getRecord().put(address, room);
 
         //记录房客通道和房客
         guest.setChannel(channel);
-        room.setGuest(guest);
+        lobby.addGuest(room, guest);
 
         //向房客返回目标房间
         DataPacket packet = new DataPacket(

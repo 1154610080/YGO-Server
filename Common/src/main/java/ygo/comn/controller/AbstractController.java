@@ -4,9 +4,9 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import ygo.comn.model.DataPacket;
 import io.netty.channel.Channel;
+import ygo.comn.model.Lobby;
 import ygo.comn.model.Player;
 import ygo.comn.model.Room;
-import ygo.comn.model.RoomRecord;
 import java.net.InetSocketAddress;
 
 /**
@@ -25,11 +25,14 @@ public abstract class AbstractController {
 
     protected InetSocketAddress address;
 
+    protected Lobby lobby;
+
     protected AbstractController(DataPacket packet, Channel channel) {
         this.packet = packet;
         this.channel = channel;
         this.gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
         this.address = (InetSocketAddress) channel.remoteAddress();
+        this.lobby = Lobby.getLobby();
         assign();
     }
 
@@ -52,7 +55,7 @@ public abstract class AbstractController {
     protected void chat()
     {
         InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
-        Room room = RoomRecord.getRecord().get(address);
+        Room room = lobby.getRoomByAddress(address);
         //如果找不到房间，说明房间已解散
         if (room == null){
             channel.writeAndFlush(

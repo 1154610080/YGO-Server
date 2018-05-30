@@ -52,7 +52,7 @@ public class LobbyServer{
             CommonLog.log.info(new String(("游戏大厅正在监听端口 " + port + "...").getBytes(), YGOP.CHARSET));
             future.channel().closeFuture().sync();
         }finally {
-            group.shutdownGracefully().sync();
+            group.shutdownGracefully();
         }
     }
 

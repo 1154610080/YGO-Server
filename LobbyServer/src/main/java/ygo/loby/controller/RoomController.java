@@ -30,6 +30,9 @@ public class RoomController extends AbstractController{
                 chat(); break;
             case LEAVE:
                 leave(); break;
+            case READY:
+            case STARTED:
+                changeStatus();break;
             default:
                 channel.writeAndFlush(
                         new DataPacket(
@@ -51,9 +54,7 @@ public class RoomController extends AbstractController{
      **/
     private void leave()
     {
-        Map<InetSocketAddress, Room> record = RoomRecord.getRecord();
-
-        if(RoomRecord.getRecord().remove(address) == null)
+        if(!lobby.removeAndInform(address))
             CommonLog.log.error("Unexpected Error: The player("
                     + address.getHostString() + ":" + address.getPort()
             +") can't leave the room cause he not in here.");
@@ -67,11 +68,11 @@ public class RoomController extends AbstractController{
      * @return void
      **/
     private void changeStatus(){
-        Room room = RoomRecord.getRecord().get(address);
+        Room room = Lobby.getLobby().getRoomByAddress(address);
         if(room != null){
             DataPacket packet = new DataPacket("", MessageType.READY);
             synchronized (room){
-                if(RoomRecord.isHost(address, room)){
+                if(Lobby.isHost(address, room)){
                     //房主改变开始状态
                     //如果房客未准备，警告房主
                     if (!room.getGuest().isPrepared()){
