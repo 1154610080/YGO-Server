@@ -102,5 +102,6 @@ public class DataPacket {
 
     public void setBody(String body) {
         this.body = body;
+        this.len = body.getBytes(YGOP.CHARSET).length;
     }
 }
