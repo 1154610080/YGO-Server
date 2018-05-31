@@ -75,7 +75,7 @@ public class RoomController extends AbstractController{
                 if(Lobby.isHost(address, room)){
                     //房主改变开始状态
                     //如果房客未准备，警告房主
-                    if (!room.getGuest().isPrepared()){
+                    if (room.getGuest() == null || !room.getGuest().isPrepared()){
                         channel.writeAndFlush(new DataPacket(new ResponseStatus(StatusCode.UNPREPARED)));
                         return;
                     }
