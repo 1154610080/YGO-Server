@@ -2,6 +2,8 @@ package ygo.comn.constant;
 
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * YGOP协议的常量
@@ -42,6 +44,13 @@ public class YGOP {
      * 当前版本
      */
     public static final float VERSION = 1.0F;
+
+    public static final List<Float> VERSIONS = new ArrayList<>();
+
+    static {
+        VERSIONS.add(1.0F);
+    }
+
     /*
      * 魔数
      */

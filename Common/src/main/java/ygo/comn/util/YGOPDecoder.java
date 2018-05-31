@@ -44,8 +44,8 @@ public class YGOPDecoder extends ByteToMessageDecoder{
             int typeInt =byteBuf.readInt();
             MessageType type = MessageType.fromInt32(typeInt);
             int magic = byteBuf.readInt();
-            //校验码错误，加入黑名单
-            if (magic != YGOP.MAGIC){
+            //校验码错误或版本号不存在，加入黑名单
+            if (magic != YGOP.MAGIC || !YGOP.VERSIONS.contains(version)){
                 IpFilterHandler.addFilteredAddress(
                         channelHandlerContext.channel());
                 return;
@@ -60,8 +60,6 @@ public class YGOPDecoder extends ByteToMessageDecoder{
             String body = byteBuf.readBytes(len).toString(YGOP.CHARSET);
 
             DataPacket packet = new DataPacket(version, type, magic, len, body);
-
-            System.out.println("");
 
             list.add(packet);
 
