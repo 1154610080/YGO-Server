@@ -87,12 +87,13 @@ public class RoomController extends AbstractController{
                 channel.writeAndFlush(packet);
                 room.getGuest().getChannel().writeAndFlush(packet);
 
-                //如果进入开始状态，开始倒计时
                 if(host.isStarting()){
-                    countDown(false);
-                }else {
-                    //否则取消倒计时
-                    countDown(true);
+                    //如果进入开始状态，开始倒计时
+                    countDown();
+                }else if(room.timer != null){
+                    //否则取消倒计时，取消房客的准备状态
+                    room.timer.cancel();
+                    room.getGuest().setPrepared(false);
                 }
             }
         }else {
@@ -118,6 +119,12 @@ public class RoomController extends AbstractController{
                 //通知房主和房客
                 channel.writeAndFlush(packet);
                 room.getHost().getChannel().writeAndFlush(packet);
+
+                if(!guest.isPrepared()){
+                    //如果取消准备状态，取消倒计时和房主的开始状态
+                    countDown();
+                    room.getHost().setStarting(false);
+                }
             }
         }else {
             CommonLog.log.error("Unexpected Error: The Room maybe is null or guest is null or channel is not match.");
@@ -130,10 +137,10 @@ public class RoomController extends AbstractController{
      * 开始倒计时
      *
      * @date 2018/5/31 16:27
-     * @param stop 是否停止倒计时
+     * @param
      * @return void
      **/
-    private void countDown(boolean stop){
+    private void countDown(){
 
         Room room = lobby.getRoomByAddress(address);
 
@@ -147,26 +154,20 @@ public class RoomController extends AbstractController{
 
         DataPacket packet = new DataPacket("", MessageType.COUNT_DOWN);
 
-        if(!stop){
-            room.timer = new Timer();
-            room.timer.schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    CommonLog.log.info("Room will start game(" + remaining +"s)");
-                    packet.setBody(String.valueOf(remaining--));
-                    hChannel.writeAndFlush(packet);
-                    gChannel.writeAndFlush(packet);
-                    //倒计时结束
-                    if(remaining == -1){
-                        room.setPlaying(true);
-                        room.timer.cancel();
-                    }
+        room.timer = new Timer();
+        room.timer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                CommonLog.log.info("Room will start game(" + remaining +"s)");
+                packet.setBody(String.valueOf(remaining--));
+                hChannel.writeAndFlush(packet);
+                gChannel.writeAndFlush(packet);
+                //倒计时结束
+                if(remaining < 0){
+                    room.setPlaying(true);
+                    room.timer.cancel();
                 }
-            }, 0, 1000);
-        }else {
-            room.timer.cancel();
-        }
-
-
+            }
+        }, 0, 1000);
     }
 }

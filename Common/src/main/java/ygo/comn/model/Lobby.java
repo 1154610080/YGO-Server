@@ -108,9 +108,12 @@ public class Lobby{
     }
 
     //解散房间
-    public void removeRoom(InetSocketAddress hostKey){
+    private void removeRoom(InetSocketAddress hostKey){
         Room room = record.remove(hostKey);
         if(room != null){
+            if(room.getHost().isStarting()){
+                room.timer.cancel();
+            }
             roomMap.remove(room.getId());
             rooms.remove(room.getId()-1);
             Player guest = room.getGuest();
@@ -147,8 +150,16 @@ public class Lobby{
      * @param guest 房客
      * @return void
      **/
-    public void removeGuest(Player guest){
-        record.remove(new InetSocketAddress(guest.getIp(), guest.getPort()));
+    private void removeGuest(Player guest){
+        InetSocketAddress address = new InetSocketAddress(guest.getIp(), guest.getPort());
+        Room room = record.get(address);
+        Player host = room.getHost();
+        //如果房间正在倒计时，取消房主的开始状态和倒计时
+        if(host.isStarting()){
+            host.setStarting(false);
+            room.timer.cancel();
+        }
+        record.remove(address);
     }
 
     public Room getRoomById(int id){
