@@ -2,9 +2,6 @@ package ygo.loby.server;
 
 import ygo.comn.constant.YGOP;
 import ygo.comn.controller.IpFilterHandler;
-import ygo.loby.model.GameLobby;
-import ygo.comn.model.Player;
-import ygo.comn.model.Room;
 import ygo.comn.util.CommonLog;
 import ygo.comn.util.YGOPDecoder;
 import ygo.comn.util.YGOPEncoder;
@@ -78,9 +75,7 @@ public class LobbyServer{
 //        room2.setGuest(player4);
 //        room2.setName("测试房间2");
 //        room2.setDesc("用于测试的房间");
-//        GameLobby.getLobby().addRoom(room1);
-//        GameLobby.getLobby().addRoom(room2);
-
+//
 
         LobbyServer server = new LobbyServer(8192);
         server.start();

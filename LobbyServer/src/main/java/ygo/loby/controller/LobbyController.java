@@ -90,7 +90,12 @@ public class LobbyController extends AbstractController {
 
             //记录通道和房间
             host.setChannel(channel);
-            lobby.addRoom(room);
+            if(!lobby.addRoom(room)){
+                packet = new DataPacket(
+                        new ResponseStatus(StatusCode.COMMUNICATION_ERROR));
+                channel.writeAndFlush(packet);
+                return;
+            }
 
             //向客户端发送新的房间ID
             channel.writeAndFlush(new DataPacket(
@@ -125,19 +130,19 @@ public class LobbyController extends AbstractController {
 
         //判断是否满足加入房间的条件
         if(room == null){
-            DataPacket packet = new DataPacket(
+            packet = new DataPacket(
                     new ResponseStatus(StatusCode.DISMISSED)
             );
             channel.writeAndFlush(packet);
             return;
         }else if(room.getGuest() != null){
-            DataPacket packet = new DataPacket(
+            packet = new DataPacket(
                     new ResponseStatus(StatusCode.FULL_ROOM)
             );
             channel.writeAndFlush(packet);
             return;
         }else if(room.isHasPwd() && !pw.equals(room.getPassword())){
-            DataPacket packet = new DataPacket(
+            packet = new DataPacket(
                     new ResponseStatus(StatusCode.INCORRECT)
             );
             channel.writeAndFlush(packet);
@@ -150,16 +155,20 @@ public class LobbyController extends AbstractController {
 
         //记录房客通道和房客
         guest.setChannel(channel);
-        lobby.addGuest(room, guest);
+        if(!lobby.addGuest(room, guest)){
+            packet = new DataPacket(
+                    new ResponseStatus(StatusCode.COMMUNICATION_ERROR));
+            channel.writeAndFlush(packet);
+            return;
+        }
 
         //向房客返回目标房间
-        DataPacket packet = new DataPacket(
-                gson.toJson(room), MessageType.JOIN);
+        packet.setType(MessageType.JOIN);
+        packet.setBody(gson.toJson(room));
         channel.writeAndFlush(packet);
 
         //通知房主新房客的信息
-        packet = new DataPacket(
-                gson.toJson(guest), MessageType.JOIN);
+        packet.setBody(gson.toJson(guest));
         room.getHost().getChannel().writeAndFlush(packet);
     }
 }

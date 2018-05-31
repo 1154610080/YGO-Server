@@ -83,15 +83,28 @@ public class Lobby{
      * @param room 新房间
      * @return void
      **/
-    public void addRoom(Room room){
-        int id = room.getId();
-        rooms.add(id-1, room);
-        roomMap.put(id, room);
+    public boolean addRoom(Room room){
 
         Player host = room.getHost();
-        if(host != null)
-            record.put(new InetSocketAddress(host.getIp(), host.getPort()), room);
+        if (host == null){
+            CommonLog.log.error("The room " + room.getName() +
+                    " can't be created cause it lack the host.");
+            return  false;
+        }
 
+        InetSocketAddress address = new InetSocketAddress(host.getIp(), host.getPort());
+
+        //如果玩家不在其他房间，创建成功
+        if(record.get(address) == null){
+            int id = room.getId();
+            rooms.add(id-1, room);
+            roomMap.put(id, room);
+            record.put(address, room);
+            return true;
+        }
+        CommonLog.log.error("The player " + room.getHost().getName() +
+                " can't create the room cause he/she in another one.");
+        return false;
     }
 
     //解散房间
@@ -115,9 +128,16 @@ public class Lobby{
 	 * @param guest 房客
      * @return void
      **/
-    public void addGuest(Room room, Player guest){
-        room.setGuest(guest);
-        record.put(new InetSocketAddress(guest.getIp(), guest.getPort()), room);
+    public boolean addGuest(Room room, Player guest){
+        InetSocketAddress address = new InetSocketAddress(guest.getIp(), guest.getPort());
+        if(record.get(address) == null){
+            room.setGuest(guest);
+            record.put(address, room);
+            return true;
+        }
+        CommonLog.log.error("The player " + guest.getName() +
+                " can't join the room cause he/she in another one.");
+        return false;
     }
 
     /**
@@ -151,7 +171,7 @@ public class Lobby{
      * @return void
      **/
     public boolean removeAndInform(InetSocketAddress key){
-        Room room = record.remove(key);
+        Room room = record.get(key);
         //房间存在
         if(room != null){
             DataPacket packet = new DataPacket("", MessageType.LEAVE);
@@ -163,11 +183,10 @@ public class Lobby{
 
             if(isHost){
                 //如果是房主，通知房客，并删除房客的房间记录
-                if(guest != null){
+                if(guest != null)
                     guest.getChannel().writeAndFlush(packet);
                     //解散房间
-                    removeRoom(new InetSocketAddress(host.getIp(), host.getPort()));
-                }
+                removeRoom(new InetSocketAddress(host.getIp(), host.getPort()));
             }else {
                 //如果是房客，通知房主(房主一般不会为空)
                 removeGuest(guest);
