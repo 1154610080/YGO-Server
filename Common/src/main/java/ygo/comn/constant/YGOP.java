@@ -82,4 +82,9 @@ public class YGOP {
      * 布
      **/
     public static final int PAPER = 0X100;
+
+    /**
+     * 开始倒计时
+     **/
+    public static final int COUNTDOWN_SECONDS = 10;
 }

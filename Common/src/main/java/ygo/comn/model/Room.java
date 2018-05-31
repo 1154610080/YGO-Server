@@ -3,12 +3,16 @@ package ygo.comn.model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.util.Timer;
+
 /**
  * 房间类
  * @author EganChen
  * @date 2018/4/16 14:11
  */
 public class Room {
+
+    public Timer timer;
 
     /**
      * 房间ID
