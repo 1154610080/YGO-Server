@@ -111,11 +111,12 @@ public class Lobby{
     private void removeRoom(InetSocketAddress hostKey){
         Room room = record.remove(hostKey);
         if(room != null){
+
             if(room.getHost().isStarting()){
                 room.timer.cancel();
             }
             roomMap.remove(room.getId());
-            rooms.remove(room.getId()-1);
+            rooms.remove(room);
             Player guest = room.getGuest();
             if(guest != null){
                 record.remove(new InetSocketAddress(guest.getIp(), guest.getPort()));
