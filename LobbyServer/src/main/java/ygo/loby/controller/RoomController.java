@@ -36,6 +36,8 @@ public class RoomController extends AbstractController{
                 ready(); break;
             case STARTED:
                 start(); break;
+            case KICK_OUT:
+                kickOut(); break;
             default:
                 channel.writeAndFlush(
                         new DataPacket(
@@ -170,5 +172,20 @@ public class RoomController extends AbstractController{
                 }
             }
         }, 0, 1000);
+    }
+
+    private void kickOut()
+    {
+        Room room = lobby.getRoomByAddress(address);
+        if(room != null && room.getHost() != null
+                && channel.equals(room.getHost().getChannel())){
+            Player guest = room.getGuest();
+            if(guest != null){
+                lobby.removeGuest(guest);
+            }
+            channel.writeAndFlush(packet);
+        }else {
+            CommonLog.log.error("Unexpected Error: The room is null or the channel not match host's\n");
+        }
     }
 }
