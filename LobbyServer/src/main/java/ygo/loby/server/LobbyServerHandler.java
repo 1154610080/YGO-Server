@@ -44,7 +44,7 @@ public class LobbyServerHandler extends ChannelInboundHandlerAdapter {
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        ctx.writeAndFlush(new ResponseStatus(StatusCode.INTERNAL_SERVER_ERROR));
+        ctx.writeAndFlush(new DataPacket(new ResponseStatus(StatusCode.INTERNAL_SERVER_ERROR)));
         log.fatal(cause.toString());
         ctx.close();
     }

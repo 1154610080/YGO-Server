@@ -60,6 +60,12 @@ public class RoomController extends AbstractController{
                     return;
                 kickOut();
                 break;
+            case FINGER_GUESS:
+                boolean isHost = Lobby.isHost(address, room);
+                if(isMatchedChannel(room, isHost))
+                    return;
+                fingerGuess(isHost);
+                break;
             default:
                 channel.writeAndFlush(packet);
                 log.error(StatusCode.ERROR_CONTROLLER, "房间控制不能处理该消息类型 " + packet.getType());
@@ -88,21 +94,20 @@ public class RoomController extends AbstractController{
      * @return void
      **/
     private void start(){
-        synchronized (room){
-            Player host = room.getHost();
-            host.setStarting(!host.isStarting());
-            packet.setType(MessageType.STARTED);
-            channel.writeAndFlush(packet);
-            room.getGuest().getChannel().writeAndFlush(packet);
 
-            if(host.isStarting()){
-                //如果进入开始状态，开始倒计时
-                countDown();
-            }else if(room.timer != null){
-                //否则取消倒计时，取消房客的准备状态
-                room.timer.cancel();
-                room.getGuest().setPrepared(false);
-            }
+        Player host = room.getHost();
+        host.setStarting(!host.isStarting());
+        packet.setType(MessageType.STARTED);
+        channel.writeAndFlush(packet);
+        room.getGuest().getChannel().writeAndFlush(packet);
+
+        if(host.isStarting()){
+            //如果进入开始状态，开始倒计时
+            countDown();
+        }else if(room.timer != null){
+            //否则取消倒计时，取消房客的准备状态
+            room.timer.cancel();
+            room.getGuest().setPrepared(false);
         }
 
     }
@@ -115,20 +120,18 @@ public class RoomController extends AbstractController{
      * @return void
      **/
     private void ready(){
-        synchronized (room){
-            //房客改变准备状态
-            Player guest = room.getGuest();
-            guest.setPrepared(!guest.isPrepared());
-            //通知房主和房客
-            channel.writeAndFlush(packet);
-            room.getHost().getChannel().writeAndFlush(packet);
+        //房客改变准备状态
+        Player guest = room.getGuest();
+        guest.setPrepared(!guest.isPrepared());
+        //通知房主和房客
+        channel.writeAndFlush(packet);
+        room.getHost().getChannel().writeAndFlush(packet);
 
-            if(!guest.isPrepared()){
-                //如果取消准备状态，取消倒计时和房主的开始状态
-                if(room.timer!=null)
-                    room.timer.cancel();
-                room.getHost().setStarting(false);
-            }
+        if(!guest.isPrepared()){
+            //如果取消准备状态，取消倒计时和房主的开始状态
+            if(room.timer!=null)
+                room.timer.cancel();
+            room.getHost().setStarting(false);
         }
     }
 
@@ -190,7 +193,16 @@ public class RoomController extends AbstractController{
      * @param
      * @return void
      **/
-    private void fingerGuess(){
+    private void fingerGuess(boolean isHost){
+
+        int finger = Integer.parseInt(packet.getBody(), 16);
+
+        if (isHost) {
+            room.getHost().setFinger(finger);
+        } else {
+            room.getGuest().setFinger(finger);
+        }
+
 
     }
 }
