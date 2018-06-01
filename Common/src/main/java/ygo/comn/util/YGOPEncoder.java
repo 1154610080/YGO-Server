@@ -7,6 +7,8 @@ import io.netty.handler.codec.MessageToByteEncoder;
 
 import ygo.comn.model.DataPacket;
 
+import java.net.InetSocketAddress;
+
 /**
  * 自定义协议YGOP的编码器
  *
@@ -29,7 +31,10 @@ public class YGOPEncoder extends MessageToByteEncoder<DataPacket>{
                           DataPacket dataPacket, ByteBuf byteBuf) throws Exception {
         if(dataPacket != null){
 
-            CommonLog.log.info("SEND: (" + dataPacket.getType() + ")" + dataPacket.getBody());
+            InetSocketAddress address = (InetSocketAddress) channelHandlerContext.channel().remoteAddress();
+
+            CommonLog.log.info("SEND: (" + dataPacket.getType() + ")" + dataPacket.getBody() + "to "
+                    + address.getHostString() + ":" + address.getPort() +"\n");
 
             byteBuf.writeFloat(dataPacket.getVersion());
             byteBuf.writeInt(dataPacket.getType().getCode());

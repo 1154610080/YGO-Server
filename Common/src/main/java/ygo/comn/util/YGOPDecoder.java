@@ -8,6 +8,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.handler.codec.ByteToMessageDecoder;
 
+import java.net.InetSocketAddress;
 import java.util.List;
 
 /**
@@ -62,6 +63,12 @@ public class YGOPDecoder extends ByteToMessageDecoder{
             DataPacket packet = new DataPacket(version, type, magic, len, body);
 
             list.add(packet);
+
+            InetSocketAddress address = (InetSocketAddress) channelHandlerContext.channel().remoteAddress();
+
+
+            CommonLog.log.info("RECEIVE: (" + packet.getType() + ")" + packet.getBody() + "to "
+                    + address.getHostString() + ":" + address.getPort() + "\n");
 
         }
     }

@@ -36,7 +36,7 @@ public class LobbyController extends AbstractController {
                                         StatusCode.COMMUNICATION_ERROR,
                                         "Unsupported Type")));
                 CommonLog.log.
-                        error("The type \""+packet.getType() + "\" is unsupported in Lobby-Controller");
+                        error("The type \""+packet.getType() + "\" is unsupported in Lobby-Controller\n");
         }
     }
 
@@ -48,8 +48,6 @@ public class LobbyController extends AbstractController {
      * @return void
      **/
     private void getRooms(){
-
-        CommonLog.log.info("send list of room");
         String lobbyStr = new String(gson.toJson(Lobby.getLobby()).getBytes(), YGOP.CHARSET);
 
         channel.writeAndFlush(new DataPacket(lobbyStr, MessageType.GET_ROOMS));
@@ -103,7 +101,7 @@ public class LobbyController extends AbstractController {
             );
 
         }catch (Exception e){
-            CommonLog.log.error(e + " in createRoom() of Lobby-Controller");
+            CommonLog.log.error(e + " in createRoom() of Lobby-Controller\n");
         }
 
     }

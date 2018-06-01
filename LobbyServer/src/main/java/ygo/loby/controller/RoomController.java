@@ -97,7 +97,7 @@ public class RoomController extends AbstractController{
                 }
             }
         }else {
-            CommonLog.log.error("The Room maybe is null or host is null or channel is not match.");
+            CommonLog.log.error("Unexpected Error: The Room maybe is null or host is null or channel is not match when start.\n");
         }
 
     }
@@ -127,7 +127,7 @@ public class RoomController extends AbstractController{
                 }
             }
         }else {
-            CommonLog.log.error("Unexpected Error: The Room maybe is null or guest is null or channel is not match.");
+            CommonLog.log.error("Unexpected Error: The Room maybe is null or guest is null or channel is not match when ready.\n");
         }
     }
 
@@ -145,7 +145,7 @@ public class RoomController extends AbstractController{
         Room room = lobby.getRoomByAddress(address);
 
         if(room == null || room.getHost()==null || room.getGuest() == null){
-            CommonLog.log.error("Unexpected Error: The room is not full when countdown.");
+            CommonLog.log.error("Unexpected Error: The room is not full when countdown.\n");
             return;
         }
 
@@ -158,7 +158,7 @@ public class RoomController extends AbstractController{
         room.timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                CommonLog.log.info("Room will start game(" + remaining +"s)");
+                CommonLog.log.info("Room(" + room.getName() + ") will start game(" + remaining +"s)\n");
                 packet.setBody(String.valueOf(remaining--));
                 hChannel.writeAndFlush(packet);
                 gChannel.writeAndFlush(packet);

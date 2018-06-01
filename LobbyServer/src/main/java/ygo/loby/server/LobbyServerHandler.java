@@ -21,20 +21,20 @@ public class LobbyServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
-        CommonLog.log.info(address.getHostString() + " has the inbound.");
+        CommonLog.log.info(address.getHostString() + ":" + address.getPort() + " has the inbound.\n");
     }
 
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
         InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
-        CommonLog.log.info(address.getHostString() + " has the outbound.");
+        CommonLog.log.info(address.getHostString() + ":" + address.getPort() + " has the outbound.\n");
 
         //检查玩家是否掉线
         if(Lobby.getLobby().removeAndInform(address)){
             CommonLog.log.warn(new String
                     (("A player("
                             + address.getHostString() + ":" + address.getPort()
-                            + ") has lost the connection")
+                            + ") has lost the connection\n")
                             .getBytes(), YGOP.CHARSET));
         }
     }
@@ -43,11 +43,9 @@ public class LobbyServerHandler extends ChannelInboundHandlerAdapter {
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
         if(msg instanceof DataPacket){
             DataPacket packet = (DataPacket)msg;
-            CommonLog.log.info(
-                    new String((packet.getType() +  " : " + packet.getBody()).getBytes(), YGOP.CHARSET));
             new ChiefController(packet, ctx.channel());
         }else {
-            CommonLog.log.error("The message isn't a Data Packet");
+            CommonLog.log.error("The message isn't a Data Packet\n");
             ctx.writeAndFlush(new DataPacket(new ResponseStatus(StatusCode.COMMUNICATION_ERROR)));
         }
 
@@ -56,7 +54,7 @@ public class LobbyServerHandler extends ChannelInboundHandlerAdapter {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
         ctx.writeAndFlush(new ResponseStatus(StatusCode.INTERNAL_SERVER_ERROR, "msg"));
-        CommonLog.log.error(cause + " in Lobby-Server-Handler");
+        CommonLog.log.error(cause + " in Lobby-Server-Handler\n");
         ctx.close();
     }
 
