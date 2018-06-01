@@ -151,7 +151,7 @@ public class Lobby{
      * @param guest 房客
      * @return void
      **/
-    private void removeGuest(Player guest){
+    public void removeGuest(Player guest){
         InetSocketAddress address = new InetSocketAddress(guest.getIp(), guest.getPort());
         Room room = record.get(address);
         Player host = room.getHost();
