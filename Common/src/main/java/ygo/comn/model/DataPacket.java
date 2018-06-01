@@ -2,6 +2,7 @@ package ygo.comn.model;
 
 import com.google.gson.GsonBuilder;
 import ygo.comn.constant.MessageType;
+import ygo.comn.constant.StatusCode;
 import ygo.comn.constant.YGOP;
 /**
  * 自定义协议YGOP的数据包类
@@ -103,5 +104,10 @@ public class DataPacket {
     public void setBody(String body) {
         this.body = body;
         this.len = body.getBytes(YGOP.CHARSET).length;
+    }
+
+    public void setStatusCode(StatusCode code){
+        setType(MessageType.WARING);
+        setBody(new GsonBuilder().create().toJson(new ResponseStatus(code)));
     }
 }
