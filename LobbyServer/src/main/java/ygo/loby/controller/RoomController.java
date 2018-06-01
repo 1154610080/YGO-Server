@@ -6,7 +6,7 @@ import ygo.comn.constant.YGOP;
 import ygo.comn.controller.AbstractController;
 import ygo.comn.model.*;
 import io.netty.channel.Channel;
-import ygo.comn.util.CommonLog;
+import ygo.comn.util.YgoLog;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -20,6 +20,8 @@ import java.util.TimerTask;
  **/
 public class RoomController extends AbstractController{
 
+    private Room room = null;
+
     RoomController(DataPacket packet, Channel channel) {
         super(packet, channel);
     }
@@ -27,25 +29,40 @@ public class RoomController extends AbstractController{
     @Override
     protected void assign() {
 
+        log = new YgoLog("RoomController");
+
+        room = lobby.getRoomByAddress(address);
+
+        if(!isNormalRoom()) return;
+
         switch (packet.getType()){
             case CHAT:
                 chat(); break;
             case LEAVE:
                 leave(); break;
             case READY:
-                ready(); break;
+                if(isMatchedChannel(room, false))
+                    return;
+                ready();
+                break;
             case STARTED:
-                start(); break;
+                if(isMatchedChannel(room, true))
+                    return;
+                if (room.getGuest() == null || !room.getGuest().isPrepared()){
+                    packet.setStatusCode(StatusCode.UNPREPARED);
+                    channel.writeAndFlush(packet);
+                    return;
+                }
+                start();
+                break;
             case KICK_OUT:
-                kickOut(); break;
+                if(isMatchedChannel(room, true))
+                    return;
+                kickOut();
+                break;
             default:
-                channel.writeAndFlush(
-                        new DataPacket(
-                                new ResponseStatus(
-                                        StatusCode.COMMUNICATION_ERROR,
-                                        "Unsupported Type")));
-                CommonLog.log.
-                        error("The type \""+packet.getType() + "\" is unsupported in Room-Controller");
+                channel.writeAndFlush(packet);
+                log.error(StatusCode.ERROR_CONTROLLER, "房间控制不能处理该消息类型 " + packet.getType());
         }
     }
 
@@ -60,9 +77,7 @@ public class RoomController extends AbstractController{
     private void leave()
     {
         if(!lobby.removeAndInform(address))
-            CommonLog.log.error("Unexpected Error: The player("
-                    + address.getHostString() + ":" + address.getPort()
-            +") can't leave the room cause he not in here.");
+            log.error(StatusCode.NOT_IN_HERE, "不能删除玩家记录，因为TA不在房间");
     }
 
     /**
@@ -73,33 +88,21 @@ public class RoomController extends AbstractController{
      * @return void
      **/
     private void start(){
-        Room room = lobby.getRoomByAddress(address);
-        if(room != null && room.getHost() != null
-                && channel.equals(room.getHost().getChannel())){
-            synchronized (room){
-                //房主改变开始状态
-                //如果房客未准备，警告房主
-                if (room.getGuest() == null || !room.getGuest().isPrepared()){
-                    channel.writeAndFlush(new DataPacket(new ResponseStatus(StatusCode.UNPREPARED)));
-                    return;
-                }
-                Player host = room.getHost();
-                host.setStarting(!host.isStarting());
-                packet.setType(MessageType.STARTED);
-                channel.writeAndFlush(packet);
-                room.getGuest().getChannel().writeAndFlush(packet);
+        synchronized (room){
+            Player host = room.getHost();
+            host.setStarting(!host.isStarting());
+            packet.setType(MessageType.STARTED);
+            channel.writeAndFlush(packet);
+            room.getGuest().getChannel().writeAndFlush(packet);
 
-                if(host.isStarting()){
-                    //如果进入开始状态，开始倒计时
-                    countDown();
-                }else if(room.timer != null){
-                    //否则取消倒计时，取消房客的准备状态
-                    room.timer.cancel();
-                    room.getGuest().setPrepared(false);
-                }
+            if(host.isStarting()){
+                //如果进入开始状态，开始倒计时
+                countDown();
+            }else if(room.timer != null){
+                //否则取消倒计时，取消房客的准备状态
+                room.timer.cancel();
+                room.getGuest().setPrepared(false);
             }
-        }else {
-            CommonLog.log.error("Unexpected Error: The Room maybe is null or host is null or channel is not match when start.\n");
         }
 
     }
@@ -112,25 +115,20 @@ public class RoomController extends AbstractController{
      * @return void
      **/
     private void ready(){
-        Room room = lobby.getRoomByAddress(address);
-        if(room != null && room.getGuest() != null && channel.equals(room.getGuest().getChannel())){
-            synchronized (room){
-                //房客改变准备状态
-                Player guest = room.getGuest();
-                guest.setPrepared(!guest.isPrepared());
-                //通知房主和房客
-                channel.writeAndFlush(packet);
-                room.getHost().getChannel().writeAndFlush(packet);
+        synchronized (room){
+            //房客改变准备状态
+            Player guest = room.getGuest();
+            guest.setPrepared(!guest.isPrepared());
+            //通知房主和房客
+            channel.writeAndFlush(packet);
+            room.getHost().getChannel().writeAndFlush(packet);
 
-                if(!guest.isPrepared()){
-                    //如果取消准备状态，取消倒计时和房主的开始状态
-                    if(room.timer!=null)
-                        room.timer.cancel();
-                    room.getHost().setStarting(false);
-                }
+            if(!guest.isPrepared()){
+                //如果取消准备状态，取消倒计时和房主的开始状态
+                if(room.timer!=null)
+                    room.timer.cancel();
+                room.getHost().setStarting(false);
             }
-        }else {
-            CommonLog.log.error("Unexpected Error: The Room maybe is null or guest is null or channel is not match when ready.\n");
         }
     }
 
@@ -145,13 +143,6 @@ public class RoomController extends AbstractController{
      **/
     private void countDown(){
 
-        Room room = lobby.getRoomByAddress(address);
-
-        if(room == null || room.getHost()==null || room.getGuest() == null){
-            CommonLog.log.error("Unexpected Error: The room is not full when countdown.\n");
-            return;
-        }
-
         Channel hChannel = room.getHost().getChannel();
         Channel gChannel = room.getGuest().getChannel();
 
@@ -161,7 +152,6 @@ public class RoomController extends AbstractController{
         room.timer.schedule(new TimerTask() {
             @Override
             public void run() {
-                CommonLog.log.info("Room(" + room.getName() + ") will start game(" + remaining +"s)\n");
                 packet.setBody(String.valueOf(remaining--));
                 hChannel.writeAndFlush(packet);
                 gChannel.writeAndFlush(packet);
@@ -174,18 +164,33 @@ public class RoomController extends AbstractController{
         }, 0, 1000);
     }
 
+    /**
+     * 踢出房间
+     *
+     * @date 2018/6/1 11:25
+     * @param
+     * @return void
+     **/
     private void kickOut()
     {
-        Room room = lobby.getRoomByAddress(address);
-        if(room != null && room.getHost() != null
-                && channel.equals(room.getHost().getChannel())){
-            Player guest = room.getGuest();
-            if(guest != null){
-                lobby.removeGuest(guest);
-            }
-            channel.writeAndFlush(packet);
-        }else {
-            CommonLog.log.error("Unexpected Error: The room is null or the channel not match host's\n");
+        Player guest = room.getGuest();
+        if(guest != null){
+            if(guest.getChannel() != null)
+                guest.getChannel().writeAndFlush(packet);
+            lobby.removeGuest(guest);
         }
+        channel.writeAndFlush(packet);
+
+    }
+
+    /**
+     * 猜拳
+     *
+     * @date 2018/6/1 20:26
+     * @param
+     * @return void
+     **/
+    private void fingerGuess(){
+
     }
 }

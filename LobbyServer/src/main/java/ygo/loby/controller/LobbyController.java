@@ -5,8 +5,8 @@ import ygo.comn.constant.MessageType;
 import ygo.comn.constant.StatusCode;
 import ygo.comn.constant.YGOP;
 import ygo.comn.controller.AbstractController;
-import ygo.comn.util.CommonLog;
 import io.netty.channel.Channel;
+import ygo.comn.util.YgoLog;
 
 import java.util.*;
 
@@ -25,18 +25,17 @@ public class LobbyController extends AbstractController {
 
     @Override
     protected void assign() {
+        log = new YgoLog("LobbyController");
         switch (packet.getType()){
             case GET_ROOMS: getRooms(); break;
             case CREATE: createRoom(); break;
-            case JOIN: joinRoom(); break;
+            case JOIN:
+
+                joinRoom(); break;
             default:
-                channel.writeAndFlush(
-                        new DataPacket(
-                                new ResponseStatus(
-                                        StatusCode.COMMUNICATION_ERROR,
-                                        "Unsupported Type")));
-                CommonLog.log.
-                        error("The type \""+packet.getType() + "\" is unsupported in Lobby-Controller\n");
+                packet.setStatusCode(StatusCode.ERROR_CONTROLLER);
+                channel.writeAndFlush(packet);
+                log.error(StatusCode.ERROR_CONTROLLER, "大厅控制器不能处理该类型 " + packet.getType());
         }
     }
 
@@ -63,46 +62,42 @@ public class LobbyController extends AbstractController {
      **/
     private synchronized void createRoom(){
 
-
-        try{
-
-            if(lobby.size() >= lobby.MAX_ROOMS){
-                channel.writeAndFlush( new DataPacket(
-                        new ResponseStatus(StatusCode.FULL_LOBBY)));
-                CommonLog.log.error(StatusCode.FULL_LOBBY);
-                channel.close();
-            }
-
-            //获取房间
-            Room room = gson.fromJson(packet.getBody(), Room.class);
-
-            //分配ip和端口
-            Player host = room.getHost();
-            host.setIp(address.getHostString());
-            host.setPort(address.getPort());
-
-            //分配房间ID
-            int id = 0;
-            while (id < lobby.size() && id == lobby.getRoomByIndex(id).getId()-1){id++;};
-            room.setId(id + 1);
-
-            //记录通道和房间
-            host.setChannel(channel);
-            if(!lobby.addRoom(room)){
-                packet = new DataPacket(
-                        new ResponseStatus(StatusCode.COMMUNICATION_ERROR));
-                channel.writeAndFlush(packet);
-                return;
-            }
-
-            //向客户端发送新的房间ID
-            channel.writeAndFlush(new DataPacket(
-                    gson.toJson(room.getId()), MessageType.CREATE)
-            );
-
-        }catch (Exception e){
-            CommonLog.log.error(e + " in createRoom() of Lobby-Controller\n");
+        if(lobby.size() >= lobby.MAX_ROOMS){
+            channel.writeAndFlush( new DataPacket(
+                    new ResponseStatus(StatusCode.FULL_LOBBY)));
+            log.warn(StatusCode.FULL_LOBBY, "游戏大厅已满");
+            channel.close();
         }
+
+        //获取房间
+        room = gson.fromJson(packet.getBody(), Room.class);
+
+        if(!isNormalRoom()) return;
+
+        //分配ip和端口
+        Player host = room.getHost();
+        host.setIp(address.getHostString());
+        host.setPort(address.getPort());
+
+        //分配房间ID
+        int id = 0;
+        while (id < lobby.size() && id == lobby.getRoomByIndex(id).getId()-1){id++;};
+        room.setId(id + 1);
+
+        //记录通道和房间
+        host.setChannel(channel);
+        if(!lobby.addRoom(room)){
+            packet = new DataPacket(
+                    new ResponseStatus(StatusCode.BE_IN_ANOTHER));
+            channel.writeAndFlush(packet);
+            log.error(StatusCode.BE_IN_ANOTHER, "玩家 " + host.getName() + " 不能创建房间，因为TA已经在其他房间");
+            return;
+        }
+
+        //向客户端发送新的房间ID
+        channel.writeAndFlush(new DataPacket(
+                gson.toJson(room.getId()), MessageType.CREATE)
+        );
 
     }
 
@@ -124,16 +119,12 @@ public class LobbyController extends AbstractController {
         Player guest = gson.fromJson(map.get("gs").toString(), Player.class);
         String pw = map.get("pw").toString();
 
-        Room room = lobby.getRoomById(id);
+        room = lobby.getRoomById(id);
+
+        if (!isNormalRoom()) return;
 
         //判断是否满足加入房间的条件
-        if(room == null){
-            packet = new DataPacket(
-                    new ResponseStatus(StatusCode.DISMISSED)
-            );
-            channel.writeAndFlush(packet);
-            return;
-        }else if(room.getGuest() != null){
+        if(room.getGuest() != null){
             packet = new DataPacket(
                     new ResponseStatus(StatusCode.FULL_ROOM)
             );
@@ -155,7 +146,7 @@ public class LobbyController extends AbstractController {
         guest.setChannel(channel);
         if(!lobby.addGuest(room, guest)){
             packet = new DataPacket(
-                    new ResponseStatus(StatusCode.COMMUNICATION_ERROR));
+                    new ResponseStatus(StatusCode.BE_IN_ANOTHER));
             channel.writeAndFlush(packet);
             return;
         }
