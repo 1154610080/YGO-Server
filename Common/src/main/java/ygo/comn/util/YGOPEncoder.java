@@ -1,5 +1,6 @@
 package ygo.comn.util;
 
+import ygo.comn.constant.StatusCode;
 import ygo.comn.constant.YGOP;
 import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
@@ -17,6 +18,8 @@ import java.net.InetSocketAddress;
  **/
 public class YGOPEncoder extends MessageToByteEncoder<DataPacket>{
 
+    private YgoLog log = new YgoLog("Encoder");
+
     /**
      * 将YGOP数据包出站时将其编码并写入响应中
      *
@@ -33,8 +36,8 @@ public class YGOPEncoder extends MessageToByteEncoder<DataPacket>{
 
             InetSocketAddress address = (InetSocketAddress) channelHandlerContext.channel().remoteAddress();
 
-            CommonLog.log.info("SEND: (" + dataPacket.getType() + ")" + dataPacket.getBody() + "to "
-                    + address.getHostString() + ":" + address.getPort() +"\n");
+            log.info(StatusCode.SEND, ": (" + dataPacket.getType() + "){" + dataPacket.getBody() + "} to "
+                    + address.getHostString() + ":" + address.getPort());
 
             byteBuf.writeFloat(dataPacket.getVersion());
             byteBuf.writeInt(dataPacket.getType().getCode());

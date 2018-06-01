@@ -1,5 +1,6 @@
 package ygo.comn.util;
 
+import ygo.comn.constant.StatusCode;
 import ygo.comn.controller.IpFilterHandler;
 import ygo.comn.constant.MessageType;
 import ygo.comn.constant.YGOP;
@@ -18,6 +19,9 @@ import java.util.List;
  * @date 2018/5/19 20:50
  **/
 public class YGOPDecoder extends ByteToMessageDecoder{
+
+    private YgoLog log = new YgoLog("Decoder");
+
     /**
      * 将字节流解码为协议
      *
@@ -67,8 +71,8 @@ public class YGOPDecoder extends ByteToMessageDecoder{
             InetSocketAddress address = (InetSocketAddress) channelHandlerContext.channel().remoteAddress();
 
 
-            CommonLog.log.info("RECEIVE: (" + packet.getType() + ")" + packet.getBody() + "to "
-                    + address.getHostString() + ":" + address.getPort() + "\n");
+            log.info(StatusCode.RECEIVE,": (" + packet.getType() + "){" + packet.getBody() + "} to "
+                    + address.getHostString() + ":" + address.getPort());
 
         }
     }

@@ -3,7 +3,6 @@ package ygo.comn.model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import ygo.comn.constant.MessageType;
-import ygo.comn.util.CommonLog;
 import java.net.InetSocketAddress;
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -86,11 +85,6 @@ public class Lobby{
     public boolean addRoom(Room room){
 
         Player host = room.getHost();
-        if (host == null){
-            CommonLog.log.error("The room " + room.getName() +
-                    " can't be created cause it lack the host.");
-            return  false;
-        }
 
         InetSocketAddress address = new InetSocketAddress(host.getIp(), host.getPort());
 
@@ -102,8 +96,6 @@ public class Lobby{
             record.put(address, room);
             return true;
         }
-        CommonLog.log.error("The player " + room.getHost().getName() +
-                " can't create the room cause he/she in another one.");
         return false;
     }
 
@@ -139,8 +131,6 @@ public class Lobby{
             record.put(address, room);
             return true;
         }
-        CommonLog.log.error("The player " + guest.getName() +
-                " can't join the room cause he/she in another one.");
         return false;
     }
 
@@ -204,14 +194,13 @@ public class Lobby{
                 removeGuest(guest);
                 //删除房客
                 room.setGuest(null);
-                if(host == null)
-                    CommonLog.log.error(
-                            "Unexpected Error: The host was null when guest left the room.");
-                else
-                    host.getChannel().writeAndFlush(packet);
+                host.getChannel().writeAndFlush(packet);
             }
             return true;
         }
+
+
+
         return false;
     }
 

@@ -1,10 +1,9 @@
 package ygo.loby.server;
 
-import ygo.comn.constant.YGOP;
 import ygo.comn.model.*;
+import ygo.comn.util.YgoLog;
 import ygo.loby.controller.ChiefController;
 import ygo.comn.constant.StatusCode;
-import ygo.comn.util.CommonLog;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 
@@ -18,43 +17,35 @@ import java.net.InetSocketAddress;
  **/
 public class LobbyServerHandler extends ChannelInboundHandlerAdapter {
 
+    private YgoLog log = new YgoLog("IOBound");
+
     @Override
     public void handlerAdded(ChannelHandlerContext ctx) throws Exception {
         InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
-        CommonLog.log.info(address.getHostString() + ":" + address.getPort() + " has the inbound.\n");
+        log.info(StatusCode.INBOUND, address.getHostString() + ":" + address.getPort());
     }
 
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx) throws Exception {
         InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
-        CommonLog.log.info(address.getHostString() + ":" + address.getPort() + " has the outbound.\n");
+        log.info(StatusCode.OUTBOUND, address.getHostString() + ":" + address.getPort() );
 
         //检查玩家是否掉线
         if(Lobby.getLobby().removeAndInform(address)){
-            CommonLog.log.warn(new String
-                    (("A player("
-                            + address.getHostString() + ":" + address.getPort()
-                            + ") has lost the connection\n")
-                            .getBytes(), YGOP.CHARSET));
+            log.warn(StatusCode.LOST_CONNECTION, address.getHostString() + ":" + address.getPort());
         }
     }
 
     @Override
     public void channelRead(ChannelHandlerContext ctx, Object msg) throws Exception {
-        if(msg instanceof DataPacket){
-            DataPacket packet = (DataPacket)msg;
-            new ChiefController(packet, ctx.channel());
-        }else {
-            CommonLog.log.error("The message isn't a Data Packet\n");
-            ctx.writeAndFlush(new DataPacket(new ResponseStatus(StatusCode.COMMUNICATION_ERROR)));
-        }
-
+        DataPacket packet = (DataPacket)msg;
+        new ChiefController(packet, ctx.channel());
     }
 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause) throws Exception {
-        ctx.writeAndFlush(new ResponseStatus(StatusCode.INTERNAL_SERVER_ERROR, "msg"));
-        CommonLog.log.error(cause + " in Lobby-Server-Handler\n");
+        ctx.writeAndFlush(new ResponseStatus(StatusCode.INTERNAL_SERVER_ERROR));
+        log.fatal(cause.toString());
         ctx.close();
     }
 
