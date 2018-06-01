@@ -122,7 +122,8 @@ public class RoomController extends AbstractController{
 
                 if(!guest.isPrepared()){
                     //如果取消准备状态，取消倒计时和房主的开始状态
-                    countDown();
+                    if(room.timer!=null)
+                        room.timer.cancel();
                     room.getHost().setStarting(false);
                 }
             }
