@@ -203,7 +203,5 @@ public class RoomController extends AbstractController{
         } else {
             room.getGuest().setFinger(finger);
         }
-
-
     }
 }

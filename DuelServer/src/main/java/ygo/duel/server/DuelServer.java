@@ -1,5 +1,7 @@
 package ygo.duel.server;
 
+import org.apache.commons.logging.Log;
+import ygo.comn.constant.RemoteAddress;
 import ygo.comn.constant.YGOP;
 import ygo.comn.controller.IpFilterHandler;
 import ygo.comn.util.YGOPDecoder;
@@ -10,6 +12,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.apache.commons.logging.LogFactory;
+import ygo.duel.client.LobbyClient;
 
 import java.net.InetSocketAddress;
 
@@ -18,7 +21,9 @@ import java.net.InetSocketAddress;
  * @author EganChen
  * @date 2018/4/16 13:48
  */
-public class DuelServer{
+public class DuelServer implements Runnable{
+
+    private Log log = LogFactory.getLog("Duel-Server");
 
     private int port;
 
@@ -26,7 +31,8 @@ public class DuelServer{
         this.port = port;
     }
 
-    public void start() throws InterruptedException {
+    @Override
+    public void run(){
         EventLoopGroup group = new NioEventLoopGroup();
 
         try{
@@ -48,17 +54,28 @@ public class DuelServer{
                     .option(ChannelOption.SO_BACKLOG, 128)  //最大客户端连接数
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
             ChannelFuture f = b.bind().sync();
-            LogFactory.getLog("LobbyServer")
-                    .info(new String(("决斗服务器 正在监听端口 " + port + "...").getBytes(), YGOP.CHARSET));
+            log.info(new String(("决斗服务器 正在监听端口 " + port + "...").getBytes(), YGOP.CHARSET));
             f.channel().closeFuture().sync();
+        } catch (InterruptedException e) {
+            log.fatal(e.getStackTrace());
         } finally {
-            group.shutdownGracefully().sync();
+            try {
+                group.shutdownGracefully().sync();
+            } catch (InterruptedException e) {
+                log.fatal(e.getStackTrace());
+            }
         }
     }
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args){
 
-        DuelServer server = new DuelServer(16384);
-        server.start();
+        DuelServer duelServer = new DuelServer(RemoteAddress.DUEL_PORT);
+        LobbyClient lobbyClient = new LobbyClient(RemoteAddress.LOBBY_HOST, RemoteAddress.LOBBY_PORT );
+
+        Thread duel = new Thread(duelServer);
+        Thread lobby = new Thread(lobbyClient);
+
+        duel.start();
+        lobby.start();
     }
 }

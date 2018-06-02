@@ -49,3 +49,4 @@ LobbyServer/src/main/resources/
 LobbyServer/target/
 VersionServer/src/
 out/
+/Common/src/main/java/ygo/comn/constant/RemoteAddress.java
