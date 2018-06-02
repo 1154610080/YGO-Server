@@ -27,7 +27,7 @@ public class ChiefController extends AbstractController{
             case JOIN:
             case DECK:
             case FINGER_GUESS:
-                new PrepatoryContorller(packet, channel);
+                new PreparatoryController(packet, channel);
                 break;
             case CHAT:
             case OPERATE:
@@ -35,6 +35,16 @@ public class ChiefController extends AbstractController{
             case WARING:
                 break;
         }
+    }
+
+    /**
+     * 双方完成准备工作后，进入决斗
+     *
+     * @date 2018/6/2 11:16
+     * @param
+     * @return void
+     **/
+    private void duel(){
 
     }
 }

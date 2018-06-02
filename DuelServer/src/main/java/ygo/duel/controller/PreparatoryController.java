@@ -11,9 +11,9 @@ import ygo.comn.model.DataPacket;
  * @author Egan
  * @date 2018/6/2 10:56
  **/
-public class PrepatoryContorller extends AbstractController{
+public class PreparatoryController extends AbstractController{
 
-    public PrepatoryContorller(DataPacket packet, Channel channel) {
+    public PreparatoryController(DataPacket packet, Channel channel) {
         super(packet, channel);
     }
 

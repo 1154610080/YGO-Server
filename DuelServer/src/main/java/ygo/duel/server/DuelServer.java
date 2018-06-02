@@ -51,7 +51,6 @@ public class DuelServer implements Runnable{
                             socketChannel.pipeline().addLast(new DuelServerHandler());
                         }
                     })
-                    .option(ChannelOption.SO_BACKLOG, 128)  //最大客户端连接数
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
             ChannelFuture f = b.bind().sync();
             log.info(new String(("决斗服务器 正在监听端口 " + port + "...").getBytes(), YGOP.CHARSET));

@@ -18,8 +18,10 @@ public class GameController extends AbstractController {
     }
 
     @Override
-    protected void assign() {
-        super.channel.closeFuture();
+    protected void assign(){
+
+
+
     }
 
     /**
