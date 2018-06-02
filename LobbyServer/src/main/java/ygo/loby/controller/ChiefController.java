@@ -23,9 +23,10 @@ public class ChiefController extends AbstractController {
         else if(type >= MessageType.LEAVE.getCode() && type <= MessageType.CHAT.getCode())
             new RoomController(packet, channel);
         else {
+            log.error(StatusCode.ERROR_CONTROLLER, "主控制器不能处理该类型 " + packet.getType());
             packet.setStatusCode(StatusCode.ERROR_CONTROLLER);
             channel.writeAndFlush(packet);
-            log.error(StatusCode.ERROR_CONTROLLER, "主控制器不能处理该类型 " + packet.getType());
+
         }
     }
 }

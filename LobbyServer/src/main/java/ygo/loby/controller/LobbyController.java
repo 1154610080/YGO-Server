@@ -33,9 +33,9 @@ public class LobbyController extends AbstractController {
 
                 joinRoom(); break;
             default:
+                log.error(StatusCode.ERROR_CONTROLLER, "大厅控制器不能处理该类型 " + packet.getType());
                 packet.setStatusCode(StatusCode.ERROR_CONTROLLER);
                 channel.writeAndFlush(packet);
-                log.error(StatusCode.ERROR_CONTROLLER, "大厅控制器不能处理该类型 " + packet.getType());
         }
     }
 

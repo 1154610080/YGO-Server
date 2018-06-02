@@ -67,8 +67,9 @@ public class RoomController extends AbstractController{
                 fingerGuess(isHost);
                 break;
             default:
+                log.error(StatusCode.ERROR_CONTROLLER, "房间控制器不能处理该消息类型 " + packet.getType());
+                packet.setStatusCode(StatusCode.ERROR_CONTROLLER);
                 channel.writeAndFlush(packet);
-                log.error(StatusCode.ERROR_CONTROLLER, "房间控制不能处理该消息类型 " + packet.getType());
         }
     }
 
