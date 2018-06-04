@@ -50,7 +50,6 @@ LobbyServer/target/
 VersionServer/src/
 out/
 /Common/src/main/java/ygo/comn/constant/Secret.java
-Common/src/main/java/ygo/comn/controller/RedisClient.java
 DuelServer/src/main/java/META-INF/
 DuelServer/src/main/java/ygo/duel/model/
 LobbyServer/src/main/java/ygo/loby/model/
