@@ -1,6 +1,5 @@
 package ygo.comn.constant;
 
-import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,10 +34,6 @@ public class YGOP {
      **/
     public static final Charset CHARSET = Charset.forName("utf-8");
 
-    /**
-     * 大厅服务器的决斗客户端的地址和端口
-     **/
-    public static final InetSocketAddress LOBBY_SERVER_ADDR = new InetSocketAddress("127.0.0.1", 19208);
 
     /*
      * 当前版本
@@ -64,12 +59,14 @@ public class YGOP {
      */
     public static final int MAX_LEN = 1024;
 
+    /**
+     * 最大房间数
+     **/
+
+    public static final int MAX_ROOMS = 128;
+
     //其他相关常量
 
-    /**
-     * 未出拳
-     **/
-    public static final int NO_FINGER = 0x0;
     /**
      * 剪刀
      **/

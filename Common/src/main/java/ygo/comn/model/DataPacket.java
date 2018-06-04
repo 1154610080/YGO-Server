@@ -64,7 +64,6 @@ public class DataPacket {
         this.len = len;
         this.body = body;
     }
-
     public float getVersion() {
         return version;
     }

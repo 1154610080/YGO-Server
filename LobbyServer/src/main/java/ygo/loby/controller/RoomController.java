@@ -48,7 +48,7 @@ public class RoomController extends AbstractController{
             case STARTED:
                 if(isMatchedChannel(room, true))
                     return;
-                if (room.getGuest() == null || !room.getGuest().isPrepared()){
+                if (room.getGuest() == null || !room.getGuest().isSP()){
                     packet.setStatusCode(StatusCode.UNPREPARED);
                     channel.writeAndFlush(packet);
                     return;
@@ -61,7 +61,7 @@ public class RoomController extends AbstractController{
                 kickOut();
                 break;
             case FINGER_GUESS:
-                boolean isHost = Lobby.isHost(address, room);
+                boolean isHost = room.isHost(address);
                 if(isMatchedChannel(room, isHost))
                     return;
                 fingerGuess(isHost);
@@ -97,18 +97,21 @@ public class RoomController extends AbstractController{
     private void start(){
 
         Player host = room.getHost();
-        host.setStarting(!host.isStarting());
+        host.setSP(!host.isSP());
         packet.setType(MessageType.STARTED);
         channel.writeAndFlush(packet);
-        room.getGuest().getChannel().writeAndFlush(packet);
+        lobby.getChannel(address).writeAndFlush(packet);
 
-        if(host.isStarting()){
+        Timer timer = lobby.getTimer(room.getId());
+
+        if(host.isSP()){
             //如果进入开始状态，开始倒计时
             countDown();
-        }else if(room.timer != null){
+        }else if(timer != null){
             //否则取消倒计时，取消房客的准备状态
-            room.timer.cancel();
-            room.getGuest().setPrepared(false);
+            timer.cancel();
+            room.getGuest().setSP(false);
+            lobby.updateRoom(room);
         }
 
     }
@@ -123,16 +126,18 @@ public class RoomController extends AbstractController{
     private void ready(){
         //房客改变准备状态
         Player guest = room.getGuest();
-        guest.setPrepared(!guest.isPrepared());
+        guest.setSP(!guest.isSP());
         //通知房主和房客
         channel.writeAndFlush(packet);
-        room.getHost().getChannel().writeAndFlush(packet);
+        lobby.getChannel(room.getHost().getAddress()).writeAndFlush(packet);
 
-        if(!guest.isPrepared()){
+        if(!guest.isSP()){
+            Timer timer = lobby.getTimer(room.getId());
             //如果取消准备状态，取消倒计时和房主的开始状态
-            if(room.timer!=null)
-                room.timer.cancel();
-            room.getHost().setStarting(false);
+            if(timer!=null)
+                timer.cancel();
+            room.getHost().setSP(false);
+            lobby.updateRoom(room);
         }
     }
 
@@ -147,13 +152,14 @@ public class RoomController extends AbstractController{
      **/
     private void countDown(){
 
-        Channel hChannel = room.getHost().getChannel();
-        Channel gChannel = room.getGuest().getChannel();
+        Channel hChannel = lobby.getChannel(room.getHost().getAddress());
+        Channel gChannel = lobby.getChannel(room.getGuest().getAddress());
 
         DataPacket packet = new DataPacket("", MessageType.COUNT_DOWN);
 
-        room.timer = new Timer();
-        room.timer.schedule(new TimerTask() {
+        Timer timer = new Timer();
+        lobby.addTimer(room.getId(), timer);
+        timer.schedule(new TimerTask() {
             @Override
             public void run() {
                 packet.setBody(String.valueOf(remaining--));
@@ -162,7 +168,7 @@ public class RoomController extends AbstractController{
                 //倒计时结束
                 if(remaining < 0){
                     room.setPlaying(true);
-                    room.timer.cancel();
+                    timer.cancel();
                 }
             }
         }, 0, 1000);
@@ -179,8 +185,7 @@ public class RoomController extends AbstractController{
     {
         Player guest = room.getGuest();
         if(guest != null){
-            if(guest.getChannel() != null)
-                guest.getChannel().writeAndFlush(packet);
+            lobby.getChannel(guest.getAddress()).writeAndFlush(packet);
             lobby.removeGuest(guest);
         }
         channel.writeAndFlush(packet);

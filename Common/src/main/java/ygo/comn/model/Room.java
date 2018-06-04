@@ -3,6 +3,7 @@ package ygo.comn.model;
 import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 
+import java.net.InetSocketAddress;
 import java.util.Timer;
 
 /**
@@ -11,8 +12,6 @@ import java.util.Timer;
  * @date 2018/4/16 14:11
  */
 public class Room {
-
-    public Timer timer;
 
     /**
      * 房间ID
@@ -154,5 +153,9 @@ public class Room {
         this.guest = guest;
     }
 
+
+    public boolean isHost(InetSocketAddress address) {
+        return host != null && host.getAddress().equals(address);
+    }
 
 }
