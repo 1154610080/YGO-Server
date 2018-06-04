@@ -1,7 +1,7 @@
 package ygo.duel.server;
 
 import org.apache.commons.logging.Log;
-import ygo.comn.constant.RemoteAddress;
+import ygo.comn.constant.Secret;
 import ygo.comn.constant.YGOP;
 import ygo.comn.controller.IpFilterHandler;
 import ygo.comn.util.YGOPDecoder;
@@ -68,8 +68,8 @@ public class DuelServer implements Runnable{
 
     public static void main(String[] args){
 
-        DuelServer duelServer = new DuelServer(RemoteAddress.DUEL_PORT);
-        LobbyClient lobbyClient = new LobbyClient(RemoteAddress.LOBBY_HOST, RemoteAddress.LOBBY_PORT );
+        DuelServer duelServer = new DuelServer(Secret.DUEL_PORT);
+        LobbyClient lobbyClient = new LobbyClient(Secret.LOBBY_HOST, Secret.LOBBY_PORT );
 
         Thread duel = new Thread(duelServer);
         Thread lobby = new Thread(lobbyClient);

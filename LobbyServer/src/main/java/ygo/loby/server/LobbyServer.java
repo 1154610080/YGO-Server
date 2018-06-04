@@ -1,7 +1,7 @@
 package ygo.loby.server;
 
 import org.apache.commons.logging.LogFactory;
-import ygo.comn.constant.RemoteAddress;
+import ygo.comn.constant.Secret;
 import ygo.comn.constant.YGOP;
 import ygo.comn.controller.IpFilterHandler;
 import ygo.comn.util.YGOPDecoder;
@@ -56,7 +56,7 @@ public class LobbyServer{
 
     public static void main(String[] args) throws InterruptedException {
 
-        LobbyServer server = new LobbyServer(RemoteAddress.LOBBY_PORT);
+        LobbyServer server = new LobbyServer(Secret.LOBBY_PORT);
         server.start();
     }
 
