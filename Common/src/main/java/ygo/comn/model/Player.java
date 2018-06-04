@@ -4,6 +4,8 @@ import com.google.gson.annotations.Expose;
 import com.google.gson.annotations.SerializedName;
 import io.netty.channel.Channel;
 
+import java.net.InetSocketAddress;
+
 /**
  * 用户类
  * @author EganChen
@@ -48,24 +50,11 @@ public class Player {
     private int finger = 0x0;
 
     /**
-     * 玩家（房主）是否进入开始状态
-     **/
-    @Expose()
-    @SerializedName("iss")
-    private boolean isStarting = false;
-
-    /**
-     * 玩家（房客）是否进入准备状态
+     * 玩家是否进入开始/准备状态
      **/
     @Expose()
     @SerializedName("isp")
-    private boolean isPrepared = false;
-
-    /**
-     * 联系玩家的通道
-     **/
-    @Expose(serialize = false, deserialize = false)
-    private Channel channel;
+    private boolean isSP = false;
 
     @Override
     public boolean equals(Object obj) {
@@ -117,27 +106,15 @@ public class Player {
         this.finger = finger;
     }
 
-    public boolean isStarting() {
-        return isStarting;
+    public boolean isSP() {
+        return isSP;
     }
 
-    public void setStarting(boolean starting) {
-        isStarting = starting;
+    public void setSP(boolean SP) {
+        isSP = SP;
     }
 
-    public boolean isPrepared() {
-        return isPrepared;
-    }
-
-    public void setPrepared(boolean prepared) {
-        isPrepared = prepared;
-    }
-
-    public Channel getChannel() {
-        return channel;
-    }
-
-    public void setChannel(Channel channel) {
-        this.channel = channel;
+    public InetSocketAddress getAddress(){
+        return new InetSocketAddress(ip, port);
     }
 }
