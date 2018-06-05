@@ -75,15 +75,15 @@ public class YGOP {
     /**
      * 剪刀
      **/
-    public static final int SCISSORS = 0x1;
+    public static final int SCISSORS = 1;
     /**
      * 石头
      **/
-    public static final int ROCK = 0x10;
+    public static final int ROCK = 2;
     /**
      * 布
      **/
-    public static final int PAPER = 0X100;
+    public static final int PAPER = 3;
 
     /**
      * 开始倒计时

@@ -1,5 +1,8 @@
 package ygo.duel.controller;
 
+import com.google.gson.JsonElement;
+import sun.plugin2.message.Message;
+import ygo.comn.constant.MessageType;
 import ygo.comn.constant.StatusCode;
 import ygo.comn.controller.AbstractController;
 import ygo.comn.model.DataPacket;
@@ -48,7 +51,7 @@ public class GameController extends AbstractController {
                 operate();
                 break;
             default:
-                log.error(StatusCode.ERROR_CONTROLLER, "准备控制器不能处理该消息类型 " + packet.getType());
+                log.error(StatusCode.ERROR_CONTROLLER, "游戏控制器不能处理该消息类型 " + packet.getType());
                 packet.setStatusCode(StatusCode.ERROR_CONTROLLER);
                 channel.writeAndFlush(packet);
                 break;
@@ -114,6 +117,18 @@ public class GameController extends AbstractController {
         }
 
         lobby.updateRoom(room);
+
+        //交换卡组
+        if(isAllConnect()){
+            Player host = room.getHost();
+            Player guest = room.getGuest();
+
+            DataPacket hostDeckPacket = new DataPacket(gson.toJson(host.getDeck()), MessageType.DECK);
+            DataPacket guestDeckPacket = new DataPacket(gson.toJson(guest.getDeck()), MessageType.DECK);
+
+            lobby.getChannel(host.getAddress()).writeAndFlush(guestDeckPacket);
+            lobby.getChannel(guest.getAddress()).writeAndFlush(hostDeckPacket);
+        }
     }
 
     /**
@@ -133,5 +148,26 @@ public class GameController extends AbstractController {
         }
 
         lobby.updateRoom(room);
+
+        if (isAllConnect()){
+            Player host = room.getHost();
+            Player guest = room.getGuest();
+
+            DataPacket fail = new DataPacket("0", MessageType.FINGER_GUESS);
+            DataPacket win = new DataPacket("1", MessageType.FINGER_GUESS);
+
+            //分出胜负，房客是否胜利
+            boolean result = guest.getFinger()%3 - host.getFinger()%3 == 1;
+
+            lobby.getChannel(host.getAddress()).writeAndFlush(result ? fail : win);
+            lobby.getChannel(guest.getAddress()).writeAndFlush(result ? win : fail);
+        }
+
     }
+
+    private boolean isAllConnect(){
+        return room.equals(lobby.getRoomByAddress(room.getHost().getAddress()))
+                && room.equals(lobby.getRoomByAddress(room.getHost().getAddress()));
+    }
+
 }
