@@ -56,7 +56,8 @@ public class RedisClient {
     public Room getRoomByAddr(InetSocketAddress address){
         Room room = null;
         try {
-            room = gson.fromJson(jedis.hget(ROOM_RECORD, address.toString()), Room.class);
+            String json = jedis.hget(ROOM_RECORD, address.toString());
+            room = gson.fromJson(json, Room.class);
         }catch (Exception ex){
             log.fatal(ex.toString());
         }

@@ -1,19 +1,21 @@
 package ygo.loby.server;
 
+import io.netty.channel.*;
 import org.apache.commons.logging.LogFactory;
 import ygo.comn.constant.Secret;
 import ygo.comn.constant.YGOP;
 import ygo.comn.controller.IpFilterHandler;
+import ygo.comn.controller.RedisClient;
+import ygo.comn.model.Lobby;
 import ygo.comn.util.YGOPDecoder;
 import ygo.comn.util.YGOPEncoder;
 import io.netty.bootstrap.ServerBootstrap;
-import io.netty.channel.ChannelFuture;
-import io.netty.channel.ChannelInitializer;
-import io.netty.channel.ChannelOption;
-import io.netty.channel.EventLoopGroup;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+
+import java.net.InetSocketAddress;
+import java.util.Scanner;
 
 /**
  * 游戏大厅服务器主类
@@ -36,7 +38,6 @@ public class LobbyServer{
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
-
                             socketChannel.pipeline().addLast(new YGOPEncoder());
                             socketChannel.pipeline().addLast(new YGOPDecoder());
                             socketChannel.pipeline().addLast(new LobbyServerHandler());
@@ -48,8 +49,26 @@ public class LobbyServer{
             ChannelFuture future = b.bind(port).sync();
             LogFactory.getLog("LobbyServer")
                     .info(new String(("游戏大厅正在监听端口 " + port + "...").getBytes(), YGOP.CHARSET));
-            future.channel().closeFuture().sync();
+            Scanner scanner = new Scanner(System.in);
+            while (true){
+                if("c".equals(scanner.nextLine())){
+                    future.channel().closeFuture();
+                    break;
+                }
+            }
         }finally {
+            System.out.println("Closing...");
+            //删除所有未在进行游戏的房间和玩家
+            RedisClient client = new RedisClient();
+            Lobby lobby = Lobby.getLobby();
+            for (Channel channel : lobby.getChannels()){
+                InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
+                System.out.println("close " + address);
+                int id = client.getRoomByAddr(address).getId();
+                client.removeRecord(address);
+                client.removeRoom(id);
+            }
+
             group.shutdownGracefully();
         }
     }

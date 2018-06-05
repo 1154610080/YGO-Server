@@ -210,4 +210,8 @@ public class Lobby{
     public Channel removeChannel(InetSocketAddress address){
         return channelGroup.remove(address);
     }
+
+    public Collection<Channel> getChannels(){
+        return channelGroup.values();
+    }
 }
