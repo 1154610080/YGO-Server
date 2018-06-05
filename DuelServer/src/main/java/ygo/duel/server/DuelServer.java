@@ -4,6 +4,8 @@ import org.apache.commons.logging.Log;
 import ygo.comn.constant.Secret;
 import ygo.comn.constant.YGOP;
 import ygo.comn.controller.IpFilterHandler;
+import ygo.comn.controller.RedisClient;
+import ygo.comn.model.Lobby;
 import ygo.comn.util.YGOPDecoder;
 import ygo.comn.util.YGOPEncoder;
 import io.netty.bootstrap.ServerBootstrap;
@@ -14,6 +16,7 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.apache.commons.logging.LogFactory;
 
 import java.net.InetSocketAddress;
+import java.util.Scanner;
 
 /**
  * 服务端主类
@@ -51,10 +54,18 @@ public class DuelServer{
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
             ChannelFuture f = b.bind().sync();
             log.info(new String(("决斗服务器 正在监听端口 " + port + "...").getBytes(), YGOP.CHARSET));
-            f.channel().closeFuture().sync();
+            Scanner scanner = new Scanner(System.in);
+            while (true){
+                if("c".equals(scanner.nextLine())){
+                    f.channel().closeFuture();
+                    break;
+                }
+            }
         } catch (Exception e) {
             log.fatal(e.getStackTrace());
         } finally {
+            //删除所有未在进行游戏的房间和玩家
+            Lobby.getLobby().flush();
             group.shutdownGracefully().sync();
         }
     }

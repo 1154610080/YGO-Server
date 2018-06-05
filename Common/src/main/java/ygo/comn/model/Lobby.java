@@ -211,7 +211,14 @@ public class Lobby{
         return channelGroup.remove(address);
     }
 
-    public Collection<Channel> getChannels(){
-        return channelGroup.values();
+    public void flush(){
+        for (Channel channel : channelGroup.values()){
+            InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
+            int id = redis.getRoomByAddr(address).getId();
+            redis.removeRecord(address);
+            redis.removeRoom(id);
+        }
+
+        System.out.println("All data of the server has be deleted");
     }
 }

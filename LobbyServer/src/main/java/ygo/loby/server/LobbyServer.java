@@ -57,17 +57,9 @@ public class LobbyServer{
                 }
             }
         }finally {
-            System.out.println("Closing...");
+
             //删除所有未在进行游戏的房间和玩家
-            RedisClient client = new RedisClient();
-            Lobby lobby = Lobby.getLobby();
-            for (Channel channel : lobby.getChannels()){
-                InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
-                System.out.println("close " + address);
-                int id = client.getRoomByAddr(address).getId();
-                client.removeRecord(address);
-                client.removeRoom(id);
-            }
+            Lobby.getLobby().flush();
 
             group.shutdownGracefully();
         }
