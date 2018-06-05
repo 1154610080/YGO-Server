@@ -65,6 +65,11 @@ public class YGOP {
 
     public static final int MAX_ROOMS = 128;
 
+    /**
+     * 超时时间
+     **/
+    public static int TIME_OUT = 5000;
+
     //其他相关常量
 
     /**

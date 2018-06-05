@@ -13,7 +13,7 @@ import io.netty.channel.Channel;
  **/
 public class GameController extends AbstractController {
 
-    public GameController(DataPacket packet, Channel channel) {
+    GameController(DataPacket packet, Channel channel) {
         super(packet, channel);
     }
 

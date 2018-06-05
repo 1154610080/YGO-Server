@@ -17,12 +17,20 @@ public class RedisClient {
 
     private final String ROOM_MAP = "roomMap";
     private final String ROOM_RECORD = "record";
+    /**
+     * 是否为决斗服务器
+     **/
+    private boolean isDuelServer;
 
     private YgoLog log = new YgoLog("Redis-Client");
 
     private Jedis jedis;
 
     private Gson gson = new GsonBuilder().create();
+
+    public void setDuelServer(boolean duelServer) {
+        isDuelServer = duelServer;
+    }
 
     public RedisClient(){
         try {
@@ -99,6 +107,11 @@ public class RedisClient {
 
     public void removeRoom(int id){
         try{
+            //房间开始游戏后，只有决斗服务器有权删除房间
+            Room room = getRoomById(id);
+            if(room != null && room.isPlaying() && !isDuelServer){
+                return;
+            }
             jedis.hdel(ROOM_MAP, String.valueOf(id));
         }catch (Exception ex){
             log.fatal(ex.toString());

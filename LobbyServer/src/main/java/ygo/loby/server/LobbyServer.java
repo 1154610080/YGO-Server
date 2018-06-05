@@ -5,7 +5,6 @@ import org.apache.commons.logging.LogFactory;
 import ygo.comn.constant.Secret;
 import ygo.comn.constant.YGOP;
 import ygo.comn.controller.IpFilterHandler;
-import ygo.comn.controller.RedisClient;
 import ygo.comn.model.Lobby;
 import ygo.comn.util.YGOPDecoder;
 import ygo.comn.util.YGOPEncoder;
@@ -13,8 +12,6 @@ import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
-
-import java.net.InetSocketAddress;
 import java.util.Scanner;
 
 /**
@@ -30,6 +27,7 @@ public class LobbyServer{
     private LobbyServer(int port){this.port = port;}
 
     private void start() throws InterruptedException {
+        Lobby.getLobby().setDuelServer(false);
         EventLoopGroup group = new NioEventLoopGroup();
         try {
             ServerBootstrap b = new ServerBootstrap();

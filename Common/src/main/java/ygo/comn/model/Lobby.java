@@ -211,6 +211,10 @@ public class Lobby{
         return channelGroup.remove(address);
     }
 
+    public void removeRecord(InetSocketAddress address){
+        redis.removeRecord(address);
+    }
+
     public void flush(){
         for (Channel channel : channelGroup.values()){
             InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
@@ -220,5 +224,9 @@ public class Lobby{
         }
 
         System.out.println("All data of the server has be deleted");
+    }
+
+    public void setDuelServer(boolean duelServer){
+        redis.setDuelServer(duelServer);
     }
 }

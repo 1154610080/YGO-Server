@@ -34,6 +34,7 @@ public class DuelServer{
     }
 
     public void start() throws InterruptedException {
+        Lobby.getLobby().setDuelServer(true);
         EventLoopGroup group = new NioEventLoopGroup();
 
         try{
