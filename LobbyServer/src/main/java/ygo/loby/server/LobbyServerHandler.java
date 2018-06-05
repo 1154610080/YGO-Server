@@ -6,7 +6,6 @@ import ygo.comn.util.YgoLog;
 import ygo.loby.controller.ChiefController;
 import ygo.comn.constant.StatusCode;
 import io.netty.channel.ChannelHandlerContext;
-import io.netty.channel.ChannelInboundHandlerAdapter;
 
 import java.net.InetSocketAddress;
 

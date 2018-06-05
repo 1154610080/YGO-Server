@@ -12,7 +12,6 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.apache.commons.logging.LogFactory;
-import ygo.duel.client.LobbyClient;
 
 import java.net.InetSocketAddress;
 
@@ -21,7 +20,7 @@ import java.net.InetSocketAddress;
  * @author EganChen
  * @date 2018/4/16 13:48
  */
-public class DuelServer implements Runnable{
+public class DuelServer{
 
     private Log log = LogFactory.getLog("Duel-Server");
 
@@ -31,12 +30,10 @@ public class DuelServer implements Runnable{
         this.port = port;
     }
 
-    @Override
-    public void run(){
+    public void start() throws InterruptedException {
         EventLoopGroup group = new NioEventLoopGroup();
 
         try{
-
             ServerBootstrap b = new ServerBootstrap();
             b.group(group)
                     .channel(NioServerSocketChannel.class)
@@ -55,26 +52,17 @@ public class DuelServer implements Runnable{
             ChannelFuture f = b.bind().sync();
             log.info(new String(("决斗服务器 正在监听端口 " + port + "...").getBytes(), YGOP.CHARSET));
             f.channel().closeFuture().sync();
-        } catch (InterruptedException e) {
+        } catch (Exception e) {
             log.fatal(e.getStackTrace());
         } finally {
-            try {
-                group.shutdownGracefully().sync();
-            } catch (InterruptedException e) {
-                log.fatal(e.getStackTrace());
-            }
+            group.shutdownGracefully().sync();
         }
     }
 
-    public static void main(String[] args){
+    public static void main(String[] args) throws InterruptedException {
 
         DuelServer duelServer = new DuelServer(Secret.DUEL_PORT);
-        LobbyClient lobbyClient = new LobbyClient(Secret.LOBBY_HOST, Secret.LOBBY_PORT );
 
-        Thread duel = new Thread(duelServer);
-        Thread lobby = new Thread(lobbyClient);
-
-        duel.start();
-        lobby.start();
+        duelServer.start();
     }
 }

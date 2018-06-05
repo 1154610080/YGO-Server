@@ -13,7 +13,7 @@ import ygo.comn.model.DataPacket;
 public class ChiefController extends AbstractController{
 
 
-    protected ChiefController(DataPacket packet, Channel channel) {
+    public ChiefController(DataPacket packet, Channel channel) {
         super(packet, channel);
     }
 
