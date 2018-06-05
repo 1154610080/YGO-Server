@@ -24,6 +24,7 @@ public class ChiefController extends AbstractController{
             case LEAVE:
                 lobby.removeAndInform(address);
                 break;
+            case CREATE:
             case JOIN:
             case DECK:
             case FINGER_GUESS:
