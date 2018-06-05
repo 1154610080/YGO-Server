@@ -7,7 +7,7 @@ import ygo.comn.model.DataPacket;
 import ygo.comn.model.Lobby;
 import ygo.comn.model.ResponseStatus;
 import ygo.comn.util.YgoLog;
-import ygo.duel.controller.ChiefController;
+import ygo.duel.controller.GameController;
 
 
 import java.net.InetSocketAddress;
@@ -42,7 +42,7 @@ public class DuelServerHandler extends SimpleChannelInboundHandler<DataPacket> {
 
     @Override
     public void channelRead0(ChannelHandlerContext ctx, DataPacket packet){
-        new ChiefController(packet, ctx.channel());
+        new GameController(packet, ctx.channel());
     }
 
 
