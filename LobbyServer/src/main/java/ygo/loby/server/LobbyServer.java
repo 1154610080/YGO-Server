@@ -58,6 +58,8 @@ public class LobbyServer{
 
         LobbyServer server = new LobbyServer(Secret.LOBBY_PORT);
         server.start();
+
+
     }
 
 }

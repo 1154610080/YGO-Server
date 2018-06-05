@@ -1,11 +1,9 @@
 package ygo.comn.model;
 
-import io.netty.channel.ChannelFuture;
 import ygo.comn.constant.MessageType;
 import io.netty.channel.Channel;
 import ygo.comn.controller.RedisClient;
 import java.net.InetSocketAddress;
-import java.sql.Time;
 import java.util.*;
 
 /**
@@ -75,8 +73,9 @@ public class Lobby{
         if(room != null){
 
             if(room.getHost().isSP()){
-                timerGroup.get(room.getId()).cancel();
-                timerGroup.remove(room.getId());
+                Timer timer = timerGroup.remove(room.getId());
+                if (timer != null)
+                    timer.cancel();
             }
 
             redis.removeRoom(room.getId());
@@ -85,7 +84,11 @@ public class Lobby{
             Player guest = room.getGuest();
             if(guest != null){
                 redis.removeRecord(guest.getAddress());
+                removeChannel(guest.getAddress());
             }
+
+            removeTimer(room.getId());
+            removeChannel(hostKey);
         }
     }
 
@@ -102,6 +105,7 @@ public class Lobby{
         if(redis.getRoomByAddr(address) == null){
             room.setGuest(guest);
             redis.update(room);
+            return true;
         }
         return false;
     }
@@ -120,12 +124,14 @@ public class Lobby{
         //如果房间正在倒计时，取消房主的开始状态和倒计时
         if(host.isSP()){
             host.setSP(false);
-            timerGroup.get(room.getId()).cancel();
-            timerGroup.remove(room.getId());
+            Timer timer = timerGroup.remove(room.getId());
+            if(timer != null)
+                timer.cancel();
         }
         room.setGuest(null);
         redis.removeRecord(address);
         redis.update(room);
+        removeChannel(address);
     }
 
     public Room getRoomById(int id){
@@ -197,4 +203,11 @@ public class Lobby{
         channelGroup.put(address, channel);
     }
 
+    public Timer removeTimer(int id){
+        return timerGroup.remove(id);
+    }
+
+    public Channel removeChannel(InetSocketAddress address){
+        return channelGroup.remove(address);
+    }
 }

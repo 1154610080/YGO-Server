@@ -75,8 +75,8 @@ public abstract class AbstractController {
 
     protected boolean isMatchedChannel(Room room, boolean isHost){
 
-        boolean result = isHost ? channel.equals(Lobby.channelGroup.get(room.getHost().getAddress())) :
-                room.getGuest() != null && channel.equals(Lobby.channelGroup.get(room.getGuest().getAddress()));
+        boolean result = isHost ? channel.equals(lobby.getChannel(room.getHost().getAddress())) :
+                room.getGuest() != null && channel.equals(lobby.getChannel(room.getGuest().getAddress()));
 
         if(!result){
             log.error(StatusCode.UNMATCHED_CHANNEL, "玩家没有权限执行该操作");
@@ -103,8 +103,8 @@ public abstract class AbstractController {
         Player guest = room.getGuest();
 
         //向双方广播消息
-        Lobby.channelGroup.get(host.getAddress()).writeAndFlush(packet);
+        lobby.getChannel(host.getAddress()).writeAndFlush(packet);
         if(guest!=null)
-            Lobby.channelGroup.get(guest.getAddress()).writeAndFlush(packet);
+            lobby.getChannel(guest.getAddress()).writeAndFlush(packet);
     }
 }

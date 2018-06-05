@@ -84,9 +84,9 @@ public class LobbyController extends AbstractController {
         host.setPort(address.getPort());
 
         //分配房间ID
-        int id = 0;
-        while (id < lobby.size() && lobby.getRoomById(id++) != null);
-        room.setId(id + 1);
+        int id = 1;
+        while (id < YGOP.MAX_ROOMS && lobby.getRoomById(id++) != null);
+        room.setId(--id);
 
         //记录通道和房间
         lobby.addChannel(address, channel);

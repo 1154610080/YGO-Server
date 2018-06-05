@@ -22,7 +22,7 @@ public class RedisClient {
 
     private Jedis jedis;
 
-    private Gson gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
+    private Gson gson = new GsonBuilder().create();
 
     public RedisClient(){
         try {

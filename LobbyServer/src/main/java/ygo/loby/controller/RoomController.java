@@ -98,6 +98,7 @@ public class RoomController extends AbstractController{
 
         Player host = room.getHost();
         host.setSP(!host.isSP());
+        lobby.updateRoom(room);
         packet.setType(MessageType.STARTED);
         channel.writeAndFlush(packet);
         lobby.getChannel(address).writeAndFlush(packet);
@@ -127,6 +128,7 @@ public class RoomController extends AbstractController{
         //房客改变准备状态
         Player guest = room.getGuest();
         guest.setSP(!guest.isSP());
+        lobby.updateRoom(room);
         //通知房主和房客
         channel.writeAndFlush(packet);
         lobby.getChannel(room.getHost().getAddress()).writeAndFlush(packet);
@@ -152,6 +154,8 @@ public class RoomController extends AbstractController{
      **/
     private void countDown(){
 
+        Room room = this.room;
+
         Channel hChannel = lobby.getChannel(room.getHost().getAddress());
         Channel gChannel = lobby.getChannel(room.getGuest().getAddress());
 
@@ -168,7 +172,9 @@ public class RoomController extends AbstractController{
                 //倒计时结束
                 if(remaining < 0){
                     room.setPlaying(true);
+                    lobby.updateRoom(room);
                     timer.cancel();
+                    lobby.removeTimer(room.getId());
                 }
             }
         }, 0, 1000);
