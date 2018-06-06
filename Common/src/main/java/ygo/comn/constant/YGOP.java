@@ -75,7 +75,7 @@ public class YGOP {
     /**
      * 剪刀
      **/
-    public static final int SCISSORS = 1;
+    public static final int SCISSORS = 3;
     /**
      * 石头
      **/
@@ -83,7 +83,7 @@ public class YGOP {
     /**
      * 布
      **/
-    public static final int PAPER = 3;
+    public static final int PAPER = 1;
 
     /**
      * 开始倒计时

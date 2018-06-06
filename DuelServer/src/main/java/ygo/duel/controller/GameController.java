@@ -157,7 +157,7 @@ public class GameController extends AbstractController {
             DataPacket win = new DataPacket("1", MessageType.FINGER_GUESS);
 
             //分出胜负，房客是否胜利
-            boolean result = guest.getFinger()%3 - host.getFinger()%3 == 1;
+            boolean result = guest.getFinger() % 3 + 1 == host.getFinger();
 
             lobby.getChannel(host.getAddress()).writeAndFlush(result ? fail : win);
             lobby.getChannel(guest.getAddress()).writeAndFlush(result ? win : fail);
