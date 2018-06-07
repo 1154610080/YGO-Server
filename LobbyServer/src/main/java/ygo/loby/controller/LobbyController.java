@@ -49,7 +49,7 @@ public class LobbyController extends AbstractController {
     private void getRooms(){
 
         Map<String, List<Room>> map = new HashMap<>();
-        map.put("rs", lobby.getRooms());
+        map.put("rs", redisClient.getRooms());
 
         String lobbyStr = new String(gson.toJson(map).getBytes(), YGOP.CHARSET);
 
@@ -66,7 +66,7 @@ public class LobbyController extends AbstractController {
      **/
     private synchronized void createRoom(){
 
-        if(lobby.size() >= YGOP.MAX_ROOMS){
+        if(redisClient.size() >= YGOP.MAX_ROOMS){
             channel.writeAndFlush( new DataPacket(
                     new ResponseStatus(StatusCode.FULL_LOBBY)));
             log.warn(StatusCode.FULL_LOBBY, "游戏大厅已满");
@@ -85,12 +85,12 @@ public class LobbyController extends AbstractController {
 
         //分配房间ID
         int id = 1;
-        while (id < YGOP.MAX_ROOMS && lobby.getRoomById(id++) != null);
+        while (id < YGOP.MAX_ROOMS && redisClient.getRoomById(id++) != null);
         room.setId(--id);
 
         //记录通道和房间
-        lobby.addChannel(address, channel);
-        if(!lobby.addRoom(room)){
+        redisClient.addChannel(address, channel);
+        if(!redisClient.addRoom(room)){
             packet = new DataPacket(
                     new ResponseStatus(StatusCode.BE_IN_ANOTHER));
             channel.writeAndFlush(packet);
@@ -123,7 +123,7 @@ public class LobbyController extends AbstractController {
         Player guest = gson.fromJson(map.get("gs").toString(), Player.class);
         String pw = map.get("pw").toString();
 
-        room = lobby.getRoomById(id);
+        room = redisClient.getRoomById(id);
 
         if (!isNormalRoom()) return;
 
@@ -148,8 +148,8 @@ public class LobbyController extends AbstractController {
 
         //记录房客通道和房客
 
-        lobby.addChannel(address, channel);
-        if(!lobby.addGuest(room, guest)){
+        redisClient.addChannel(address, channel);
+        if(!redisClient.addGuest(room, guest)){
             packet = new DataPacket(
                     new ResponseStatus(StatusCode.BE_IN_ANOTHER));
             channel.writeAndFlush(packet);
@@ -163,6 +163,6 @@ public class LobbyController extends AbstractController {
 
         //通知房主新房客的信息
         packet.setBody(gson.toJson(guest));
-        lobby.getChannel(room.getHost().getAddress()).writeAndFlush(packet);
+        redisClient.getChannel(room.getHost().getAddress()).writeAndFlush(packet);
     }
 }

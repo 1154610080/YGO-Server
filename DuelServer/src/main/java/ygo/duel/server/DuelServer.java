@@ -5,7 +5,7 @@ import ygo.comn.constant.Secret;
 import ygo.comn.constant.YGOP;
 import ygo.comn.controller.IpFilterHandler;
 import ygo.comn.controller.RedisClient;
-import ygo.comn.model.Lobby;
+import ygo.comn.model.Room;
 import ygo.comn.util.YGOPDecoder;
 import ygo.comn.util.YGOPEncoder;
 import io.netty.bootstrap.ServerBootstrap;
@@ -34,7 +34,6 @@ public class DuelServer{
     }
 
     public void start() throws InterruptedException {
-        Lobby.getLobby().setDuelServer(true);
         EventLoopGroup group = new NioEventLoopGroup();
 
         try{
@@ -57,7 +56,8 @@ public class DuelServer{
             log.info(new String(("决斗服务器 正在监听端口 " + port + "...").getBytes(), YGOP.CHARSET));
             Scanner scanner = new Scanner(System.in);
             while (true){
-                if("c".equals(scanner.nextLine())){
+                String str = scanner.nextLine();
+                if("c".equals(str)){
                     f.channel().closeFuture();
                     break;
                 }
@@ -66,7 +66,7 @@ public class DuelServer{
             log.fatal(e.getStackTrace());
         } finally {
             //删除所有未在进行游戏的房间和玩家
-            Lobby.getLobby().flush();
+            RedisClient.getRedisForDuel().flush();
             group.shutdownGracefully().sync();
         }
     }

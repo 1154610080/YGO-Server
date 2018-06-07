@@ -31,7 +31,7 @@ public class RoomController extends AbstractController{
 
         log = new YgoLog("RoomController");
 
-        room = lobby.getRoomByAddress(address);
+        room = redisClient.getRoomByAddress(address);
 
         if(!isNormalRoom()) return;
 
@@ -83,7 +83,7 @@ public class RoomController extends AbstractController{
      **/
     private void leave()
     {
-        if(!lobby.removeAndInform(address))
+        if(!redisClient.removeAndInform(address))
             log.error(StatusCode.NOT_IN_HERE, "不能删除玩家记录，因为TA不在房间");
     }
 
@@ -98,12 +98,12 @@ public class RoomController extends AbstractController{
 
         Player host = room.getHost();
         host.setSP(!host.isSP());
-        lobby.updateRoom(room);
+        redisClient.updateRoom(room);
         packet.setType(MessageType.STARTED);
         channel.writeAndFlush(packet);
-        lobby.getChannel(address).writeAndFlush(packet);
+        redisClient.getChannel(room.getGuest().getAddress()).writeAndFlush(packet);
 
-        Timer timer = lobby.getTimer(room.getId());
+        Timer timer = redisClient.getTimer(room.getId());
 
         if(host.isSP()){
             //如果进入开始状态，开始倒计时
@@ -112,7 +112,7 @@ public class RoomController extends AbstractController{
             //否则取消倒计时，取消房客的准备状态
             timer.cancel();
             room.getGuest().setSP(false);
-            lobby.updateRoom(room);
+            redisClient.updateRoom(room);
         }
 
     }
@@ -128,18 +128,18 @@ public class RoomController extends AbstractController{
         //房客改变准备状态
         Player guest = room.getGuest();
         guest.setSP(!guest.isSP());
-        lobby.updateRoom(room);
+        redisClient.updateRoom(room);
         //通知房主和房客
         channel.writeAndFlush(packet);
-        lobby.getChannel(room.getHost().getAddress()).writeAndFlush(packet);
+        redisClient.getChannel(room.getHost().getAddress()).writeAndFlush(packet);
 
         if(!guest.isSP()){
-            Timer timer = lobby.getTimer(room.getId());
+            Timer timer = redisClient.getTimer(room.getId());
             //如果取消准备状态，取消倒计时和房主的开始状态
             if(timer!=null)
                 timer.cancel();
             room.getHost().setSP(false);
-            lobby.updateRoom(room);
+            redisClient.updateRoom(room);
         }
     }
 
@@ -156,13 +156,13 @@ public class RoomController extends AbstractController{
 
         Room room = this.room;
 
-        Channel hChannel = lobby.getChannel(room.getHost().getAddress());
-        Channel gChannel = lobby.getChannel(room.getGuest().getAddress());
+        Channel hChannel = redisClient.getChannel(room.getHost().getAddress());
+        Channel gChannel = redisClient.getChannel(room.getGuest().getAddress());
 
         DataPacket packet = new DataPacket("", MessageType.COUNT_DOWN);
 
         Timer timer = new Timer();
-        lobby.addTimer(room.getId(), timer);
+        redisClient.addTimer(room.getId(), timer);
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -172,9 +172,9 @@ public class RoomController extends AbstractController{
                 //倒计时结束
                 if(remaining < 0){
                     room.setPlaying(true);
-                    lobby.updateRoom(room);
+                    redisClient.updateRoom(room);
                     timer.cancel();
-                    lobby.removeTimer(room.getId());
+                    redisClient.removeTimer(room.getId());
                 }
             }
         }, 0, 1000);
@@ -191,8 +191,8 @@ public class RoomController extends AbstractController{
     {
         Player guest = room.getGuest();
         if(guest != null){
-            lobby.getChannel(guest.getAddress()).writeAndFlush(packet);
-            lobby.removeGuest(guest);
+            redisClient.getChannel(guest.getAddress()).writeAndFlush(packet);
+            redisClient.removeGuest(guest);
         }
         channel.writeAndFlush(packet);
 

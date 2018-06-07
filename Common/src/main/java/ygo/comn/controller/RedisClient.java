@@ -1,131 +1,238 @@
 package ygo.comn.controller;
 
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
-import redis.clients.jedis.Jedis;
-import redis.clients.jedis.JedisPool;
-import redis.clients.jedis.JedisPoolConfig;
-import ygo.comn.constant.Secret;
+import ygo.comn.constant.MessageType;
+import io.netty.channel.Channel;
+import ygo.comn.model.DataPacket;
 import ygo.comn.model.Player;
 import ygo.comn.model.Room;
-import ygo.comn.util.YgoLog;
-import java.net.InetSocketAddress;
-import java.util.ArrayList;
-import java.util.List;
 
+import java.net.InetSocketAddress;
+import java.util.*;
+
+/**
+ * Redis客户端类
+ * 处理所有房间和玩家数据
+ *
+ * @author Egan
+ * @date 2018/5/17 23:36
+ **/
 public class RedisClient {
 
-    private final String ROOM_MAP = "roomMap";
-    private final String ROOM_RECORD = "record";
     /**
-     * 是否为决斗服务器
+     * 管理所有玩家通道（玩家地址，通道）
      **/
-    private boolean isDuelServer;
+    private static Map<InetSocketAddress, Channel> channelGroup = new HashMap<>();
+    /**
+     * 管理所有房间计时器（房间ID， 计时器）
+     **/
+    private static Map<Integer, Timer> timerGroup = new HashMap<>();
 
-    private YgoLog log = new YgoLog("Redis-Client");
 
-    private Jedis jedis;
-
-    private Gson gson = new GsonBuilder().create();
-
-    public void setDuelServer(boolean duelServer) {
-        isDuelServer = duelServer;
+    public static RedisClient getRedisForLobby(){
+        return new RedisClient(false);
     }
 
-    public RedisClient(){
-        try {
-            jedis  = (new JedisPool(new JedisPoolConfig(), Secret.REDIS_HOST, Secret.REDIS_PORT,
-                    10000, Secret.REDIS_PWD)).getResource();
-        }catch (Exception ex){
-            log.fatal(ex.toString());
-        }
+    public static RedisClient getRedisForDuel(){
+        return new RedisClient(true);
     }
+
+    private JedisWrapper redis;
+
+    private RedisClient(boolean isDuelServer){
+        redis = new JedisWrapper(isDuelServer);
+    }
+
+
 
     public int size(){
-        return Math.toIntExact(jedis.hlen(ROOM_MAP));
+        return redis.size();
     }
 
-    public void addRecord(InetSocketAddress address, Room room){
-        try {
-            jedis.hset(ROOM_RECORD, address.toString(), gson.toJson(room));
-        }catch (Exception ex){
-            log.fatal(ex.toString());
+    /**
+     * 创建房间
+     *
+     * @date 2018/5/30 17:15
+     * @param room 新房间
+     * @return void
+     **/
+    public boolean addRoom(Room room){
+
+        Player host = room.getHost();
+
+        InetSocketAddress address = host.getAddress();
+
+
+        //如果玩家不在其他房间，创建成功
+        if(redis.getRoomByAddr(address) == null){
+
+            int id = room.getId();
+            redis.addRoom(id, room);
+            redis.addRecord(address, room);
+
+            return true;
+        }
+        return false;
+    }
+
+    //解散房间
+    private void removeRoom(InetSocketAddress hostKey){
+
+        Room room = redis.getRoomByAddr(hostKey);
+
+        if(room != null){
+
+            if(room.getHost().isSP()){
+                Timer timer = timerGroup.remove(room.getId());
+                if (timer != null)
+                    timer.cancel();
+            }
+
+            redis.removeRoom(room.getId());
+            redis.removeRecord(hostKey);
+
+            Player guest = room.getGuest();
+            if(guest != null){
+                redis.removeRecord(guest.getAddress());
+                removeChannel(guest.getAddress());
+            }
+
+            removeTimer(room.getId());
+            removeChannel(hostKey);
         }
     }
 
-    public void addRoom(int id, Room room){
-        try {
-            jedis.hset(ROOM_MAP, String.valueOf(id), gson.toJson(room));
-        }catch (Exception ex){
-            log.fatal(ex.toString());
+    /**
+     * 房客加入房间
+     *
+     * @date 2018/5/30 17:01
+     * @param room 目标房间
+	 * @param guest 房客
+     * @return void
+     **/
+    public boolean addGuest(Room room, Player guest){
+        InetSocketAddress address = guest.getAddress();
+        if(redis.getRoomByAddr(address) == null){
+            room.setGuest(guest);
+            redis.update(room);
+            return true;
         }
+        return false;
     }
 
-    public Room getRoomByAddr(InetSocketAddress address){
-        Room room = null;
-        try {
-            String json = jedis.hget(ROOM_RECORD, address.toString());
-            room = gson.fromJson(json, Room.class);
-        }catch (Exception ex){
-            log.fatal(ex.toString());
+    /**
+     * 将房客从房间移除
+     *
+     * @date 2018/5/30 17:05
+     * @param guest 房客
+     * @return void
+     **/
+    public void removeGuest(Player guest){
+        InetSocketAddress address = guest.getAddress();
+        Room room = redis.getRoomByAddr(address);
+        Player host = room.getHost();
+        //如果房间正在倒计时，取消房主的开始状态和倒计时
+        if(host != null && host.isSP()){
+            host.setSP(false);
+            Timer timer = timerGroup.remove(room.getId());
+            if(timer != null)
+                timer.cancel();
         }
-
-        return room;
+        room.setGuest(null);
+        redis.removeRecord(address);
+        redis.update(room);
+        removeChannel(address);
     }
 
     public Room getRoomById(int id){
-        Room room = null;
-        try {
-            room = gson.fromJson(jedis.hget(ROOM_MAP, String.valueOf(id)), Room.class);
-        }catch (Exception ex){
-            log.fatal(ex.toString());
-        }
+        return redis.getRoomById(id);
+    }
 
-        return room;
+    public Room getRoomByAddress(InetSocketAddress address){
+        return redis.getRoomByAddr(address);
     }
 
     public List<Room> getRooms(){
-        List<Room> rooms = new ArrayList<>();
-        try {
-            List<String> roomStr = jedis.hvals(ROOM_MAP);
-            for(String str : roomStr){
-                rooms.add(gson.fromJson(str, Room.class));
+        return redis.getRooms();
+    }
+
+    /**
+     * 删除玩家并通知对方
+     *
+     * @date 2018/5/29 13:23
+     * @param key 地址键
+     * @return void
+     **/
+    public boolean removeAndInform(InetSocketAddress key){
+        Room room = redis.getRoomByAddr(key);
+        //房间存在
+        if(room != null){
+            DataPacket packet = new DataPacket("", MessageType.LEAVE);
+            //判断对方
+            boolean isHost = room.isHost(key);
+
+            Player host = room.getHost();
+            Player guest = room.getGuest();
+
+            if(isHost){
+                //如果是房主，通知房客，并删除房客的房间记录
+                if(guest != null)
+                    channelGroup.get(guest.getAddress()).writeAndFlush(packet);
+                //解散房间
+                removeRoom(host.getAddress());
+            }else {
+                //如果是房客，通知房主
+                removeGuest(guest);
+                //删除房客
+                room.setGuest(null);
+                channelGroup.get(host.getAddress()).writeAndFlush(packet);
             }
-        }catch (Exception ex){
-            log.fatal(ex.toString());
+            return true;
         }
-        return rooms;
+
+        return false;
+    }
+
+    public void updateRoom(Room room){
+        redis.update(room);
+    }
+
+    public Timer getTimer(int id){
+        return timerGroup.get(id);
+    }
+
+    public Channel getChannel(InetSocketAddress address){
+        return channelGroup.get(address);
+    }
+
+    public void addTimer(int id, Timer timer){
+        timerGroup.put(id, timer);
+    }
+
+    public void addChannel(InetSocketAddress address, Channel channel){
+        channelGroup.put(address, channel);
+    }
+
+    public Timer removeTimer(int id){
+        return timerGroup.remove(id);
+    }
+
+    public Channel removeChannel(InetSocketAddress address){
+        return channelGroup.remove(address);
     }
 
     public void removeRecord(InetSocketAddress address){
-        try {
-            jedis.hdel(ROOM_RECORD, address.toString());
-        }catch (Exception ex){
-            log.fatal(ex.toString());
-        }
+        redis.removeRecord(address);
     }
 
-    public void removeRoom(int id){
-        try{
-            //房间开始游戏后，只有决斗服务器有权删除房间
-            Room room = getRoomById(id);
-            if(room != null && room.isPlaying() && !isDuelServer){
-                return;
-            }
-            jedis.hdel(ROOM_MAP, String.valueOf(id));
-        }catch (Exception ex){
-            log.fatal(ex.toString());
-        }
-    }
-
-    public void update(Room room){
-        addRoom(room.getId(), room);
-        addRecord(room.getHost().getAddress(), room);
-
-        Player guest = room.getGuest();
-        if(guest != null){
-            addRecord(guest.getAddress(), room);
+    public void flush(){
+        for (Channel channel : channelGroup.values()){
+            InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
+            int id = redis.getRoomByAddr(address).getId();
+            redis.removeRecord(address);
+            redis.removeRoom(id);
         }
 
+        System.out.println("All data of the server has be deleted");
     }
+
 }

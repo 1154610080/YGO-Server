@@ -5,7 +5,6 @@ import com.google.gson.GsonBuilder;
 import ygo.comn.constant.StatusCode;
 import ygo.comn.model.DataPacket;
 import io.netty.channel.Channel;
-import ygo.comn.model.Lobby;
 import ygo.comn.model.Player;
 import ygo.comn.model.Room;
 import ygo.comn.util.YgoLog;
@@ -30,7 +29,7 @@ public abstract class AbstractController {
 
     protected InetSocketAddress address;
 
-    protected Lobby lobby;
+    protected RedisClient redisClient;
 
     protected Room room;
 
@@ -39,8 +38,6 @@ public abstract class AbstractController {
         this.channel = channel;
         this.gson = new GsonBuilder().excludeFieldsWithoutExposeAnnotation().create();
         this.address = (InetSocketAddress) channel.remoteAddress();
-        this.lobby = Lobby.getLobby();
-        this.room = lobby.getRoomByAddress(address);
         this.log = new YgoLog("AbstractController");
 
         assign();
@@ -75,8 +72,8 @@ public abstract class AbstractController {
 
     protected boolean isMatchedChannel(Room room, boolean isHost){
 
-        boolean result = isHost ? channel.equals(lobby.getChannel(room.getHost().getAddress())) :
-                room.getGuest() != null && channel.equals(lobby.getChannel(room.getGuest().getAddress()));
+        boolean result = isHost ? channel.equals(redisClient.getChannel(room.getHost().getAddress())) :
+                room.getGuest() != null && channel.equals(redisClient.getChannel(room.getGuest().getAddress()));
 
         if(!result){
             log.error(StatusCode.UNMATCHED_CHANNEL, "玩家没有权限执行该操作");
@@ -97,14 +94,14 @@ public abstract class AbstractController {
     protected void chat()
     {
         InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
-        Room room = lobby.getRoomByAddress(address);
+        Room room = redisClient.getRoomByAddress(address);
 
         Player host = room.getHost();
         Player guest = room.getGuest();
 
         //向双方广播消息
-        lobby.getChannel(host.getAddress()).writeAndFlush(packet);
+        redisClient.getChannel(host.getAddress()).writeAndFlush(packet);
         if(guest!=null)
-            lobby.getChannel(guest.getAddress()).writeAndFlush(packet);
+            redisClient.getChannel(guest.getAddress()).writeAndFlush(packet);
     }
 }

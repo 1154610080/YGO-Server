@@ -3,6 +3,7 @@ package ygo.loby.controller;
 import ygo.comn.constant.MessageType;
 import ygo.comn.constant.StatusCode;
 import ygo.comn.controller.AbstractController;
+import ygo.comn.controller.RedisClient;
 import ygo.comn.model.DataPacket;
 import ygo.comn.model.ResponseStatus;
 import io.netty.channel.Channel;
@@ -16,7 +17,13 @@ public class ChiefController extends AbstractController {
     @Override
     protected void assign() {
 
+        redisClient = RedisClient.getRedisForLobby();
+        room = redisClient.getRoomByAddress(address);
+
         int type = packet.getType().getCode();
+
+        if(type == MessageType.TEST.getCode())
+            return;
 
         if(type >= MessageType.GET_ROOMS.getCode() && type <= MessageType.JOIN.getCode())
             new LobbyController(packet, channel);

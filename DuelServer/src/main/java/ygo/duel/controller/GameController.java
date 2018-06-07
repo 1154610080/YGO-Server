@@ -1,10 +1,9 @@
 package ygo.duel.controller;
 
-import com.google.gson.JsonElement;
-import sun.plugin2.message.Message;
 import ygo.comn.constant.MessageType;
 import ygo.comn.constant.StatusCode;
 import ygo.comn.controller.AbstractController;
+import ygo.comn.controller.RedisClient;
 import ygo.comn.model.DataPacket;
 import io.netty.channel.Channel;
 import ygo.comn.model.Player;
@@ -28,9 +27,23 @@ public class GameController extends AbstractController {
 
     @Override
     protected void assign(){
+
+        redisClient = RedisClient.getRedisForDuel();
+        room = redisClient.getRoomByAddress(address);
+
+        //检查房间完整性
+        if(packet.getType() != MessageType.JOIN && packet.getType() != MessageType.CREATE && room == null){
+            log.error(StatusCode.ILLEGAL_DATA, "玩家已加入房间，但无法找到对应记录");
+            packet.setStatusCode(StatusCode.ILLEGAL_DATA);
+            channel.writeAndFlush(packet);
+            return;
+        }
+
         switch (packet.getType()) {
+            case TEST:
+                break;
             case LEAVE:
-                lobby.removeAndInform(address);
+                redisClient.removeAndInform(address);
                 break;
             case CREATE:
                 joinGame(true);
@@ -81,7 +94,7 @@ public class GameController extends AbstractController {
         //解析消息体
         int id = Integer.parseInt(packet.getBody());
 
-        Room room = lobby.getRoomById(id);
+        Room room = redisClient.getRoomById(id);
 
         if(room == null){
             packet.setStatusCode(StatusCode.DISMISSED);
@@ -89,14 +102,17 @@ public class GameController extends AbstractController {
             return;
         }
         //记录通道
-        lobby.addChannel(address, channel);
+        redisClient.addChannel(address, channel);
 
         Player player = isHost ? room.getHost() : room.getGuest();
 
         player.setIp(address.getHostString());
         player.setPort(address.getPort());
 
-        lobby.updateRoom(room);
+        redisClient.updateRoom(room);
+
+        packet = new DataPacket("", MessageType.JOIN);
+        channel.writeAndFlush(packet);
 
     }
 
@@ -116,7 +132,7 @@ public class GameController extends AbstractController {
             room.getGuest().setDeck(deck);
         }
 
-        lobby.updateRoom(room);
+        redisClient.updateRoom(room);
 
         //交换卡组
         if(isAllConnect()){
@@ -126,8 +142,8 @@ public class GameController extends AbstractController {
             DataPacket hostDeckPacket = new DataPacket(gson.toJson(host.getDeck()), MessageType.DECK);
             DataPacket guestDeckPacket = new DataPacket(gson.toJson(guest.getDeck()), MessageType.DECK);
 
-            lobby.getChannel(host.getAddress()).writeAndFlush(guestDeckPacket);
-            lobby.getChannel(guest.getAddress()).writeAndFlush(hostDeckPacket);
+            redisClient.getChannel(host.getAddress()).writeAndFlush(guestDeckPacket);
+            redisClient.getChannel(guest.getAddress()).writeAndFlush(hostDeckPacket);
         }
     }
 
@@ -147,7 +163,7 @@ public class GameController extends AbstractController {
             room.getGuest().setFinger(finger);
         }
 
-        lobby.updateRoom(room);
+        redisClient.updateRoom(room);
 
         if (isAllConnect()){
             Player host = room.getHost();
@@ -159,15 +175,15 @@ public class GameController extends AbstractController {
             //分出胜负，房客是否胜利
             boolean result = guest.getFinger() % 3 + 1 == host.getFinger();
 
-            lobby.getChannel(host.getAddress()).writeAndFlush(result ? fail : win);
-            lobby.getChannel(guest.getAddress()).writeAndFlush(result ? win : fail);
+            redisClient.getChannel(host.getAddress()).writeAndFlush(result ? fail : win);
+            redisClient.getChannel(guest.getAddress()).writeAndFlush(result ? win : fail);
         }
 
     }
 
     private boolean isAllConnect(){
-        return room.equals(lobby.getRoomByAddress(room.getHost().getAddress()))
-                && room.equals(lobby.getRoomByAddress(room.getHost().getAddress()));
+        return room.equals(redisClient.getRoomByAddress(room.getHost().getAddress()))
+                && room.equals(redisClient.getRoomByAddress(room.getHost().getAddress()));
     }
 
 }

@@ -4,7 +4,7 @@ import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import ygo.comn.constant.StatusCode;
 import ygo.comn.model.DataPacket;
-import ygo.comn.model.Lobby;
+import ygo.comn.controller.RedisClient;
 import ygo.comn.model.ResponseStatus;
 import ygo.comn.util.YgoLog;
 import ygo.duel.controller.GameController;
@@ -34,7 +34,7 @@ public class DuelServerHandler extends SimpleChannelInboundHandler<DataPacket> {
         log.info(StatusCode.OUTBOUND, address.getHostString() + ":" + address.getPort() );
 
         //检查玩家是否掉线
-        if(Lobby.getLobby().removeAndInform(address)){
+        if(RedisClient.getRedisForDuel().removeAndInform(address)){
             log.warn(StatusCode.LOST_CONNECTION, address.getHostString() + ":" + address.getPort());
         }
     }

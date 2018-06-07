@@ -4,6 +4,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 public enum MessageType {
+    TEST(0X0),
     /**
      * 获取房间列表
      **/
