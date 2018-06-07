@@ -6,6 +6,7 @@ import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import ygo.comn.constant.Secret;
+import ygo.comn.constant.StatusCode;
 import ygo.comn.model.Player;
 import ygo.comn.model.Room;
 import ygo.comn.util.YgoLog;
@@ -20,7 +21,7 @@ import java.util.List;
  * @author Egan
  * @date 2018/6/7 10:17
  **/
-public class JedisWrapper {
+class JedisWrapper {
 
     private static JedisPool pool;
 
@@ -56,13 +57,18 @@ public class JedisWrapper {
         }
     }
 
+    public boolean isDuelServer(){
+        return isDuelServer;
+    }
+
     public int size(){
         return Math.toIntExact(jedis.hlen(ROOM_MAP));
     }
 
     public void addRecord(InetSocketAddress address, Room room){
         try {
-            jedis.hset(ROOM_RECORD, address.toString(), gson.toJson(room));
+            long r = jedis.hset(ROOM_RECORD, address.toString(), gson.toJson(room));
+            log.info(StatusCode.REDIS, "Add a record. addr:" + address.toString() + " result:" + r);
         }catch (Exception ex){
             log.fatal(ex.toString());
         }
@@ -70,7 +76,8 @@ public class JedisWrapper {
 
     public void addRoom(int id, Room room){
         try {
-            jedis.hset(ROOM_MAP, String.valueOf(id), gson.toJson(room));
+            long r = jedis.hset(ROOM_MAP, String.valueOf(id), gson.toJson(room));
+            log.info(StatusCode.REDIS, "Add a room. id:" + id + " result:" + r);
         }catch (Exception ex){
             log.fatal(ex.toString());
         }
@@ -92,6 +99,7 @@ public class JedisWrapper {
         Room room = null;
         try {
             room = gson.fromJson(jedis.hget(ROOM_MAP, String.valueOf(id)), Room.class);
+
         }catch (Exception ex){
             log.fatal(ex.toString());
         }
@@ -114,7 +122,8 @@ public class JedisWrapper {
 
     public void removeRecord(InetSocketAddress address){
         try {
-            jedis.hdel(ROOM_RECORD, address.toString());
+            long r = jedis.hdel(ROOM_RECORD, address.toString());
+            log.info(StatusCode.REDIS, "Remove a record. addr:" + address.toString() + " result:" + r);
         }catch (Exception ex){
             log.fatal(ex.toString());
         }
@@ -127,18 +136,32 @@ public class JedisWrapper {
             if(room != null && room.isPlaying() && !isDuelServer){
                 return;
             }
-            jedis.hdel(ROOM_MAP, String.valueOf(id));
+            long r = jedis.hdel(ROOM_MAP, String.valueOf(id));
+            log.info(StatusCode.REDIS, "Remove a room . id:" + id + " result:" + r);
         }catch (Exception ex){
             log.fatal(ex.toString());
         }
     }
 
+    /**
+     * 更新存在的键值对
+     *
+     * @date 2018/6/7 13:41
+     * @param room 新的房间信息
+     * @return void
+     **/
     public void update(Room room){
-        addRoom(room.getId(), room);
-        addRecord(room.getHost().getAddress(), room);
+        if(getRoomById(room.getId()) != null)
+            addRoom(room.getId(), room);
 
+        Player host = room.getHost();
         Player guest = room.getGuest();
-        if(guest != null){
+
+        if(host != null && getRoomByAddr(host.getAddress()) != null)
+            addRecord(room.getHost().getAddress(), room);
+
+
+        if(guest != null && getRoomByAddr(guest.getAddress()) != null){
             addRecord(guest.getAddress(), room);
         }
 

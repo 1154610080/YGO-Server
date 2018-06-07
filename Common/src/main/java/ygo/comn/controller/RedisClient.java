@@ -27,6 +27,9 @@ public class RedisClient {
      **/
     private static Map<Integer, Timer> timerGroup = new HashMap<>();
 
+    public static int ChannelSize(){
+        return channelGroup.size();
+    }
 
     public static RedisClient getRedisForLobby(){
         return new RedisClient(false);
@@ -75,29 +78,35 @@ public class RedisClient {
     }
 
     //解散房间
-    private void removeRoom(InetSocketAddress hostKey){
+    private void removeRoom(InetSocketAddress Key){
 
-        Room room = redis.getRoomByAddr(hostKey);
+        Room room = redis.getRoomByAddr(Key);
 
         if(room != null){
 
-            if(room.getHost().isSP()){
-                Timer timer = timerGroup.remove(room.getId());
-                if (timer != null)
-                    timer.cancel();
+            Player host = room.getHost();
+            Player guest = room.getGuest();
+
+            if(!room.isPlaying() || redis.isDuelServer())
+                redis.removeRoom(room.getId());
+
+            if(host!=null){
+                redis.removeRecord(host.getAddress());
+                removeChannel(host.getAddress());
+                if(!redis.isDuelServer() && host.isSP()){
+                    Timer timer = timerGroup.remove(room.getId());
+                    if (timer != null)
+                        timer.cancel();
+                }
             }
 
-            redis.removeRoom(room.getId());
-            redis.removeRecord(hostKey);
-
-            Player guest = room.getGuest();
             if(guest != null){
+                removeChannel(guest.getAddress());
                 redis.removeRecord(guest.getAddress());
                 removeChannel(guest.getAddress());
             }
 
-            removeTimer(room.getId());
-            removeChannel(hostKey);
+
         }
     }
 
@@ -137,10 +146,13 @@ public class RedisClient {
             if(timer != null)
                 timer.cancel();
         }
-        room.setGuest(null);
+        if(!room.isPlaying() && !redis.isDuelServer()){
+            room.setGuest(null);
+        }
         redis.removeRecord(address);
         redis.update(room);
         removeChannel(address);
+
     }
 
     public Room getRoomById(int id){
@@ -162,12 +174,12 @@ public class RedisClient {
      * @param key 地址键
      * @return void
      **/
-    public boolean removeAndInform(InetSocketAddress key){
+    public synchronized boolean removeAndInform(InetSocketAddress key){
         Room room = redis.getRoomByAddr(key);
         //房间存在
         if(room != null){
             DataPacket packet = new DataPacket("", MessageType.LEAVE);
-            //判断对方
+            //判断谁退出
             boolean isHost = room.isHost(key);
 
             Player host = room.getHost();
@@ -175,22 +187,36 @@ public class RedisClient {
 
             if(isHost){
                 //如果是房主，通知房客，并删除房客的房间记录
-                if(guest != null)
-                    channelGroup.get(guest.getAddress()).writeAndFlush(packet);
+                if(guest != null){
+                    Channel channel = channelGroup.get(guest.getAddress());
+                    if(channel != null)
+                        channel.writeAndFlush(packet);
+                }
                 //解散房间
                 removeRoom(host.getAddress());
             }else {
                 //如果是房客，通知房主
-                removeGuest(guest);
-                //删除房客
-                room.setGuest(null);
-                channelGroup.get(host.getAddress()).writeAndFlush(packet);
+
+                //如果是决斗服务器，删除房间
+                if(redis.isDuelServer()){
+                    removeRoom(guest.getAddress());
+                }else {
+                    //否则删除房客
+                    removeGuest(guest);
+                }
+
+                if(host != null){
+                    Channel channel = channelGroup.get(host.getAddress());
+                    if(channel != null)
+                        channel.writeAndFlush(packet);
+                }
             }
             return true;
         }
 
         return false;
     }
+
 
     public void updateRoom(Room room){
         redis.update(room);
