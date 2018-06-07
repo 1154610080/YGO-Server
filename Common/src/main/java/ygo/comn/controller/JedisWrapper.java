@@ -50,8 +50,11 @@ class JedisWrapper {
 
     public JedisWrapper(boolean isDuelServer){
         try {
-            jedis  = pool.getResource();
-            this.isDuelServer = isDuelServer;
+            synchronized (JedisPool.class){
+                jedis  = pool.getResource();
+                this.isDuelServer = isDuelServer;
+            }
+
         }catch (Exception ex){
             log.fatal(ex.toString());
         }
@@ -110,10 +113,12 @@ class JedisWrapper {
     public List<Room> getRooms(){
         List<Room> rooms = new ArrayList<>();
         try {
+            log.info(StatusCode.REDIS, "Requiring rooms");
             List<String> roomStr = jedis.hvals(ROOM_MAP);
             for(String str : roomStr){
                 rooms.add(gson.fromJson(str, Room.class));
             }
+            log.info(StatusCode.REDIS, "Got rooms");
         }catch (Exception ex){
             log.fatal(ex.toString());
         }
@@ -165,5 +170,9 @@ class JedisWrapper {
             addRecord(guest.getAddress(), room);
         }
 
+    }
+
+    public void close(){
+        jedis.close();
     }
 }

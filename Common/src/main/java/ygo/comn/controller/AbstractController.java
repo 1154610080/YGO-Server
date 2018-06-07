@@ -40,7 +40,13 @@ public abstract class AbstractController {
         this.address = (InetSocketAddress) channel.remoteAddress();
         this.log = new YgoLog("AbstractController");
 
-        assign();
+        try{
+            assign();
+        }finally {
+            if(redisClient != null)
+                redisClient.close();
+        }
+
     }
 
     /**

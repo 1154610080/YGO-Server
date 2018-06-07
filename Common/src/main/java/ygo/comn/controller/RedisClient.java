@@ -45,7 +45,9 @@ public class RedisClient {
         redis = new JedisWrapper(isDuelServer);
     }
 
-
+    public void close(){
+        redis.close();
+    }
 
     public int size(){
         return redis.size();
@@ -111,17 +113,20 @@ public class RedisClient {
     }
 
     /**
-     * 房客加入房间
+     * 玩家加入房间
      *
      * @date 2018/5/30 17:01
      * @param room 目标房间
-	 * @param guest 房客
+	 * @param player 房客
      * @return void
      **/
-    public boolean addGuest(Room room, Player guest){
-        InetSocketAddress address = guest.getAddress();
+    public boolean addPlayer(Room room, Player player){
+        InetSocketAddress address = player.getAddress();
         if(redis.getRoomByAddr(address) == null){
-            room.setGuest(guest);
+            //在大厅服务器中，该方法主要用于房客加入房间
+            if(!redis.isDuelServer())
+                room.setGuest(player);
+            redis.addRecord(player.getAddress(), room);
             redis.update(room);
             return true;
         }

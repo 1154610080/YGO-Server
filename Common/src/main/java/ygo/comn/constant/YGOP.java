@@ -88,5 +88,5 @@ public class YGOP {
     /**
      * 开始倒计时
      **/
-    public static final int COUNTDOWN_SECONDS = 10;
+    public static final int COUNTDOWN_SECONDS = 5;
 }

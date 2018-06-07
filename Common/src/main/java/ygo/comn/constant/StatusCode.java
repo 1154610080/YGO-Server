@@ -13,6 +13,7 @@ public enum StatusCode {
     SEND(1002),
     INBOUND(1004),
     OUTBOUND(1008),
+    REDIS(1012),
     /**
      * 数据不合法
      **/

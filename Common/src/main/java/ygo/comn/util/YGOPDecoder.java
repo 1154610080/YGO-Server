@@ -71,7 +71,7 @@ public class YGOPDecoder extends ByteToMessageDecoder{
             InetSocketAddress address = (InetSocketAddress) channelHandlerContext.channel().remoteAddress();
 
 
-            log.info(StatusCode.RECEIVE,": (" + packet.getType() + "){" + packet.getBody() + "} to "
+            log.info(StatusCode.RECEIVE,": (" + packet.getType() + "){" + packet.getBody() + "} from "
                     + address.getHostString() + ":" + address.getPort());
 
         }
