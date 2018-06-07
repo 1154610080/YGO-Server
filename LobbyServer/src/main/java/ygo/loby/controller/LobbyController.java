@@ -1,5 +1,6 @@
 package ygo.loby.controller;
 
+import ygo.comn.controller.RedisClient;
 import ygo.comn.model.*;
 import ygo.comn.constant.MessageType;
 import ygo.comn.constant.StatusCode;
@@ -25,6 +26,10 @@ public class LobbyController extends AbstractController {
 
     @Override
     protected void assign() {
+
+        redisClient = RedisClient.getRedisForLobby();
+        room = redisClient.getRoomByAddress(address);
+
         log = new YgoLog("LobbyController");
         switch (packet.getType()){
             case GET_ROOMS: getRooms(); break;

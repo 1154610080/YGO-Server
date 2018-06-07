@@ -17,8 +17,7 @@ public class ChiefController extends AbstractController {
     @Override
     protected void assign() {
 
-        redisClient = RedisClient.getRedisForLobby();
-        room = redisClient.getRoomByAddress(address);
+
 
         int type = packet.getType().getCode();
 

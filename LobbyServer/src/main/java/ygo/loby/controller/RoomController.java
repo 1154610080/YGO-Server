@@ -4,6 +4,7 @@ import ygo.comn.constant.MessageType;
 import ygo.comn.constant.StatusCode;
 import ygo.comn.constant.YGOP;
 import ygo.comn.controller.AbstractController;
+import ygo.comn.controller.RedisClient;
 import ygo.comn.model.*;
 import io.netty.channel.Channel;
 import ygo.comn.util.YgoLog;
@@ -20,14 +21,14 @@ import java.util.TimerTask;
  **/
 public class RoomController extends AbstractController{
 
-    private Room room = null;
-
     RoomController(DataPacket packet, Channel channel) {
         super(packet, channel);
     }
 
     @Override
     protected void assign() {
+
+        redisClient = RedisClient.getRedisForLobby();
 
         log = new YgoLog("RoomController");
 
@@ -175,6 +176,8 @@ public class RoomController extends AbstractController{
                     redisClient.updateRoom(room);
                     timer.cancel();
                     redisClient.removeTimer(room.getId());
+                    redisClient.removeRecord(room.getHost().getAddress());
+                    redisClient.removeRecord(room.getGuest().getAddress());
                 }
             }
         }, 0, 1000);
