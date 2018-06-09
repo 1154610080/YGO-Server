@@ -27,6 +27,10 @@ public class RedisClient {
      **/
     private static Map<Integer, Timer> timerGroup = new HashMap<>();
 
+    public static Set<InetSocketAddress> getChannelKeys(){
+        return channelGroup.keySet();
+    }
+
     public static int ChannelSize(){
         return channelGroup.size();
     }
@@ -179,7 +183,7 @@ public class RedisClient {
      * @param key 地址键
      * @return void
      **/
-    public synchronized boolean removeAndInform(InetSocketAddress key){
+    public boolean removeAndInform(InetSocketAddress key){
         Room room = redis.getRoomByAddr(key);
         //房间存在
         if(room != null){
@@ -201,7 +205,11 @@ public class RedisClient {
                 removeRoom(host.getAddress());
             }else {
                 //如果是房客，通知房主
-
+                if(host != null){
+                    Channel channel = channelGroup.get(host.getAddress());
+                    if(channel != null)
+                        channel.writeAndFlush(packet);
+                }
                 //如果是决斗服务器，删除房间
                 if(redis.isDuelServer()){
                     removeRoom(guest.getAddress());
@@ -210,11 +218,7 @@ public class RedisClient {
                     removeGuest(guest);
                 }
 
-                if(host != null){
-                    Channel channel = channelGroup.get(host.getAddress());
-                    if(channel != null)
-                        channel.writeAndFlush(packet);
-                }
+
             }
             return true;
         }
