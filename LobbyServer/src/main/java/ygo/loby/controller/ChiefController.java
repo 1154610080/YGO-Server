@@ -18,7 +18,6 @@ public class ChiefController extends AbstractController {
     protected void assign() {
 
 
-
         int type = packet.getType().getCode();
 
         if(type == MessageType.TEST.getCode())
