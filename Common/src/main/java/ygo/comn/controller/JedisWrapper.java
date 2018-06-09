@@ -7,6 +7,7 @@ import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
 import ygo.comn.constant.Secret;
 import ygo.comn.constant.StatusCode;
+import ygo.comn.constant.YGOP;
 import ygo.comn.model.Player;
 import ygo.comn.model.Room;
 import ygo.comn.util.YgoLog;
@@ -27,9 +28,9 @@ class JedisWrapper {
 
     static {
         JedisPoolConfig config = new JedisPoolConfig();
-        config.setMaxTotal(-1);
+        config.setMaxTotal(YGOP.MAX_ROOMS);
         config.setMaxWaitMillis(-1);
-        config.setMaxIdle(-1);
+        config.setMaxIdle(YGOP.MAX_ROOMS);
         config.setTestOnBorrow(false);
         pool  = new JedisPool(new JedisPoolConfig(), Secret.REDIS_HOST, Secret.REDIS_PORT,
                 10000, Secret.REDIS_PWD);
@@ -71,7 +72,7 @@ class JedisWrapper {
     public void addRecord(InetSocketAddress address, Room room){
         try {
             long r = jedis.hset(ROOM_RECORD, address.toString(), gson.toJson(room));
-            log.info(StatusCode.REDIS, "Add a record. addr:" + address.toString() + " result:" + r);
+            //log.info(StatusCode.REDIS, "Add a record. addr:" + address.toString() + " result:" + r);
         }catch (Exception ex){
             log.fatal(ex.toString());
         }
@@ -79,8 +80,10 @@ class JedisWrapper {
 
     public void addRoom(int id, Room room){
         try {
+            if(room.isPlaying() && !isDuelServer)
+                return;
             long r = jedis.hset(ROOM_MAP, String.valueOf(id), gson.toJson(room));
-            log.info(StatusCode.REDIS, "Add a room. id:" + id + " result:" + r);
+            //log.info(StatusCode.REDIS, "Add a room. id:" + id + " result:" + r);
         }catch (Exception ex){
             log.fatal(ex.toString());
         }
@@ -113,12 +116,10 @@ class JedisWrapper {
     public List<Room> getRooms(){
         List<Room> rooms = new ArrayList<>();
         try {
-            log.info(StatusCode.REDIS, "Requiring rooms");
             List<String> roomStr = jedis.hvals(ROOM_MAP);
             for(String str : roomStr){
                 rooms.add(gson.fromJson(str, Room.class));
             }
-            log.info(StatusCode.REDIS, "Got rooms");
         }catch (Exception ex){
             log.fatal(ex.toString());
         }
@@ -138,11 +139,11 @@ class JedisWrapper {
         try{
             //房间开始游戏后，只有决斗服务器有权删除房间
             Room room = getRoomById(id);
-            if(room != null && room.isPlaying() && !isDuelServer){
+            if(room == null ||( room.isPlaying() && !isDuelServer)){
                 return;
             }
             long r = jedis.hdel(ROOM_MAP, String.valueOf(id));
-            log.info(StatusCode.REDIS, "Remove a room . id:" + id + " result:" + r);
+            //log.info(StatusCode.REDIS, "Remove a room . id:" + id + " result:" + r  + room.isPlaying() + !isDuelServer);
         }catch (Exception ex){
             log.fatal(ex.toString());
         }
@@ -156,6 +157,13 @@ class JedisWrapper {
      * @return void
      **/
     public void update(Room room){
+
+        Room tRoom = getRoomById(room.getId());
+
+        //大厅无法修改开始游戏的房间
+        if(tRoom != null && tRoom.isPlaying() && !isDuelServer)
+            return;
+
         if(getRoomById(room.getId()) != null)
             addRoom(room.getId(), room);
 
