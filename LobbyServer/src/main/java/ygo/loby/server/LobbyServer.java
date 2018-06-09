@@ -48,9 +48,12 @@ public class LobbyServer{
                     .info(new String(("游戏大厅正在监听端口 " + port + "...").getBytes(), YGOP.CHARSET));
             Scanner scanner = new Scanner(System.in);
             while (true){
-                if("c".equals(scanner.nextLine())){
+                String str = scanner.nextLine();
+                if("c".equals(str)){
                     future.channel().closeFuture();
                     break;
+                }if("cz".equals(str)){
+                    System.out.println(RedisClient.ChannelSize());
                 }
             }
         }finally {

@@ -20,7 +20,7 @@ public class LobbyServerHandler extends SimpleChannelInboundHandler<DataPacket> 
 
     private YgoLog log = new YgoLog("IOBound");
 
-    private RedisClient redisClient = RedisClient.getRedisForLobby();
+    private RedisClient client = RedisClient.getRedisForLobby();
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx){
@@ -33,9 +33,10 @@ public class LobbyServerHandler extends SimpleChannelInboundHandler<DataPacket> 
         InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
         log.info(StatusCode.OUTBOUND, address.getHostString() + ":" + address.getPort() );
         //检查玩家是否掉线
-        if(redisClient.removeAndInform(address)){
-            log.warn(StatusCode.LOST_CONNECTION, address.getHostString() + ":" + address.getPort());
+        if(client.removeAndInform(address)){
+            //log.warn(StatusCode.LOST_CONNECTION, address.getHostString() + ":" + address.getPort());
         }
+        client.close();
     }
 
 
@@ -52,4 +53,9 @@ public class LobbyServerHandler extends SimpleChannelInboundHandler<DataPacket> 
         ctx.close();
     }
 
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        client.close();
+    }
 }

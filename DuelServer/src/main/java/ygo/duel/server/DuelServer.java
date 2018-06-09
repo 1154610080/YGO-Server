@@ -35,7 +35,7 @@ public class DuelServer{
 
     public void start() throws InterruptedException {
         EventLoopGroup group = new NioEventLoopGroup();
-
+        RedisClient redisClient = RedisClient.getRedisForDuel();
         try{
             ServerBootstrap b = new ServerBootstrap();
             b.group(group)
@@ -58,15 +58,21 @@ public class DuelServer{
             while (true){
                 String str = scanner.nextLine();
                 if("c".equals(str)){
+                    redisClient.flush();
                     f.channel().closeFuture();
                     break;
+                }if("cs".equals(str)){
+                    System.out.println(RedisClient.ChannelSize());
+                }if("ck".equals(str)){
+                    System.out.println(RedisClient.getChannelKeys());
                 }
             }
         } catch (Exception e) {
             log.fatal(e.getStackTrace());
         } finally {
             //删除所有未在进行游戏的房间和玩家
-            RedisClient.getRedisForDuel().flush();
+            redisClient.flush();
+            redisClient.close();
             group.shutdownGracefully().sync();
         }
     }

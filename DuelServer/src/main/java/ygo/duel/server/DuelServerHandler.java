@@ -22,6 +22,8 @@ public class DuelServerHandler extends SimpleChannelInboundHandler<DataPacket> {
 
     private YgoLog log = new YgoLog("IOBound");
 
+    RedisClient client = RedisClient.getRedisForDuel();
+
     @Override
     public void handlerAdded(ChannelHandlerContext ctx){
         InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
@@ -30,13 +32,16 @@ public class DuelServerHandler extends SimpleChannelInboundHandler<DataPacket> {
 
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx){
+
         InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
         log.info(StatusCode.OUTBOUND, address.getHostString() + ":" + address.getPort() );
 
         //检查玩家是否掉线
-        if(RedisClient.getRedisForDuel().removeAndInform(address)){
+        if(client.removeAndInform(address)){
             log.warn(StatusCode.LOST_CONNECTION, address.getHostString() + ":" + address.getPort());
         }
+
+        client.close();
     }
 
 
@@ -50,7 +55,13 @@ public class DuelServerHandler extends SimpleChannelInboundHandler<DataPacket> {
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause){
         ctx.writeAndFlush(new DataPacket(new ResponseStatus(StatusCode.INTERNAL_SERVER_ERROR)));
         log.fatal(cause.toString());
+        client.removeAndInform((InetSocketAddress) ctx.channel().remoteAddress());
         ctx.close();
     }
 
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        client.close();
+    }
 }
