@@ -24,7 +24,7 @@
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>exec-maven-plugin</artifactId>
                 <configuration>
-                    <mainClass>ygo.loby.server.TestMain</mainClass>
+                    <mainClass>ygo.loby.server.LobbyServer</mainClass>
                 </configuration>
             </plugin>
         </plugins>
