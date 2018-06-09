@@ -49,6 +49,12 @@ public abstract class AbstractController {
 
     }
 
+    @Override
+    protected void finalize() throws Throwable {
+        super.finalize();
+        redisClient.close();
+    }
+
     /**
      * 根据数据包的消息类型分配不同的任务
      *
@@ -99,14 +105,13 @@ public abstract class AbstractController {
      **/
     protected void chat()
     {
-        InetSocketAddress address = (InetSocketAddress) channel.remoteAddress();
-        Room room = redisClient.getRoomByAddress(address);
 
         Player host = room.getHost();
         Player guest = room.getGuest();
 
         //向双方广播消息
-        redisClient.getChannel(host.getAddress()).writeAndFlush(packet);
+        if(host != null)
+            redisClient.getChannel(host.getAddress()).writeAndFlush(packet);
         if(guest!=null)
             redisClient.getChannel(guest.getAddress()).writeAndFlush(packet);
     }
