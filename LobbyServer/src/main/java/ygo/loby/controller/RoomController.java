@@ -167,18 +167,26 @@ public class RoomController extends AbstractController{
         timer.schedule(new TimerTask() {
             @Override
             public void run() {
+
+
+
+                //倒计时结束
+                if(remaining == 0){
+                    synchronized (RedisClient.class) {
+                        room.setPlaying(true);
+                        redisClient.updateRoom(room);
+                    }
+                }
+
                 packet.setBody(String.valueOf(remaining--));
                 hChannel.writeAndFlush(packet);
                 gChannel.writeAndFlush(packet);
-                //倒计时结束
+
                 if(remaining < 0){
-                    room.setPlaying(true);
-                    redisClient.updateRoom(room);
                     timer.cancel();
                     redisClient.removeTimer(room.getId());
-                    redisClient.removeRecord(room.getHost().getAddress());
-                    redisClient.removeRecord(room.getGuest().getAddress());
                 }
+
             }
         }, 0, 1000);
     }
