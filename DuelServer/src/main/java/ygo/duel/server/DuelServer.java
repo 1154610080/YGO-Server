@@ -4,6 +4,7 @@ import jdk.nashorn.internal.objects.Global;
 import org.apache.commons.logging.Log;
 import ygo.comn.constant.Secret;
 import ygo.comn.constant.YGOP;
+import ygo.comn.controller.Console;
 import ygo.comn.controller.IpFilterHandler;
 import ygo.comn.controller.RedisClient;
 import ygo.comn.model.GlobalMap;
@@ -38,7 +39,7 @@ public class DuelServer{
     public void start() throws InterruptedException {
         InetSocketAddress localAddr = new InetSocketAddress(port);
         EventLoopGroup group = new NioEventLoopGroup();
-        RedisClient redisClient = GlobalMap.getRedisforDuel(localAddr);
+        RedisClient redis = GlobalMap.getRedisforDuel(localAddr);
         try{
             ServerBootstrap b = new ServerBootstrap();
             b.group(group)
@@ -57,25 +58,14 @@ public class DuelServer{
                     .childOption(ChannelOption.SO_KEEPALIVE, true);
             ChannelFuture f = b.bind().sync();
             log.info(new String(("决斗服务器 正在监听端口 " + port + "...").getBytes(), YGOP.CHARSET));
-            Scanner scanner = new Scanner(System.in);
-            while (true){
-                String str = scanner.nextLine();
-                if("c".equals(str)){
-                    redisClient.flush();
-                    f.channel().closeFuture();
-                    break;
-                }if("cz".equals(str)){
-                    System.out.println(GlobalMap.ChannelSize());
-                }if("ck".equals(str)){
-                    System.out.println(GlobalMap.getChannelKeys());
-                }
-            }
+            new Console(redis).start();
+            f.channel().closeFuture();
         } catch (Exception e) {
             log.fatal(e.getStackTrace());
         } finally {
             //删除所有未在进行游戏的房间和玩家
-            redisClient.flush();
-            redisClient.close();
+            redis.flush();
+            redis.close();
             group.shutdownGracefully().sync();
         }
     }

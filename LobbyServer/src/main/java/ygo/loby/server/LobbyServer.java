@@ -4,6 +4,7 @@ import io.netty.channel.*;
 import org.apache.commons.logging.LogFactory;
 import ygo.comn.constant.Secret;
 import ygo.comn.constant.YGOP;
+import ygo.comn.controller.Console;
 import ygo.comn.controller.IpFilterHandler;
 import ygo.comn.controller.RedisClient;
 import ygo.comn.model.GlobalMap;
@@ -55,16 +56,11 @@ public class LobbyServer{
             ChannelFuture future = b.bind(port).sync();
             LogFactory.getLog("LobbyServer")
                     .info(new String(("游戏大厅正在监听端口 " + port + "...").getBytes(), YGOP.CHARSET));
-            Scanner scanner = new Scanner(System.in);
-            while (true){
-                String str = scanner.nextLine();
-                if("c".equals(str)){
-                    future.channel().closeFuture();
-                    break;
-                }if("cz".equals(str)){
-                    System.out.println(GlobalMap.ChannelSize());
-                }
-            }
+
+            new Console(redis).start();
+
+            future.channel().closeFuture();
+
         }finally {
 
             //删除所有未在进行游戏的房间和玩家

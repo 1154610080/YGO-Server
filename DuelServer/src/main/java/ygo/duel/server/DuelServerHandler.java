@@ -45,7 +45,7 @@ public class DuelServerHandler extends SimpleChannelInboundHandler<DataPacket> {
             log.warn(StatusCode.LOST_CONNECTION, address.getHostString() + ":" + address.getPort());
         }
 
-        redis.close();
+        GlobalMap.closeRedis(address);
     }
 
 

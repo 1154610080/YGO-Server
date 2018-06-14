@@ -9,6 +9,7 @@ import ygo.comn.constant.MessageType;
 import ygo.comn.constant.Secret;
 import ygo.comn.constant.StatusCode;
 import ygo.comn.constant.YGOP;
+import ygo.comn.model.GlobalMap;
 import ygo.comn.model.Player;
 import ygo.comn.model.Room;
 import ygo.comn.util.YgoLog;
@@ -50,7 +51,7 @@ class JedisWrapper {
 
     private Gson gson = new GsonBuilder().create();
 
-    public JedisWrapper(boolean isDuelServer){
+    JedisWrapper(boolean isDuelServer){
         try {
             synchronized (JedisPool.class){
                 jedis  = pool.getResource();
@@ -62,15 +63,15 @@ class JedisWrapper {
         }
     }
 
-    public boolean isDuelServer(){
+    boolean isDuelServer(){
         return isDuelServer;
     }
 
-    public int size(){
+    int size(){
         return Math.toIntExact(jedis.hlen(ROOM_MAP));
     }
 
-    public void addRecord(InetSocketAddress address, Room room){
+    void addRecord(InetSocketAddress address, Room room){
         try {
             long r = jedis.hset(ROOM_RECORD, address.toString(), gson.toJson(room));
             //log.info(StatusCode.REDIS, "Add a record. addr:" + address.toString() + " result:" + r);
@@ -79,7 +80,7 @@ class JedisWrapper {
         }
     }
 
-    public void addRoom(int id, Room room){
+    void addRoom(int id, Room room){
         try {
             if(room.isPlaying() && !isDuelServer)
                 return;
@@ -90,7 +91,7 @@ class JedisWrapper {
         }
     }
 
-    public Room getRoomByAddr(InetSocketAddress address){
+    Room getRoomByAddr(InetSocketAddress address){
         Room room = null;
         try {
             String json = jedis.hget(ROOM_RECORD, address.toString());
@@ -102,7 +103,7 @@ class JedisWrapper {
         return room;
     }
 
-    public Room getRoomById(int id){
+    Room getRoomById(int id){
         Room room = null;
         try {
             room = gson.fromJson(jedis.hget(ROOM_MAP, String.valueOf(id)), Room.class);
@@ -114,7 +115,7 @@ class JedisWrapper {
         return room;
     }
 
-    public List<Room> getRooms(){
+    List<Room> getRooms(){
         List<Room> rooms = new ArrayList<>();
         try {
             List<String> roomStr = jedis.hvals(ROOM_MAP);
@@ -127,7 +128,7 @@ class JedisWrapper {
         return rooms;
     }
 
-    public void removeRecord(InetSocketAddress address){
+    void removeRecord(InetSocketAddress address){
         try {
             long r = jedis.hdel(ROOM_RECORD, address.toString());
             log.info(StatusCode.REDIS, "Remove a record. addr:" + address.toString() + " result:" + r);
@@ -136,7 +137,7 @@ class JedisWrapper {
         }
     }
 
-    public void removeRoom(int id){
+    void removeRoom(int id){
         try{
             //房间开始游戏后，只有决斗服务器有权删除房间
             Room room = getRoomById(id);
@@ -157,7 +158,7 @@ class JedisWrapper {
      * @param room 新的房间信息
      * @return void
      **/
-    public void update(Room room){
+    void update(Room room){
 
         Room tRoom = getRoomById(room.getId());
 
@@ -181,7 +182,7 @@ class JedisWrapper {
 
     }
 
-    public void close(){
+    void close(){
         log.info(StatusCode.REDIS, "closing");
         jedis.close();
     }

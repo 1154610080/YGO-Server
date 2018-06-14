@@ -40,7 +40,7 @@ public class LobbyServerHandler extends SimpleChannelInboundHandler<DataPacket> 
         if(redis.removeAndInform(address)){
             log.warn(StatusCode.LOST_CONNECTION, address.getHostString() + ":" + address.getPort());
         }
-        redis.close();
+        GlobalMap.closeRedis(address);
     }
 
 

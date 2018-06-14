@@ -50,10 +50,6 @@ public class GlobalMap {
             redis.close();
     }
 
-    public static int ChannelSize(){
-        return channelGroup.size();
-    }
-
     public static Timer getTimer(int id){
         return timerGroup.get(id);
     }
@@ -80,5 +76,9 @@ public class GlobalMap {
 
     public static Collection<Channel> channels(){
         return channelGroup.values();
+    }
+
+    public static int redisCount(){
+        return redisGroup.size();
     }
 }
