@@ -6,6 +6,7 @@ import ygo.comn.controller.AbstractController;
 import ygo.comn.controller.RedisClient;
 import ygo.comn.model.DataPacket;
 import io.netty.channel.Channel;
+import ygo.comn.model.GlobalMap;
 import ygo.comn.model.Player;
 import ygo.comn.model.Room;
 import ygo.comn.util.YgoLog;
@@ -29,8 +30,8 @@ public class GameController extends AbstractController {
     @Override
     protected void assign(){
 
-        redisClient = RedisClient.getRedisForDuel();
-        room = redisClient.getRoomByAddress(address);
+        redis = GlobalMap.getRedisforDuel(address);
+        room = redis.getRoomByAddress(address);
 
         log = new YgoLog("Game-Controller");
 
@@ -46,7 +47,7 @@ public class GameController extends AbstractController {
             case TEST:
                 break;
             case LEAVE:
-                redisClient.removeAndInform(address);
+                redis.removeAndInform(address);
                 break;
             case CREATE:
                 joinGame(true);
@@ -97,7 +98,7 @@ public class GameController extends AbstractController {
         //解析消息体
         int id = Integer.parseInt(packet.getBody());
 
-        Room room = redisClient.getRoomById(id);
+        Room room = redis.getRoomById(id);
 
         if(room == null){
             packet.setStatusCode(StatusCode.DISMISSED);
@@ -108,7 +109,7 @@ public class GameController extends AbstractController {
         //log.info(StatusCode.OUTBOUND, "The room before diy: hs" + room.getHost().getAddress() + " gs" + room.getGuest().getAddress());
 
         //记录通道
-        redisClient.addChannel(address, channel);
+        GlobalMap.addChannel(address, channel);
 
         Player player = isHost ? room.getHost() : room.getGuest();
 
@@ -116,7 +117,7 @@ public class GameController extends AbstractController {
         player.setPort(address.getPort());
 
         synchronized (RedisClient.class){
-            room = redisClient.getRoomById(id);
+            room = redis.getRoomById(id);
             if(isHost){
                 System.out.println("host coming");
                 room.setHost(player);
@@ -125,7 +126,7 @@ public class GameController extends AbstractController {
                 room.setGuest(player);
             }
 
-            redisClient.addPlayer(room, player);
+            redis.addPlayer(room, player);
         }
 
 
@@ -154,7 +155,7 @@ public class GameController extends AbstractController {
                 room.getGuest().setDeck(deck);
             }
 
-            redisClient.updateRoom(room);
+            redis.updateRoom(room);
 
             //交换卡组
             if(isAllConnect()){
@@ -165,9 +166,9 @@ public class GameController extends AbstractController {
                 DataPacket guestDeckPacket = new DataPacket(gson.toJson(guest.getDeck()), MessageType.DECK);
 
                 if(!"null".equals(guestDeckPacket.getBody()))
-                    redisClient.getChannel(host.getAddress()).writeAndFlush(guestDeckPacket);
+                    GlobalMap.getChannel(host.getAddress()).writeAndFlush(guestDeckPacket);
                 if(!"null".equals(hostDeckPacket.getBody()))
-                    redisClient.getChannel(guest.getAddress()).writeAndFlush(hostDeckPacket);
+                    GlobalMap.getChannel(guest.getAddress()).writeAndFlush(hostDeckPacket);
             }
         }
 
@@ -190,7 +191,7 @@ public class GameController extends AbstractController {
                 room.getGuest().setFinger(finger);
             }
 
-            redisClient.updateRoom(room);
+            redis.updateRoom(room);
 
             if (isAllConnect()){
                 Player host = room.getHost();
@@ -206,15 +207,15 @@ public class GameController extends AbstractController {
                     fail = win = new DataPacket("0", MessageType.FINGER_GUESS);
                     host.setFinger(0);
                     guest.setFinger(0);
-                    redisClient.updateRoom(room);
+                    redis.updateRoom(room);
                 }
 
 
                 //分出胜负，房客是否胜利
                 boolean result = guest.getFinger() % 3 + 1 == host.getFinger();
 
-                redisClient.getChannel(host.getAddress()).writeAndFlush(result ? fail : win);
-                redisClient.getChannel(guest.getAddress()).writeAndFlush(result ? win : fail);
+                GlobalMap.getChannel(host.getAddress()).writeAndFlush(result ? fail : win);
+                GlobalMap.getChannel(guest.getAddress()).writeAndFlush(result ? win : fail);
             }
         }
 
@@ -230,8 +231,8 @@ public class GameController extends AbstractController {
         Player guest = room.getGuest();
         if(host == null || guest == null)
             return false;
-        return room.equals(redisClient.getRoomByAddress(host.getAddress()))
-                && room.equals(redisClient.getRoomByAddress(guest.getAddress()));
+        return room.equals(redis.getRoomByAddress(host.getAddress()))
+                && room.equals(redis.getRoomByAddress(guest.getAddress()));
     }
 
 }

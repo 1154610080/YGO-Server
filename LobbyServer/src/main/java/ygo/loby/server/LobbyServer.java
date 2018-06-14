@@ -6,12 +6,15 @@ import ygo.comn.constant.Secret;
 import ygo.comn.constant.YGOP;
 import ygo.comn.controller.IpFilterHandler;
 import ygo.comn.controller.RedisClient;
+import ygo.comn.model.GlobalMap;
 import ygo.comn.util.YGOPDecoder;
 import ygo.comn.util.YGOPEncoder;
 import io.netty.bootstrap.ServerBootstrap;
 import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
+
+import java.net.InetSocketAddress;
 import java.util.Scanner;
 
 /**
@@ -27,11 +30,17 @@ public class LobbyServer{
     private LobbyServer(int port){this.port = port;}
 
     private void start() throws InterruptedException {
+
+        InetSocketAddress address = new InetSocketAddress(port);
+
+        RedisClient redis = GlobalMap.getRedisforLobby(address);
+
         EventLoopGroup group = new NioEventLoopGroup();
         try {
             ServerBootstrap b = new ServerBootstrap();
             b.group(group)
                     .channel(NioServerSocketChannel.class)
+                    .localAddress(address)
                     .childHandler(new ChannelInitializer<SocketChannel>() {
                         @Override
                         protected void initChannel(SocketChannel socketChannel) throws Exception {
@@ -53,13 +62,13 @@ public class LobbyServer{
                     future.channel().closeFuture();
                     break;
                 }if("cz".equals(str)){
-                    System.out.println(RedisClient.ChannelSize());
+                    System.out.println(GlobalMap.ChannelSize());
                 }
             }
         }finally {
 
             //删除所有未在进行游戏的房间和玩家
-            RedisClient.getRedisForLobby().flush();
+            redis.flush();
 
             group.shutdownGracefully();
         }
@@ -69,8 +78,6 @@ public class LobbyServer{
 
         LobbyServer server = new LobbyServer(Secret.LOBBY_PORT);
         server.start();
-
-
     }
 
 }

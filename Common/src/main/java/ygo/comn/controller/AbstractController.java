@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import ygo.comn.constant.StatusCode;
 import ygo.comn.model.DataPacket;
 import io.netty.channel.Channel;
+import ygo.comn.model.GlobalMap;
 import ygo.comn.model.Player;
 import ygo.comn.model.Room;
 import ygo.comn.util.YgoLog;
@@ -29,7 +30,7 @@ public abstract class AbstractController {
 
     protected InetSocketAddress address;
 
-    protected RedisClient redisClient;
+    protected RedisClient redis;
 
     protected Room room;
 
@@ -40,19 +41,8 @@ public abstract class AbstractController {
         this.address = (InetSocketAddress) channel.remoteAddress();
         this.log = new YgoLog("AbstractController");
 
-        try{
-            assign();
-        }finally {
-            if(redisClient != null)
-                redisClient.close();
-        }
+        assign();
 
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        redisClient.close();
     }
 
     /**
@@ -69,23 +59,23 @@ public abstract class AbstractController {
         if(room == null){
             packet.setStatusCode(StatusCode.DISMISSED);
             channel.writeAndFlush(packet);
-            return false;
+            return true;
         }
 
         if(room.getHost() == null){
             packet.setStatusCode(StatusCode.ILLEGAL_DATA);
             channel.writeAndFlush(packet);
             log.error(StatusCode.ILLEGAL_DATA, "The room(" + room.getName() +") without a host");
-            return false;
+            return true;
         }
 
-        return true;
+        return false;
     }
 
     protected boolean isMatchedChannel(Room room, boolean isHost){
 
-        boolean result = isHost ? channel.equals(redisClient.getChannel(room.getHost().getAddress())) :
-                room.getGuest() != null && channel.equals(redisClient.getChannel(room.getGuest().getAddress()));
+        boolean result = isHost ? channel.equals(GlobalMap.getChannel(room.getHost().getAddress())) :
+                room.getGuest() != null && channel.equals(GlobalMap.getChannel(room.getGuest().getAddress()));
 
         if(!result){
             log.error(StatusCode.UNMATCHED_CHANNEL, "玩家没有权限执行该操作");
@@ -111,8 +101,8 @@ public abstract class AbstractController {
 
         //向双方广播消息
         if(host != null)
-            redisClient.getChannel(host.getAddress()).writeAndFlush(packet);
+            GlobalMap.getChannel(host.getAddress()).writeAndFlush(packet);
         if(guest!=null)
-            redisClient.getChannel(guest.getAddress()).writeAndFlush(packet);
+            GlobalMap.getChannel(guest.getAddress()).writeAndFlush(packet);
     }
 }

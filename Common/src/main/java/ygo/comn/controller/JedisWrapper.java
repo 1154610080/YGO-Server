@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder;
 import redis.clients.jedis.Jedis;
 import redis.clients.jedis.JedisPool;
 import redis.clients.jedis.JedisPoolConfig;
+import ygo.comn.constant.MessageType;
 import ygo.comn.constant.Secret;
 import ygo.comn.constant.StatusCode;
 import ygo.comn.constant.YGOP;
@@ -181,6 +182,7 @@ class JedisWrapper {
     }
 
     public void close(){
+        log.info(StatusCode.REDIS, "closing");
         jedis.close();
     }
 }

@@ -20,23 +20,27 @@ public class LobbyServerHandler extends SimpleChannelInboundHandler<DataPacket> 
 
     private YgoLog log = new YgoLog("IOBound");
 
-    private RedisClient client = RedisClient.getRedisForLobby();
 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx){
         InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
         log.info(StatusCode.INBOUND, address.getHostString() + ":" + address.getPort());
+        //分配redis连接
+        GlobalMap.getRedisforLobby(address);
     }
 
     @Override
     public void handlerRemoved(ChannelHandlerContext ctx){
         InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
         log.info(StatusCode.OUTBOUND, address.getHostString() + ":" + address.getPort() );
+
+
         //检查玩家是否掉线
-        if(client.removeAndInform(address)){
-            //log.warn(StatusCode.LOST_CONNECTION, address.getHostString() + ":" + address.getPort());
+        RedisClient redis = GlobalMap.getRedisforLobby(address);
+        if(redis.removeAndInform(address)){
+            log.warn(StatusCode.LOST_CONNECTION, address.getHostString() + ":" + address.getPort());
         }
-        client.close();
+        redis.close();
     }
 
 
@@ -51,11 +55,5 @@ public class LobbyServerHandler extends SimpleChannelInboundHandler<DataPacket> 
         ctx.writeAndFlush(new DataPacket(new ResponseStatus(StatusCode.INTERNAL_SERVER_ERROR)));
         log.fatal(cause.toString());
         ctx.close();
-    }
-
-    @Override
-    protected void finalize() throws Throwable {
-        super.finalize();
-        client.close();
     }
 }

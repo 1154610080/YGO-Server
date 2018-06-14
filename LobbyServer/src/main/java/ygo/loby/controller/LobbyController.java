@@ -1,6 +1,5 @@
 package ygo.loby.controller;
 
-import ygo.comn.controller.RedisClient;
 import ygo.comn.model.*;
 import ygo.comn.constant.MessageType;
 import ygo.comn.constant.StatusCode;
@@ -27,8 +26,8 @@ public class LobbyController extends AbstractController {
     @Override
     protected void assign() {
 
-        redisClient = RedisClient.getRedisForLobby();
-        room = redisClient.getRoomByAddress(address);
+        redis = GlobalMap.getRedisforLobby(address);
+        room = redis.getRoomByAddress(address);
 
         log = new YgoLog("LobbyController");
         switch (packet.getType()){
@@ -53,10 +52,13 @@ public class LobbyController extends AbstractController {
      **/
     private void getRooms(){
 
+
         Map<String, List<Room>> map = new HashMap<>();
-        map.put("rs", redisClient.getRooms());
+
+        map.put("rs", redis.getRooms());
 
         String lobbyStr = new String(gson.toJson(map).getBytes(), YGOP.CHARSET);
+
 
         channel.writeAndFlush(new DataPacket(lobbyStr, MessageType.GET_ROOMS));
 
@@ -71,7 +73,7 @@ public class LobbyController extends AbstractController {
      **/
     private synchronized void createRoom(){
 
-        if(redisClient.size() >= YGOP.MAX_ROOMS){
+        if(redis.size() >= YGOP.MAX_ROOMS){
             channel.writeAndFlush( new DataPacket(
                     new ResponseStatus(StatusCode.FULL_LOBBY)));
             log.warn(StatusCode.FULL_LOBBY, "游戏大厅已满");
@@ -81,7 +83,7 @@ public class LobbyController extends AbstractController {
         //获取房间
         room = gson.fromJson(packet.getBody(), Room.class);
 
-        if(!isNormalRoom()) return;
+        if(isNormalRoom()) return;
 
         //分配ip和端口
         Player host = room.getHost();
@@ -90,12 +92,12 @@ public class LobbyController extends AbstractController {
 
         //分配房间ID
         int id = 1;
-        while (id < YGOP.MAX_ROOMS && redisClient.getRoomById(id++) != null);
+        while (id < YGOP.MAX_ROOMS && redis.getRoomById(id++) != null);
         room.setId(--id);
 
         //记录通道和房间
-        redisClient.addChannel(address, channel);
-        if(!redisClient.addRoom(room)){
+        GlobalMap.addChannel(address, channel);
+        if(!redis.addRoom(room)){
             packet = new DataPacket(
                     new ResponseStatus(StatusCode.BE_IN_ANOTHER));
             channel.writeAndFlush(packet);
@@ -128,9 +130,9 @@ public class LobbyController extends AbstractController {
         Player guest = gson.fromJson(map.get("gs").toString(), Player.class);
         String pw = map.get("pw").toString();
 
-        room = redisClient.getRoomById(id);
+        room = redis.getRoomById(id);
 
-        if (!isNormalRoom()) return;
+        if (isNormalRoom()) return;
 
         //判断是否满足加入房间的条件
         if(room.getGuest() != null){
@@ -153,8 +155,8 @@ public class LobbyController extends AbstractController {
 
         //记录房客通道和房客
 
-        redisClient.addChannel(address, channel);
-        if(!redisClient.addGuest(room, guest)){
+        GlobalMap.addChannel(address, channel);
+        if(!redis.addPlayer(room, guest)){
             packet = new DataPacket(
                     new ResponseStatus(StatusCode.BE_IN_ANOTHER));
             channel.writeAndFlush(packet);
@@ -168,6 +170,6 @@ public class LobbyController extends AbstractController {
 
         //通知房主新房客的信息
         packet.setBody(gson.toJson(guest));
-        redisClient.getChannel(room.getHost().getAddress()).writeAndFlush(packet);
+        GlobalMap.getChannel(room.getHost().getAddress()).writeAndFlush(packet);
     }
 }

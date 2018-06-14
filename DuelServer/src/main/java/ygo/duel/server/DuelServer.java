@@ -1,10 +1,12 @@
 package ygo.duel.server;
 
+import jdk.nashorn.internal.objects.Global;
 import org.apache.commons.logging.Log;
 import ygo.comn.constant.Secret;
 import ygo.comn.constant.YGOP;
 import ygo.comn.controller.IpFilterHandler;
 import ygo.comn.controller.RedisClient;
+import ygo.comn.model.GlobalMap;
 import ygo.comn.model.Room;
 import ygo.comn.util.YGOPDecoder;
 import ygo.comn.util.YGOPEncoder;
@@ -34,13 +36,14 @@ public class DuelServer{
     }
 
     public void start() throws InterruptedException {
+        InetSocketAddress localAddr = new InetSocketAddress(port);
         EventLoopGroup group = new NioEventLoopGroup();
-        RedisClient redisClient = RedisClient.getRedisForDuel();
+        RedisClient redisClient = GlobalMap.getRedisforDuel(localAddr);
         try{
             ServerBootstrap b = new ServerBootstrap();
             b.group(group)
                     .channel(NioServerSocketChannel.class)
-                    .localAddress(new InetSocketAddress(port))
+                    .localAddress(localAddr)
                     .childHandler(new ChannelInitializer<SocketChannel>() {
 
                         @Override
@@ -61,10 +64,10 @@ public class DuelServer{
                     redisClient.flush();
                     f.channel().closeFuture();
                     break;
-                }if("cs".equals(str)){
-                    System.out.println(RedisClient.ChannelSize());
+                }if("cz".equals(str)){
+                    System.out.println(GlobalMap.ChannelSize());
                 }if("ck".equals(str)){
-                    System.out.println(RedisClient.getChannelKeys());
+                    System.out.println(GlobalMap.getChannelKeys());
                 }
             }
         } catch (Exception e) {
