@@ -1,5 +1,6 @@
 package ygo.comn.constant;
 
+import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.List;
@@ -71,7 +72,6 @@ public class YGOP {
     public static int TIME_OUT = 5000;
 
     //其他相关常量
-
     /**
      * 剪刀
      **/

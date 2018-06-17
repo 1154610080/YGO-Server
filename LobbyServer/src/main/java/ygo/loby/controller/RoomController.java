@@ -173,6 +173,15 @@ public class RoomController extends AbstractController{
                 if(remaining == 0){
                     synchronized (RedisClient.class) {
 
+                        //通知决斗服务器
+                        packet.setBody(String.valueOf(room.getId()));
+                        Channel channel = GlobalMap.getDuelChannel();
+                        if(channel != null){
+                            channel.writeAndFlush(packet);
+                        }else {
+                            log.fatal("Null Lobby Channel");
+                        }
+
                         room.setPlaying(true);
                         redis.updateRoom(room);
                         redis.removeRecord(room.getHost().getAddress());

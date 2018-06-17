@@ -66,7 +66,7 @@ public class RedisClient {
         Player host = room.getHost();
         Player guest = room.getGuest();
 
-        //如果不是决斗服务器，且房间未开始游戏，可以删除房间
+        //如果不是决斗服务器，或房间未开始游戏，可以删除房间
         if(!room.isPlaying() || jedis.isDuelServer())
             jedis.removeRoom(room.getId());
 
@@ -89,8 +89,11 @@ public class RedisClient {
             GlobalMap.removeChannel(guest.getAddress());
         }
 
+    }
 
-
+    //决斗服务器删除超时房间
+    public void removeRoom(int id){
+        jedis.removeRoom(id);
     }
 
     /**

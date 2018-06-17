@@ -20,6 +20,8 @@ public class Console {
         this.redis = redis;
     }
 
+    public Console(){}
+
     public void start(){
 
         Scanner scanner = new Scanner(System.in);

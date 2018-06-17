@@ -1,5 +1,6 @@
 package ygo.comn.model;
 import io.netty.channel.Channel;
+
 import java.net.InetSocketAddress;
 import java.util.*;
 
@@ -20,7 +21,18 @@ public class GlobalMap {
      **/
     private static Map<Integer, Timer> timerGroup = new HashMap<>();
 
+    /**
+     * 大厅服务器通道
+     **/
+    private static Channel DuelChannel = null;
 
+    public static Channel getDuelChannel() {
+        return DuelChannel;
+    }
+
+    public static void setDuelChannel(Channel duelChannel) {
+        GlobalMap.DuelChannel = duelChannel;
+    }
 
     public static Set<InetSocketAddress> getChannelKeys(){
         return channelGroup.keySet();

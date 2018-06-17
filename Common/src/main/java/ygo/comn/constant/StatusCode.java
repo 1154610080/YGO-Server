@@ -32,6 +32,7 @@ public enum StatusCode {
     FULL_LOBBY(4391),
     FULL_ROOM(4392),
     INCOMPLETE_ROOM(4393),
+    TIME_OUT(4401),
     INTERNAL_SERVER_ERROR(5000),
     ERROR_CONTROLLER(6001),
     /**
@@ -43,7 +44,7 @@ public enum StatusCode {
      **/
     NOT_IN_HERE(6012),
     /**
-     * 通道不匹配
+     * 通道不匹配`
      **/
     UNMATCHED_CHANNEL(6024);
 
