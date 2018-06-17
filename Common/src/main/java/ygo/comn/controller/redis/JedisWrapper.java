@@ -38,7 +38,7 @@ class JedisWrapper {
                 10000, Secret.REDIS_PWD);
     }
 
-    private final String ROOM_MAP = "roomMap";
+    private final String ROOM_MAP = "rooms";
     private final String ROOM_RECORD = "record";
     /**
      * 是否为决斗服务器
@@ -73,16 +73,16 @@ class JedisWrapper {
 
     void addRecord(InetSocketAddress address, Room room){
         try {
-            long r = jedis.hset(ROOM_RECORD, address.toString(), gson.toJson(room));
+            long r = jedis.hset(ROOM_RECORD, address.toString(), String.valueOf(room.getId()));
             //log.info(StatusCode.REDIS, "Add a record. addr:" + address.toString() + " result:" + r);
         }catch (Exception ex){
             log.fatal(ex.toString());
         }
     }
 
-    void addRoom(int id, Room room){
+    void addRoom(Room room){
         try {
-            long r = jedis.hset(ROOM_MAP, String.valueOf(id), gson.toJson(room));
+            long r = jedis.hset(ROOM_MAP, String.valueOf(room.getId()), gson.toJson(room));
             //log.info(StatusCode.REDIS, "Add a room. id:" + id + " result:" + r);
         }catch (Exception ex){
             log.fatal(ex.toString());
@@ -92,8 +92,8 @@ class JedisWrapper {
     Room getRoomByAddr(InetSocketAddress address){
         Room room = null;
         try {
-            String json = jedis.hget(ROOM_RECORD, address.toString());
-            room = gson.fromJson(json, Room.class);
+            int id = Integer.parseInt(jedis.hget(ROOM_RECORD, address.toString()));
+            room = getRoomById(id);
         }catch (Exception ex){
             log.fatal(ex.toString());
         }
@@ -165,7 +165,7 @@ class JedisWrapper {
             return;
 
         if(tRoom != null)
-            addRoom(room.getId(), room);
+            addRoom(room);
 
         Player host = room.getHost();
         Player guest = room.getGuest();

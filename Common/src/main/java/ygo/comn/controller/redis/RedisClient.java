@@ -52,7 +52,7 @@ public class RedisClient {
         if(jedis.getRoomByAddr(address) == null){
 
             int id = room.getId();
-            jedis.addRoom(id, room);
+            jedis.addRoom(room);
             jedis.addRecord(address, room);
 
             return true;

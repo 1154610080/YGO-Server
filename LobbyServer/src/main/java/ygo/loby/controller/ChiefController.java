@@ -5,6 +5,7 @@ import ygo.comn.constant.StatusCode;
 import ygo.comn.controller.AbstractController;
 import ygo.comn.model.DataPacket;
 import io.netty.channel.Channel;
+import ygo.comn.util.YgoLog;
 
 public class ChiefController extends AbstractController {
 
@@ -15,6 +16,7 @@ public class ChiefController extends AbstractController {
     @Override
     protected void assign() {
 
+        log = new YgoLog("Chief-Controller");
 
         int type = packet.getType().getCode();
 

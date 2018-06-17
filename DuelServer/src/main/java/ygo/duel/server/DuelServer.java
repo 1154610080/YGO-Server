@@ -7,7 +7,6 @@ import ygo.comn.controller.Console;
 import ygo.comn.controller.IpFilterHandler;
 import ygo.comn.controller.redis.RedisClient;
 import ygo.comn.controller.redis.RedisFactory;
-import ygo.comn.model.GlobalMap;
 import ygo.comn.util.YGOPDecoder;
 import ygo.comn.util.YGOPEncoder;
 import io.netty.bootstrap.ServerBootstrap;
