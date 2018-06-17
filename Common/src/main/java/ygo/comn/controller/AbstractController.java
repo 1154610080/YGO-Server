@@ -106,4 +106,30 @@ public abstract class AbstractController {
         if(guest!=null)
             GlobalMap.getChannel(guest.getAddress()).writeAndFlush(packet);
     }
+
+
+    /**
+     * 向一个房间的所有玩家广播一条消息
+     *
+     * @author Egan
+     * @date 2018/6/18 0:19
+     **/
+    protected void broadcast(DataPacket packet){
+        if (isAllConnect()){
+            GlobalMap.getChannel(room.getHost().getAddress()).writeAndFlush(packet);
+            GlobalMap.getChannel(room.getGuest().getAddress()).writeAndFlush(packet);
+        }
+    }
+
+
+    protected boolean isAllConnect(){
+        if(room == null)
+            return false;
+        Player host = room.getHost();
+        Player guest = room.getGuest();
+        if(host == null || guest == null)
+            return false;
+        return room.equals(redis.getRoomByAddress(host.getAddress()))
+                && room.equals(redis.getRoomByAddress(guest.getAddress()));
+    }
 }
