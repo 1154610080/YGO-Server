@@ -2,10 +2,10 @@ package ygo.duel.server;
 
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
-import ygo.comn.constant.Secret;
 import ygo.comn.constant.StatusCode;
+import ygo.comn.controller.redis.RedisFactory;
 import ygo.comn.model.DataPacket;
-import ygo.comn.controller.RedisClient;
+import ygo.comn.controller.redis.RedisClient;
 import ygo.comn.model.GlobalMap;
 import ygo.comn.model.ResponseStatus;
 import ygo.comn.util.YgoLog;
@@ -28,7 +28,7 @@ public class DuelServerHandler extends SimpleChannelInboundHandler<DataPacket> {
     public void handlerAdded(ChannelHandlerContext ctx){
         InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
         log.info(StatusCode.INBOUND, address.getHostString() + ":" + address.getPort());
-        GlobalMap.getRedisforDuel(address);
+        RedisFactory.getRedisforDuel(address);
     }
 
     @Override
@@ -38,14 +38,14 @@ public class DuelServerHandler extends SimpleChannelInboundHandler<DataPacket> {
         log.info(StatusCode.OUTBOUND, address.getHostString() + ":" + address.getPort() );
 
 
-        RedisClient redis = GlobalMap.getRedisforDuel(address);
+        RedisClient redis = RedisFactory.getRedisforDuel(address);
 
         //检查玩家是否掉线
         if(redis.removeAndInform(address)){
             log.warn(StatusCode.LOST_CONNECTION, address.getHostString() + ":" + address.getPort());
         }
 
-        GlobalMap.closeRedis(address);
+        RedisFactory.closeRedis(address);
     }
 
 

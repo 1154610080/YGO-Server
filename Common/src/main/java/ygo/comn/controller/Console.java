@@ -1,10 +1,9 @@
 package ygo.comn.controller;
 
-import io.netty.channel.Channel;
+import ygo.comn.controller.redis.RedisClient;
+import ygo.comn.controller.redis.RedisFactory;
 import ygo.comn.model.GlobalMap;
-import ygo.comn.model.Room;
 
-import java.util.List;
 import java.util.Scanner;
 
 /**
@@ -15,7 +14,7 @@ import java.util.Scanner;
  **/
 public class Console {
 
-    private  RedisClient redis;
+    private RedisClient redis;
 
     public Console(RedisClient redis){
         this.redis = redis;
@@ -36,7 +35,7 @@ public class Console {
                     System.out.println(GlobalMap.channels().size());
                     break;
                 case "redis -c":
-                    System.out.println(GlobalMap.redisCount());
+                    System.out.println(RedisFactory.redisCount());
                     break;
             }
 

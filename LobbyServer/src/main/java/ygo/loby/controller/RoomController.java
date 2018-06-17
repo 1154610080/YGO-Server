@@ -4,7 +4,8 @@ import ygo.comn.constant.MessageType;
 import ygo.comn.constant.StatusCode;
 import ygo.comn.constant.YGOP;
 import ygo.comn.controller.AbstractController;
-import ygo.comn.controller.RedisClient;
+import ygo.comn.controller.redis.RedisClient;
+import ygo.comn.controller.redis.RedisFactory;
 import ygo.comn.model.*;
 import io.netty.channel.Channel;
 import ygo.comn.util.YgoLog;
@@ -28,7 +29,7 @@ public class RoomController extends AbstractController{
     @Override
     protected void assign() {
 
-        redis = GlobalMap.getRedisforLobby(address);
+        redis = RedisFactory.getRedisforLobby(address);
 
         log = new YgoLog("RoomController");
 

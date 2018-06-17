@@ -1,4 +1,4 @@
-package ygo.comn.controller;
+package ygo.comn.controller.redis;
 
 import ygo.comn.constant.MessageType;
 import io.netty.channel.Channel;
@@ -19,16 +19,14 @@ import java.util.*;
  **/
 public class RedisClient {
 
-
-
     private JedisWrapper jedis;
 
-    public RedisClient(boolean isDuelServer){
+    RedisClient(boolean isDuelServer){
 
         jedis = new JedisWrapper(isDuelServer);
     }
 
-    public void close(){
+    void close(){
         jedis.close();
     }
 
@@ -76,7 +74,7 @@ public class RedisClient {
                 jedis.removeRoom(room.getId());
 
             if(host!=null){
-                GlobalMap.closeRedis(host.getAddress());
+                RedisFactory.closeRedis(host.getAddress());
                 jedis.removeRecord(host.getAddress());
                 GlobalMap.removeChannel(host.getAddress());
                 if(!jedis.isDuelServer() && host.isSP()){
@@ -87,7 +85,7 @@ public class RedisClient {
             }
 
             if(guest != null){
-                GlobalMap.closeRedis(guest.getAddress());
+                RedisFactory.closeRedis(guest.getAddress());
                 GlobalMap.removeChannel(guest.getAddress());
                 jedis.removeRecord(guest.getAddress());
                 GlobalMap.removeChannel(guest.getAddress());
@@ -128,7 +126,7 @@ public class RedisClient {
     public void removeGuest(Player guest){
         InetSocketAddress address = guest.getAddress();
 
-        GlobalMap.closeRedis(guest.getAddress());
+        RedisFactory.closeRedis(guest.getAddress());
 
         Room room = jedis.getRoomByAddr(address);
         Player host = room.getHost();

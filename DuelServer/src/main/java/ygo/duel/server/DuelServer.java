@@ -1,14 +1,13 @@
 package ygo.duel.server;
 
-import jdk.nashorn.internal.objects.Global;
 import org.apache.commons.logging.Log;
 import ygo.comn.constant.Secret;
 import ygo.comn.constant.YGOP;
 import ygo.comn.controller.Console;
 import ygo.comn.controller.IpFilterHandler;
-import ygo.comn.controller.RedisClient;
+import ygo.comn.controller.redis.RedisClient;
+import ygo.comn.controller.redis.RedisFactory;
 import ygo.comn.model.GlobalMap;
-import ygo.comn.model.Room;
 import ygo.comn.util.YGOPDecoder;
 import ygo.comn.util.YGOPEncoder;
 import io.netty.bootstrap.ServerBootstrap;
@@ -19,7 +18,6 @@ import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.apache.commons.logging.LogFactory;
 
 import java.net.InetSocketAddress;
-import java.util.Scanner;
 
 /**
  * 服务端主类
@@ -39,7 +37,7 @@ public class DuelServer{
     public void start() throws InterruptedException {
         InetSocketAddress localAddr = new InetSocketAddress(port);
         EventLoopGroup group = new NioEventLoopGroup();
-        RedisClient redis = GlobalMap.getRedisforDuel(localAddr);
+        RedisClient redis = RedisFactory.getRedisforDuel(localAddr);
         try{
             ServerBootstrap b = new ServerBootstrap();
             b.group(group)
@@ -65,8 +63,7 @@ public class DuelServer{
         } finally {
             //删除所有未在进行游戏的房间和玩家
             redis.flush();
-            redis.close();
-            group.shutdownGracefully().sync();
+            group.shutdownGracefully();
         }
     }
 

@@ -1,6 +1,5 @@
 package ygo.comn.model;
 import io.netty.channel.Channel;
-import ygo.comn.controller.RedisClient;
 import java.net.InetSocketAddress;
 import java.util.*;
 
@@ -21,34 +20,13 @@ public class GlobalMap {
      **/
     private static Map<Integer, Timer> timerGroup = new HashMap<>();
 
-    private static Map<InetSocketAddress, RedisClient> redisGroup = new HashMap<>();
+
 
     public static Set<InetSocketAddress> getChannelKeys(){
         return channelGroup.keySet();
     }
 
-    public static RedisClient getRedisforLobby(InetSocketAddress address){
-        return getRedisClient(address, false);
-    }
 
-    public static RedisClient getRedisforDuel(InetSocketAddress address){
-        return getRedisClient(address, true);
-    }
-
-    private static RedisClient getRedisClient(InetSocketAddress address, boolean isDuelServer){
-        RedisClient redis = redisGroup.get(address);
-        if(redis == null){
-            redis = new RedisClient(isDuelServer);
-            redisGroup.put(address, redis);
-        }
-        return redis;
-    }
-
-    public static void closeRedis(InetSocketAddress address){
-        RedisClient redis = redisGroup.remove(address);
-        if(redis != null)
-            redis.close();
-    }
 
     public static Timer getTimer(int id){
         return timerGroup.get(id);
@@ -78,7 +56,5 @@ public class GlobalMap {
         return channelGroup.values();
     }
 
-    public static int redisCount(){
-        return redisGroup.size();
-    }
+
 }

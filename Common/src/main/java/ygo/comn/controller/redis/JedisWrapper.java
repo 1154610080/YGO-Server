@@ -1,4 +1,4 @@
-package ygo.comn.controller;
+package ygo.comn.controller.redis;
 
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
@@ -82,8 +82,6 @@ class JedisWrapper {
 
     void addRoom(int id, Room room){
         try {
-            if(room.isPlaying() && !isDuelServer)
-                return;
             long r = jedis.hset(ROOM_MAP, String.valueOf(id), gson.toJson(room));
             //log.info(StatusCode.REDIS, "Add a room. id:" + id + " result:" + r);
         }catch (Exception ex){
@@ -166,7 +164,7 @@ class JedisWrapper {
         if(tRoom != null && tRoom.isPlaying() && !isDuelServer)
             return;
 
-        if(getRoomById(room.getId()) != null)
+        if(tRoom != null)
             addRoom(room.getId(), room);
 
         Player host = room.getHost();
@@ -183,7 +181,6 @@ class JedisWrapper {
     }
 
     void close(){
-        log.info(StatusCode.REDIS, "closing");
         jedis.close();
     }
 }

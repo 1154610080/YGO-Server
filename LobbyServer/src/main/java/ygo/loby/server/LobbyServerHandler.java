@@ -1,7 +1,8 @@
 package ygo.loby.server;
 
 import io.netty.channel.SimpleChannelInboundHandler;
-import ygo.comn.controller.RedisClient;
+import ygo.comn.controller.redis.RedisClient;
+import ygo.comn.controller.redis.RedisFactory;
 import ygo.comn.model.*;
 import ygo.comn.util.YgoLog;
 import ygo.loby.controller.ChiefController;
@@ -26,7 +27,7 @@ public class LobbyServerHandler extends SimpleChannelInboundHandler<DataPacket> 
         InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
         log.info(StatusCode.INBOUND, address.getHostString() + ":" + address.getPort());
         //分配redis连接
-        GlobalMap.getRedisforLobby(address);
+        RedisFactory.getRedisforLobby(address);
     }
 
     @Override
@@ -36,11 +37,11 @@ public class LobbyServerHandler extends SimpleChannelInboundHandler<DataPacket> 
 
 
         //检查玩家是否掉线
-        RedisClient redis = GlobalMap.getRedisforLobby(address);
+        RedisClient redis = RedisFactory.getRedisforLobby(address);
         if(redis.removeAndInform(address)){
             log.warn(StatusCode.LOST_CONNECTION, address.getHostString() + ":" + address.getPort());
         }
-        GlobalMap.closeRedis(address);
+        RedisFactory.closeRedis(address);
     }
 
 

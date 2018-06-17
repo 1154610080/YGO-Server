@@ -3,6 +3,7 @@ package ygo.comn.controller;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import ygo.comn.constant.StatusCode;
+import ygo.comn.controller.redis.RedisClient;
 import ygo.comn.model.DataPacket;
 import io.netty.channel.Channel;
 import ygo.comn.model.GlobalMap;

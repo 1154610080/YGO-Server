@@ -6,7 +6,8 @@ import ygo.comn.constant.Secret;
 import ygo.comn.constant.YGOP;
 import ygo.comn.controller.Console;
 import ygo.comn.controller.IpFilterHandler;
-import ygo.comn.controller.RedisClient;
+import ygo.comn.controller.redis.RedisClient;
+import ygo.comn.controller.redis.RedisFactory;
 import ygo.comn.model.GlobalMap;
 import ygo.comn.util.YGOPDecoder;
 import ygo.comn.util.YGOPEncoder;
@@ -16,7 +17,6 @@ import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 
 import java.net.InetSocketAddress;
-import java.util.Scanner;
 
 /**
  * 游戏大厅服务器主类
@@ -34,7 +34,7 @@ public class LobbyServer{
 
         InetSocketAddress address = new InetSocketAddress(port);
 
-        RedisClient redis = GlobalMap.getRedisforLobby(address);
+        RedisClient redis = RedisFactory.getRedisforLobby(address);
 
         EventLoopGroup group = new NioEventLoopGroup();
         try {
