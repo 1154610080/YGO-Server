@@ -3,7 +3,7 @@ package ygo.duel.client;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.SimpleChannelInboundHandler;
 import ygo.comn.model.DataPacket;
-import ygo.duel.controller.LobbyController;
+import ygo.duel.controller.LobbyReceiver;
 
 /**
  * 大厅客户端处理器
@@ -15,6 +15,6 @@ public class LobbyServerHandler extends SimpleChannelInboundHandler<DataPacket> 
 
     @Override
     protected void channelRead0(ChannelHandlerContext channelHandlerContext, DataPacket packet) throws Exception {
-        new LobbyController(packet, channelHandlerContext.channel());
+        new LobbyReceiver(packet, channelHandlerContext.channel());
     }
 }

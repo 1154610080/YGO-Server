@@ -21,9 +21,9 @@ import java.util.TimerTask;
  * @author Egan
  * @date 2018/6/18 1:46
  **/
-public class LobbyController extends AbstractController{
+public class LobbyReceiver extends AbstractController{
 
-    public LobbyController(DataPacket packet, Channel channel) {
+    public LobbyReceiver(DataPacket packet, Channel channel) {
         super(packet, channel);
     }
 
