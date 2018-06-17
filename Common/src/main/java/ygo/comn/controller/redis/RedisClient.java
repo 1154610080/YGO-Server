@@ -61,38 +61,36 @@ public class RedisClient {
     }
 
     //解散房间
-    private void removeRoom(InetSocketAddress Key){
+    private void removeRoom(Room room){
 
-        Room room = jedis.getRoomByAddr(Key);
+        Player host = room.getHost();
+        Player guest = room.getGuest();
 
-        if(room != null){
+        //如果不是决斗服务器，且房间未开始游戏，可以删除房间
+        if(!room.isPlaying() || jedis.isDuelServer())
+            jedis.removeRoom(room.getId());
 
-            Player host = room.getHost();
-            Player guest = room.getGuest();
-
-            if(!room.isPlaying() || jedis.isDuelServer())
-                jedis.removeRoom(room.getId());
-
-            if(host!=null){
-                RedisFactory.closeRedis(host.getAddress());
-                jedis.removeRecord(host.getAddress());
-                GlobalMap.removeChannel(host.getAddress());
-                if(!jedis.isDuelServer() && host.isSP()){
-                    Timer timer = GlobalMap.removeTimer(room.getId());
-                    if (timer != null)
-                        timer.cancel();
-                }
+        //若房间有房主，删除房主记录
+        if(host!=null){
+            RedisFactory.closeRedis(host.getAddress());
+            jedis.removeRecord(host.getAddress());
+            GlobalMap.removeChannel(host.getAddress());
+            if(!jedis.isDuelServer() && host.isSP()){
+                Timer timer = GlobalMap.removeTimer(room.getId());
+                if (timer != null)
+                    timer.cancel();
             }
-
-            if(guest != null){
-                RedisFactory.closeRedis(guest.getAddress());
-                GlobalMap.removeChannel(guest.getAddress());
-                jedis.removeRecord(guest.getAddress());
-                GlobalMap.removeChannel(guest.getAddress());
-            }
-
-
         }
+
+        if(guest != null){
+            RedisFactory.closeRedis(guest.getAddress());
+            GlobalMap.removeChannel(guest.getAddress());
+            jedis.removeRecord(guest.getAddress());
+            GlobalMap.removeChannel(guest.getAddress());
+        }
+
+
+
     }
 
     /**
@@ -179,22 +177,22 @@ public class RedisClient {
             if(isHost){
                 //如果是房主，通知房客，并删除房间
                 if(guest != null){
-                    Channel channel = GlobalMap.removeChannel(guest.getAddress());
+                    Channel channel = GlobalMap.getChannel(guest.getAddress());
                     if(channel != null)
                         channel.writeAndFlush(packet);
                 }
                 //解散房间
-                removeRoom(host.getAddress());
+                removeRoom(room);
             }else {
                 //如果是房客，通知房主
                 if(host != null){
-                    Channel channel = GlobalMap.removeChannel(host.getAddress());
+                    Channel channel = GlobalMap.getChannel(host.getAddress());
                     if(channel != null)
                         channel.writeAndFlush(packet);
                 }
                 //如果是决斗服务器，删除房间
                 if(jedis.isDuelServer()){
-                    removeRoom(guest.getAddress());
+                    removeRoom(room);
                 }else {
                     //否则删除房客
                     removeGuest(guest);
