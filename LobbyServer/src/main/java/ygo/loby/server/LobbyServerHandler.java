@@ -1,6 +1,7 @@
 package ygo.loby.server;
 
 import io.netty.channel.SimpleChannelInboundHandler;
+import ygo.comn.constant.Secret;
 import ygo.comn.controller.redis.RedisClient;
 import ygo.comn.controller.redis.RedisFactory;
 import ygo.comn.model.*;
@@ -10,6 +11,7 @@ import ygo.comn.constant.StatusCode;
 import io.netty.channel.ChannelHandlerContext;
 
 import java.net.InetSocketAddress;
+import java.util.Arrays;
 
 /**
  * 大厅服务器处理器
@@ -25,6 +27,11 @@ public class LobbyServerHandler extends SimpleChannelInboundHandler<DataPacket> 
     @Override
     public void handlerAdded(ChannelHandlerContext ctx){
         InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
+
+        if (Secret.DUEL_HOST.equals("/" + address.getHostString())){
+            GlobalMap.setDuelChannel(ctx.channel());
+        }
+
         log.info(StatusCode.INBOUND, address.getHostString() + ":" + address.getPort());
         //分配redis连接
         RedisFactory.getRedisforLobby(address);
@@ -54,7 +61,7 @@ public class LobbyServerHandler extends SimpleChannelInboundHandler<DataPacket> 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause){
         ctx.writeAndFlush(new DataPacket(new ResponseStatus(StatusCode.INTERNAL_SERVER_ERROR)));
-        log.fatal(cause.toString());
+        log.fatal(Arrays.toString(cause.getStackTrace()));
         ctx.close();
     }
 }
