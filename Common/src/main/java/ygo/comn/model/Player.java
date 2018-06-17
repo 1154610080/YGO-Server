@@ -57,13 +57,6 @@ public class Player {
     @SerializedName("isp")
     private boolean isSP = false;
 
-    /**
-     * 玩家卡组
-     **/
-    @Expose(serialize = false, deserialize = false)
-    @SerializedName("dc")
-    private List<Integer> deck;
-
     @Override
     public boolean equals(Object obj) {
 
@@ -124,13 +117,5 @@ public class Player {
 
     public InetSocketAddress getAddress(){
         return new InetSocketAddress(ip, port);
-    }
-
-    public List<Integer> getDeck() {
-        return deck;
-    }
-
-    public void setDeck(List<Integer> deck) {
-        this.deck = deck;
     }
 }
