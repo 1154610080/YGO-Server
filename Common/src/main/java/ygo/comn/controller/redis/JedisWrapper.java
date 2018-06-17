@@ -92,8 +92,9 @@ class JedisWrapper {
     Room getRoomByAddr(InetSocketAddress address){
         Room room = null;
         try {
-            int id = Integer.parseInt(jedis.hget(ROOM_RECORD, address.toString()));
-            room = getRoomById(id);
+            String id = jedis.hget(ROOM_RECORD, address.toString());
+            if(id != null)
+                room = getRoomById(Integer.parseInt(id));
         }catch (Exception ex){
             log.fatal(ex.toString());
         }
