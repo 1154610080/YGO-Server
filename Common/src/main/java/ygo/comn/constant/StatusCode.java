@@ -23,24 +23,17 @@ public enum StatusCode {
      **/
     DISOBEY_PROTOCOL(4121),
     OUT_OF_SCOPE(4131),
+    UNSUPPORTED_METHOD(4050),
+    LOST_CONNECTION(4055),
     BLACKLISTED(4314),
     INCORRECT(4316),
     UNPREPARED(4382),
     DISMISSED(4383),
     FULL_LOBBY(4391),
     FULL_ROOM(4392),
-    UNSUPPORTED_METHOD(4050),
-    LOST_CONNECTION(4055),
+    INCOMPLETE_ROOM(4393),
     INTERNAL_SERVER_ERROR(5000),
     ERROR_CONTROLLER(6001),
-    /**
-     * 房间没有主人
-     **/
-    NULL_HOST(6002),
-    /**
-     * 房间没有客人
-     **/
-    NULL_GUEST(6004),
     /**
      * 玩家已在其他房间
      **/
@@ -62,10 +55,6 @@ public enum StatusCode {
 
     public int getCode() {
         return code;
-    }
-
-    public void setCode(int code) {
-        this.code = code;
     }
 
 }
