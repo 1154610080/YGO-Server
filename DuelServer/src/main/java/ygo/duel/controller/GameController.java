@@ -120,10 +120,8 @@ public class GameController extends AbstractController {
         synchronized (RedisClient.class){
             room = redis.getRoomById(id);
             if(isHost){
-                System.out.println("host coming");
                 room.setHost(player);
             }else {
-                System.out.println("guest coming");
                 room.setGuest(player);
             }
 
@@ -136,6 +134,11 @@ public class GameController extends AbstractController {
         packet = new DataPacket("", MessageType.JOIN);
         channel.writeAndFlush(packet);
 
+        //如果双方都已连接，通知双方
+        if(isAllConnect()){
+            packet.setType(MessageType.CREATE);
+            broadcast(packet);
+        }
     }
 
     /**
@@ -149,28 +152,18 @@ public class GameController extends AbstractController {
         List deck = new ArrayList<>();
         deck = gson.fromJson(packet.getBody(), deck.getClass());
 
-        synchronized (RedisClient.class){
-            if (room.isHost(address)) {
-                room.getHost().setDeck(deck);
-            } else {
-                room.getGuest().setDeck(deck);
-            }
+        //对方未连接
+        if(!isAllConnect()){
+            packet.setStatusCode(StatusCode.INCOMPLETE_ROOM);
+            channel.writeAndFlush(packet);
+            return;
+        }
 
-            redis.updateRoom(room);
-
-            //交换卡组
-            if(isAllConnect()){
-                Player host = room.getHost();
-                Player guest = room.getGuest();
-
-                DataPacket hostDeckPacket = new DataPacket(gson.toJson(host.getDeck()), MessageType.DECK);
-                DataPacket guestDeckPacket = new DataPacket(gson.toJson(guest.getDeck()), MessageType.DECK);
-
-                if(!"null".equals(guestDeckPacket.getBody()))
-                    GlobalMap.getChannel(host.getAddress()).writeAndFlush(guestDeckPacket);
-                if(!"null".equals(hostDeckPacket.getBody()))
-                    GlobalMap.getChannel(guest.getAddress()).writeAndFlush(hostDeckPacket);
-            }
+        packet = new DataPacket(gson.toJson(deck), MessageType.DECK);
+        if (room.isHost(address)) {
+            GlobalMap.getChannel(room.getGuest().getAddress()).writeAndFlush(packet);
+        } else {
+            GlobalMap.getChannel(room.getHost().getAddress()).writeAndFlush(packet);
         }
 
     }
@@ -211,7 +204,6 @@ public class GameController extends AbstractController {
                     redis.updateRoom(room);
                 }
 
-
                 //分出胜负，房客是否胜利
                 boolean result = guest.getFinger() % 3 + 1 == host.getFinger();
 
@@ -225,15 +217,6 @@ public class GameController extends AbstractController {
 
     }
 
-    private boolean isAllConnect(){
-        if(room == null)
-            return false;
-        Player host = room.getHost();
-        Player guest = room.getGuest();
-        if(host == null || guest == null)
-            return false;
-        return room.equals(redis.getRoomByAddress(host.getAddress()))
-                && room.equals(redis.getRoomByAddress(guest.getAddress()));
-    }
+
 
 }
