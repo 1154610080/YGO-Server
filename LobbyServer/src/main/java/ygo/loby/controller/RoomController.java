@@ -169,13 +169,14 @@ public class RoomController extends AbstractController{
             @Override
             public void run() {
 
-
-
                 //倒计时结束
                 if(remaining == 0){
                     synchronized (RedisClient.class) {
+
                         room.setPlaying(true);
                         redis.updateRoom(room);
+                        redis.removeRecord(room.getHost().getAddress());
+                        redis.removeRecord(room.getGuest().getAddress());
                     }
                 }
 
