@@ -30,7 +30,7 @@ public class LobbyReceiver extends AbstractController{
     @Override
     protected void assign() {
         address = new InetSocketAddress(Secret.DUEL_PORT);
-        redis = RedisFactory.getRedisforDuel(address);
+
         log = new YgoLog("Lobby-Controller");
 
         switch (packet.getType()) {
@@ -51,14 +51,14 @@ public class LobbyReceiver extends AbstractController{
             timer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                    if(this.scheduledExecutionTime() >= YGOP.TIME_OUT){
-                        //房间内的玩家都未在规定时间内连接服务器
-                        log.error(StatusCode.TIME_OUT, "房间 " + id +" 等待超时");
-                        //删除房间
-                        redis.removeRoom(id);
-                    }
+                    //房间内的玩家都未在规定时间内连接服务器
+                    log.error(StatusCode.TIME_OUT, "房间 " + id +" 等待超时");
+                    //删除房间
+                    redis = RedisFactory.getRedisforDuel(address);
+                    redis.removeRoom(id);
+                    timer.cancel();
                 }
-            }, 0, YGOP.TIME_OUT);
+            }, YGOP.TIME_OUT);
         }
     }
 }

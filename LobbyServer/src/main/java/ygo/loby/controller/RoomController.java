@@ -175,11 +175,11 @@ public class RoomController extends AbstractController{
 
                         //通知决斗服务器
                         packet.setBody(String.valueOf(room.getId()));
-                        Channel channel = GlobalMap.getDuelChannel();
-                        if(channel != null){
-                            channel.writeAndFlush(packet);
+                        Channel duel = GlobalMap.getDuelChannel();
+                        if(duel != null){
+                            duel.writeAndFlush(packet);
                         }else {
-                            log.fatal("Null Lobby Channel");
+                            log.fatal("Null Lobby Channel", new Throwable());
                         }
 
                         room.setPlaying(true);

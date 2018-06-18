@@ -14,6 +14,7 @@ import ygo.comn.util.YgoLog;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Timer;
 
 /**
  * 游戏控制器
@@ -98,6 +99,13 @@ public class GameController extends AbstractController {
 
         //解析消息体
         int id = Integer.parseInt(packet.getBody());
+
+        //停止倒计时
+        Timer timer = GlobalMap.getTimer(id);
+        if(timer != null){
+            timer.cancel();
+            GlobalMap.addTimer(id, null);
+        }
 
         Room room = redis.getRoomById(id);
 
