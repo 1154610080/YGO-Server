@@ -15,6 +15,7 @@ import io.netty.channel.nio.NioEventLoopGroup;
 import io.netty.channel.socket.SocketChannel;
 import io.netty.channel.socket.nio.NioServerSocketChannel;
 import org.apache.commons.logging.LogFactory;
+import ygo.duel.client.LobbyClient;
 
 import java.net.InetSocketAddress;
 
@@ -23,7 +24,7 @@ import java.net.InetSocketAddress;
  * @author EganChen
  * @date 2018/4/16 13:48
  */
-public class DuelServer{
+public class DuelServer implements Runnable{
 
     private Log log = LogFactory.getLog("Duel-Server");
 
@@ -33,7 +34,8 @@ public class DuelServer{
         this.port = port;
     }
 
-    public void start() throws InterruptedException {
+    @Override
+    public void run(){
         InetSocketAddress localAddr = new InetSocketAddress(port);
         EventLoopGroup group = new NioEventLoopGroup();
         RedisClient redis = RedisFactory.getRedisforDuel(localAddr);
@@ -66,10 +68,15 @@ public class DuelServer{
         }
     }
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args){
 
         DuelServer duelServer = new DuelServer(Secret.DUEL_PORT);
+        LobbyClient lobbyClient = new LobbyClient();
 
-        duelServer.start();
+        Thread duel = new Thread(duelServer);
+        Thread lobby = new Thread(lobbyClient);
+
+        duel.start();
+        lobby.start();
     }
 }
