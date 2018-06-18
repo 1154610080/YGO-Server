@@ -59,7 +59,7 @@ class JedisWrapper {
             }
 
         }catch (Exception ex){
-            log.fatal(ex.toString());
+            log.fatal("Fail to get resource", ex);
         }
     }
 
@@ -76,7 +76,7 @@ class JedisWrapper {
             long r = jedis.hset(ROOM_RECORD, address.toString(), String.valueOf(room.getId()));
             //log.info(StatusCode.REDIS, "Add a record. addr:" + address.toString() + " result:" + r);
         }catch (Exception ex){
-            log.fatal(ex.toString());
+            log.fatal("Fail to get record", ex);
         }
     }
 
@@ -85,7 +85,7 @@ class JedisWrapper {
             long r = jedis.hset(ROOM_MAP, String.valueOf(room.getId()), gson.toJson(room));
             //log.info(StatusCode.REDIS, "Add a room. id:" + id + " result:" + r);
         }catch (Exception ex){
-            log.fatal(ex.toString());
+            log.fatal("Fail to add/update room", ex);
         }
     }
 
@@ -96,7 +96,7 @@ class JedisWrapper {
             if(id != null)
                 room = getRoomById(Integer.parseInt(id));
         }catch (Exception ex){
-            log.fatal(ex.toString());
+            log.fatal("Fail to get room by address", ex);
         }
 
         return room;
@@ -108,7 +108,7 @@ class JedisWrapper {
             room = gson.fromJson(jedis.hget(ROOM_MAP, String.valueOf(id)), Room.class);
 
         }catch (Exception ex){
-            log.fatal(ex.toString());
+            log.fatal("Fail to get room by id", ex);
         }
 
         return room;
@@ -122,7 +122,7 @@ class JedisWrapper {
                 rooms.add(gson.fromJson(str, Room.class));
             }
         }catch (Exception ex){
-            log.fatal(ex.toString());
+            log.fatal("Fail to get list of room", ex);
         }
         return rooms;
     }
@@ -132,7 +132,7 @@ class JedisWrapper {
             long r = jedis.hdel(ROOM_RECORD, address.toString());
             log.info(StatusCode.REDIS, "Remove a record. addr:" + address.toString() + " result:" + r);
         }catch (Exception ex){
-            log.fatal(ex.toString());
+            log.fatal("Fail to delete record", ex);
         }
     }
 
@@ -146,7 +146,7 @@ class JedisWrapper {
             long r = jedis.hdel(ROOM_MAP, String.valueOf(id));
             //log.info(StatusCode.REDIS, "Remove a room . id:" + id + " result:" + r  + room.isPlaying() + !isDuelServer);
         }catch (Exception ex){
-            log.fatal(ex.toString());
+            log.fatal("Fail to delete room", ex);
         }
     }
 

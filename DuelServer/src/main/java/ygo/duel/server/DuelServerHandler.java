@@ -6,11 +6,9 @@ import ygo.comn.constant.StatusCode;
 import ygo.comn.controller.redis.RedisFactory;
 import ygo.comn.model.DataPacket;
 import ygo.comn.controller.redis.RedisClient;
-import ygo.comn.model.GlobalMap;
 import ygo.comn.model.ResponseStatus;
 import ygo.comn.util.YgoLog;
 import ygo.duel.controller.GameController;
-
 
 import java.net.InetSocketAddress;
 
@@ -58,7 +56,7 @@ public class DuelServerHandler extends SimpleChannelInboundHandler<DataPacket> {
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause){
         ctx.writeAndFlush(new DataPacket(new ResponseStatus(StatusCode.INTERNAL_SERVER_ERROR)));
-        log.fatal(cause.toString());
+        log.fatal("Unexpected Error", cause);
         handlerRemoved(ctx);
         ctx.close();
     }

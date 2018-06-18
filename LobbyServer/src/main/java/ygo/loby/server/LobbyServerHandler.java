@@ -1,6 +1,7 @@
 package ygo.loby.server;
 
 import io.netty.channel.SimpleChannelInboundHandler;
+import ygo.comn.constant.MessageType;
 import ygo.comn.constant.Secret;
 import ygo.comn.controller.redis.RedisClient;
 import ygo.comn.controller.redis.RedisFactory;
@@ -28,7 +29,7 @@ public class LobbyServerHandler extends SimpleChannelInboundHandler<DataPacket> 
     public void handlerAdded(ChannelHandlerContext ctx){
         InetSocketAddress address = (InetSocketAddress) ctx.channel().remoteAddress();
 
-        if (Secret.DUEL_HOST.equals("/" + address.getHostString())){
+        if (Secret.DUEL_HOST.equals(address.getHostString()) && GlobalMap.getDuelChannel() == null){
             GlobalMap.setDuelChannel(ctx.channel());
         }
 
@@ -61,7 +62,7 @@ public class LobbyServerHandler extends SimpleChannelInboundHandler<DataPacket> 
     @Override
     public void exceptionCaught(ChannelHandlerContext ctx, Throwable cause){
         ctx.writeAndFlush(new DataPacket(new ResponseStatus(StatusCode.INTERNAL_SERVER_ERROR)));
-        log.fatal(Arrays.toString(cause.getStackTrace()));
+        log.fatal("Unexpected Error", cause);
         ctx.close();
     }
 }

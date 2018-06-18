@@ -15,6 +15,7 @@ public class YgoLog{
 
     }
 
+
     public void error(StatusCode code, String msg){
         log.error(new String(("(" + code + ")" + msg + "\n").getBytes(), YGOP.CHARSET));
     }
@@ -28,8 +29,8 @@ public class YgoLog{
         log.info(new String(("(" + code + ")" + msg + "\n").getBytes(), YGOP.CHARSET));
     }
 
-    public void fatal(String msg){
-        log.fatal(new String((msg + "\n").getBytes(), YGOP.CHARSET));
+    public void fatal(String msg, Throwable cause){
+        log.fatal(new String((msg + "\n").getBytes(), YGOP.CHARSET), cause);
     }
 
 }
